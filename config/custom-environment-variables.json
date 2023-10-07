@@ -1,0 +1,9 @@
+{
+	"jwtPrivateKey":"settle_jwtPrivateKey",
+	"db":"settle_db",
+	"bucketName":"settle_bucketName",
+	"userid":"settle_userid",
+	"password":"settle_password",
+	"AWSSecretKey":"settle_AWSSecretKey",
+	"AWSAccessKey":"settle_AWSAccessKey"
+}

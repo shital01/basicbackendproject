@@ -1,0 +1,7 @@
+{
+	"name":"Settle",
+	"jwtPrivateKey":"123",
+	"bucketName":"1",
+	"AWSAccessKey":"2",
+	"AWSSecretKey":"3"
+}

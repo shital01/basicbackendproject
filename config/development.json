@@ -1,0 +1,4 @@
+{
+	"name":"Settle - development",
+	"db":"mongodb://localhost/playground"
+}
