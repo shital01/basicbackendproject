@@ -46,13 +46,14 @@ router.post('/generate',async(req,res,next)=>{
 	}
 	else{
 	const salt = await bcrypt.genSalt(10);
-	const OTP = await bcrypt.hash(generateOTP(),salt)
+	const smsotp =generateOTP();
+	const OTP = await bcrypt.hash(smsotp,salt)
 	const otp = new Otp({phoneNumber:req.body.phoneNumber,otp:OTP});
 	await otp.save();
 	//Change SMS Settle APP wording-from provider
-	var finalmessage ="OTP for login is: "+OTP+" Settle App"
+	var finalmessage ="OTP for login is: "+smsotp+" Settle App"
 	const SendSMS = await sendmessage("91"+req.body.phoneNumber,finalmessage,'1607100000000267487');
-	res.send({SendSMS});
+	res.send({SendSMS,smsotp});
 	}
 });
 /*
