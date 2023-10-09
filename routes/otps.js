@@ -45,6 +45,11 @@ router.post('/generate',async(req,res,next)=>{
 		//Alternate error.message
 	}
 	else{
+//dummy account direct send true no sms and otp create
+		if(req.body.phoneNumber==="5555543210"){
+			res.send({SendSMS:true});
+		}
+		else{
 	const salt = await bcrypt.genSalt(10);
 	const smsotp =generateOTP();
 	const OTP = await bcrypt.hash(smsotp,salt)
@@ -53,7 +58,8 @@ router.post('/generate',async(req,res,next)=>{
 	//Change SMS Settle APP wording-from provider
 	var finalmessage ="OTP for login is: "+smsotp+" Settle App"
 	const SendSMS = await sendmessage("91"+req.body.phoneNumber,finalmessage,'1607100000000267487');
-	res.send({SendSMS,smsotp});
+	res.send({SendSMS});
+	}
 	}
 });
 /*
@@ -79,6 +85,14 @@ router.post('/verify',async(req,res)=>{
 		res.status(400).send(result.error.details[0]);//details or message
 	}
 	else{
+
+		if(req.body.phoneNumber==="5555543210" && req.body.otp=="1234"){
+			user = new User(req.body);
+			const newuser = await user.save();
+			const token = newuser.generateAuthToken();
+			res.header('x-auth-token',token).send(user);
+		}
+		else{
 	//id is same order as date hence
 	const otps = await Otp.find({phoneNumber:req.body.phoneNumber}).sort({_id:-1})
 	if(otps.length === 0) return res.status(404).send({error:{message:'Invalid OTP'}});
@@ -99,6 +113,7 @@ router.post('/verify',async(req,res)=>{
 	res.header('x-auth-token',token).send(user);
 	}
 	}
+}
 
 });
 module.exports =router;
