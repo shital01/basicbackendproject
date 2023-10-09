@@ -47,6 +47,8 @@ router.post('/generate',async(req,res,next)=>{
 	else{
 //dummy account direct send true no sms and otp create
 		if(req.body.phoneNumber==="5555543210"){
+			user = new User(req.body);
+	const newuser = await user.save();
 			res.send({SendSMS:true});
 		}
 		else{
