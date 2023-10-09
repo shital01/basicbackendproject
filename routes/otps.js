@@ -51,7 +51,7 @@ router.post('/generate',async(req,res,next)=>{
 	await otp.save();
 	//Change SMS Settle APP wording-from provider
 	var finalmessage ="OTP for login is: "+OTP+" Settle App"
-	const SendSMS = await sendmessage("91"+req.body.PhoneNumber,finalmessage,'1607100000000267487');
+	const SendSMS = await sendmessage("91"+req.body.phoneNumber,finalmessage,'1607100000000267487');
 	res.send({SendSMS:true});
 	}
 });
