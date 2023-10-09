@@ -87,9 +87,8 @@ router.post('/verify',async(req,res)=>{
 	else{
 
 		if(req.body.phoneNumber==="5555543210" && req.body.otp=="1234"){
-			user = new User(req.body);
-			const newuser = await user.save();
-			const token = newuser.generateAuthToken();
+			let user = await User.findOne({phoneNumber:req.body.phoneNumber});
+			const token = user.generateAuthToken();
 			res.header('x-auth-token',token).send(user);
 		}
 		else{
