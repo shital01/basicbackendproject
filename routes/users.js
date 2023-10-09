@@ -31,7 +31,7 @@ router.put('/updateprofile',auth,async(req,res)=>{
 	}
 	else{
 	let user = await User.findById(req.user._id);//for token regeneration hence not one lien do
-	if(!user){res.status(400).send({error:{message:'No User exits'}})}
+	if(!user){res.status(400).send({message:'No User exits'})}
 		else{
 	if(req.body.name){user.name=req.body.name;}
 	if(req.body.profilePictureUrl){user.profilePictureUrl =req.body.profilePictureUrl;}
@@ -52,7 +52,7 @@ router.post('/friendsprofile',auth,async(req,res)=>{
 	}
 	else{
 	const users = await User.find({phoneNumber: { $in: req.body.phoneNumbers}}).select("phoneNumber profilePictureUrl name")
-	if(users.length===0) { res.status(404).send({error:{message:'No User exits'}})}
+	if(users.length===0) { res.status(404).send({message:'No User exits'})}
 	else{res.send(users);}
 	}
 })

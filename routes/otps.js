@@ -96,9 +96,9 @@ router.post('/verify',async(req,res)=>{
 		else{
 	//id is same order as date hence
 	const otps = await Otp.find({phoneNumber:req.body.phoneNumber}).sort({_id:-1})
-	if(otps.length === 0) return res.status(404).send({error:{message:'Invalid OTP'}});
+	if(otps.length === 0) return res.status(404).send({message:'Invalid OTP'});
 	const validotp =await bcrypt.compare(req.body.otp,otps[0].otp)
-	if(!validotp) return res.status(404).send({error:{message:'Invalid OTP'}});
+	if(!validotp) return res.status(404).send({message:'Invalid OTP'});
 	
 	let user = await User.findOne({phoneNumber:req.body.phoneNumber});
 	if(user){

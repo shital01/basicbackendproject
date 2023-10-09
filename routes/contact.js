@@ -32,7 +32,7 @@ console.log('CN:', req.body.CN);
 	var results = await Contact.insertMany(documents);
 
 	let user = await User.findById(req.user._id);//for token regeneration hence not one lien do
-	if(!user) {res.status(404).send({error:{message:'No User exits'}})}
+	if(!user) {res.status(404).send({message:'No User exits'})}
 	else{
 		user.contactsSent = true;
 	const user2 = await user.save();

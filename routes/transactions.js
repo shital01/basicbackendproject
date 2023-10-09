@@ -88,8 +88,8 @@ router.delete('/delete',auth,async(req,res)=>{
 	}
 	else{
 	const result1 =await Transaction.findById(req.body.id);
-	if(!result1) { res.status(400).send({error:{message:'No Such Transaction exits wrong id provided'}});}
-	else if(!result1.userId.equals(req.user._id)) { res.status(403).send({error:{message:'Not Access for deleting'}});}
+	if(!result1) { res.status(400).send({message:'No Such Transaction exits wrong id provided'});}
+	else if(!result1.userId.equals(req.user._id)) { res.status(403).send({message:'Not Access for deleting'});}
 	else{
 	result1.deleteFlag=true;
 	result1.updatedTimeStamp=Date.now();

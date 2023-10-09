@@ -40,7 +40,7 @@ router.post('/transactional',auth,async(req,res,next)=>{
 	}
 	const SendSMS = await sendmessage("91"+req.body.ReceiverPhoneNumber,message,'1607100000000265753');
 	//console.log(result1);
-	res.send({error:null,response:{SendSMS}})	
+	res.send({SendSMS})	
 	
 });
 //Delete SMS

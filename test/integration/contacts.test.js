@@ -71,7 +71,7 @@ describe('/api/contact',()=>{
 			const res = await exec();
 			//response code 200 and empty error body and non empty response
 			expect(res.status).toBe(404);
-			console.log(res)
+			//console.log(res)
 			//expect(res.body.error).toBe(null);
 			//response check
 			//expect(res.body).toHaveProperty('contactsSent', true);
@@ -91,7 +91,7 @@ describe('/api/contact',()=>{
 			const res = await exec();
 			//response code 200 and empty error body and non empty response
 			expect(res.status).toBe(200);
-			console.log(res)
+			//console.log(res)
 			//expect(res.body.error).toBe(null);
 			//response check
 			//expect(res.body).toHaveProperty('contactsSent', true);
