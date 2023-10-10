@@ -36,41 +36,44 @@ describe('/api/contact',()=>{
 			token='';
 			const res = await exec();
 			expect(res.status).toBe(401);
-			console.log(res.body);
+			expect(res.body.message).toBe('Access denied NO token Provided');
 		})
 		//Path-02
 		it('should return 400 if invalid token ',async()=>{
 			token="123"
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('Invalid Token');
 		})
 		//Path-03
 		it('should return 400 if validation inpute failed due to-not an array',async()=>{
 			payload = {"C":{"P":"1231231231","N":"name1"}}
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"C" must be an array');
 		})
 		//Path-04
 		it('should return 400 if validation inpute failed due to-not a string in phone number',async()=>{
 			payload = {"C":[{"P":1231231231,"N":"name1"},{"P":"1231231232","N":"name2 "}]}
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"C[0].P" must be a string');
 		});
 		//Path-05
 		it('should return 400 if validation inpute failed due to-not astring in name ',async()=>{
 			payload = {"C":[{"P":"1231231231","N":true},{"P":"1231231232","N":"name2 "}]}
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"C[0].N" must be a string');
 		});
 		//Path-06
 		it('should save and but cant return as no user found    ',async()=>{
 			const res = await exec();
 			//response code 200 and empty error body and non empty response
 			expect(res.status).toBe(404);
+			expect(res.body.message).toBe('No User exits');
+
+			
 			//console.log(res)
 			//expect(res.body.error).toBe(null);
 			//response check

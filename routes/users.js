@@ -42,6 +42,20 @@ router.put('/updateprofile',auth,async(req,res)=>{
 }
 });
 
+router.put('/removenameandprofile',auth,async(req,res)=>{
+	let user = await User.findById(req.user._id);//for token regeneration hence not one lien do
+	if(!user){res.status(400).send({message:'No User exits'})}
+		else{
+  // Update the document
+	user.name=undefined;
+	user.profilePictureUrl=undefined;
+
+	const user2 = await user.save();
+	const token = user2.generateAuthToken()
+	res.header('x-auth-token',token).send(user2);
+	}
+});
+
 //friendsprofile pic
 router.post('/friendsprofile',auth,async(req,res)=>{
 	//add limit on size of array to handle unexpected long requests-also decided by server as not size but query return time also a factor

@@ -95,14 +95,14 @@ expect(Object.keys(res.body)).toEqual(
 			token ='';
 			const res = await exec();
 			expect(res.status).toBe(401);
-			console.log(res.body);
+			expect(res.body.message).toBe('Access denied NO token Provided');
 		});
 		//Path-02
 		it('should return 400 for invalid token',async() =>{
 			token ='1';
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('Invalid Token');
 		});
 		//Path-03
 		it('should return all transactions',async() =>{
@@ -200,21 +200,21 @@ expect(Object.keys(res.body)).toEqual(
 			token ='';
 			const res = await exec();
 			expect(res.status).toBe(401);
-			console.log(res.body);
+			expect(res.body.message).toBe('Access denied NO token Provided');
 		});
 		//Path-02
 		it('should return 400 for invalid token',async() =>{
 			token ='1';
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('Invalid Token');
 		});
 		//Path-03
 		it('should return 400 for invalid Date',async() =>{
 			lastUpdatedTimeStamp =null;
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"lastUpdatedTimeStamp" must be a valid date');
 		});
 		//it wont be running due to date
 		//Path-04
@@ -266,14 +266,14 @@ expect(Object.keys(res.body)).toEqual(
 			token='';
 			const res = await exec();
 			expect(res.status).toBe(401);
-			console.log(res.body);
+			expect(res.body.message).toBe('Access denied NO token Provided');
 		})
 		//Path-02
 		it('should return 400 if invalid token ',async()=>{
 			token="123"
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('Invalid Token');
 		})
 		//Path-03
 		it('should return 400 if validation transaction failed due to try to feed username',async()=>{
@@ -281,7 +281,8 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {userName}
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			console.log(res.body.message);
+			//expect(res.body.message).toBe();
 		})
 		//Path-04
 		it('should return 400 if validation transaction failed due to try to feed userPhoneNumber',async()=>{
@@ -289,7 +290,8 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {userPhoneNumber}
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			console.log(res.body.message);
+			//expect(res.body.message).toBe();
 		})
 		//Path-05,shoudl cover updatedTimeStamp,deleteFlag,userid same as username and random
 		it('should return 400 if validation transaction failed due to try to feed username',async()=>{
@@ -297,7 +299,8 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {randomfield};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			console.log(res.body.message);
+			//expect(res.body.message).toBe();
 		})
 		//Path-06
 		it('should return 400 if validation transaction failed due to friendName -null',async()=>{
@@ -305,7 +308,8 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {...payload,friendName};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			//null and random value sasme no inoput is required 
+			expect(res.body.message).toBe('"friendName" must be a string');
 		})
 		//Path-07
 		it('should return 400 if validation transaction failed due to friendName-not a string',async()=>{
@@ -313,7 +317,7 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {...payload,friendName};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe( '"friendName" must be a string');
 		})
 		//Path-08
 		it('should return 400 if validation transaction failed due to PhoneNumber-not given',async()=>{
@@ -321,7 +325,7 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {...payload,friendPhoneNumber};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"friendPhoneNumber" must be a string');
 		})
 		//Path-09
 		it('should return 400 if validation transaction failed due to PhoneNumber-not a number',async()=>{
@@ -329,7 +333,7 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {...payload,friendPhoneNumber};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"friendPhoneNumber" must be a string');
 		})
 		//Path-10
 		it('should return 400 if validation transaction failed due to PhoneNumber-not match number format',async()=>{
@@ -337,7 +341,7 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {...payload,friendPhoneNumber};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('Phone number must have 10 digits.');
 		})
 		//Path-11
 		it('should return 400 if validation transaction failed due to amount-not a number',async()=>{
@@ -345,7 +349,7 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {...payload,amount};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"amount" must be a number');
 		})
 		//Path-12
 		it('should return 400 if validation transaction failed due to amount-too small  number',async()=>{
@@ -353,7 +357,7 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {...payload,amount};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"amount" must be greater than or equal to -1000000000');
 		})
 		//Path-13
 		it('should return 400 if validation transaction failed due to amount-too big number',async()=>{
@@ -361,7 +365,7 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {...payload,amount};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"amount" must be less than or equal to 1000000000');
 		})
 		//Path-14
 		it('should return 400 if validation transaction failed due to interestRate-not a number',async()=>{
@@ -369,7 +373,7 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {...payload,interestRate};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"interestRate" must be a number' );
 		})
 		//Path-15
 		it('should return 400 if validation transaction failed due to interestRate-too small  number',async()=>{
@@ -377,7 +381,7 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {...payload,interestRate};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"interestRate" must be greater than or equal to 0');
 		})
 		//Path-16
 		it('should return 400 if validation transaction failed due to interestRate-too big number',async()=>{
@@ -385,7 +389,7 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {...payload,interestRate};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"interestRate" must be less than or equal to 100');
 		})
 		//Path-17
 		it('should return 400 if validation transaction failed due to interestType-invalid format',async()=>{
@@ -393,7 +397,7 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {...payload,interestType};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"interestType" must be one of [S, N, CY, CW, CM]');
 		})
 		//Path-18
 		it('should return 400 if validation transaction failed due to interestType-invalid type',async()=>{
@@ -401,7 +405,7 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {...payload,interestType};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"interestType" must be one of [S, N, CY, CW, CM]');
 		})
 		//Path-19
 		it('should return 400 if validation transaction failed due to date',async()=>{
@@ -409,7 +413,7 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {...payload,transactionDate};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"transactionDate" must be a valid date');
 		})
 		//Path-20
 		it('should return 400 if validation transaction failed due to attachmentsPath-not array',async()=>{
@@ -417,7 +421,7 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {...payload,attachmentsPath};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"attachmentsPath" must be an array');
 		})
 		//Path-21
 		it('should return 400 if validation transaction failed due to attachmentsPath-not String',async()=>{
@@ -425,7 +429,8 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {...payload,attachmentsPath};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			//make it relaxing check
+			expect(res.body.message).toBe('"attachmentsPath[0]" must be a string');
 		})
 		//Path-22
 		it('should return 400 if validation transaction failed due to attachmentsPath-size of array',async()=>{
@@ -433,7 +438,7 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {...payload,attachmentsPath};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"attachmentsPath" must contain less than or equal to 4 items');
 		})
 		//Path-23
 		it('should return 400 if validation transaction failed due to description not a string',async()=>{
@@ -441,7 +446,7 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {...payload,description};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"description" must be a string' );
 		})
 		//Path-24
 		it('should return 400 if validation transaction failed due to description too long',async()=>{
@@ -450,7 +455,7 @@ expect(Object.keys(res.body)).toEqual(
 			payload = {...payload,description};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"description" length must be less than or equal to 500 characters long');
 		})
 		//Path-25
 		it('should save and return transaction if valid transaction ',async()=>{
@@ -530,35 +535,36 @@ expect(Object.keys(res.body)).toEqual(
 			token='';
 			const res = await exec();
 			expect(res.status).toBe(401);
-			console.log(res.body);
+			expect(res.body.message).toBe('Access denied NO token Provided');;
 		})
 		//Path-02
 		it('should return 400 if invalid token ',async()=>{
 			token="123"
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('Invalid Token');
 		})
 		//Path-03
 		it('should return 400 if validation fails  ',async()=>{
 			transactionId = "1"
 			const res = await  exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			//make it bit relaxed check
+			expect(res.body.message).toBe('"transactionId" with value "1" fails to match the valid mongo id pattern' );
 		})
 		//Path-04
 		it('should return 400  if transaction not found with given ID/if Already delete ',async()=>{
 			transactionId=userid;
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('No Such Transaction exits wrong id provided' );
 
 		})
 		//Path-05
 		it('should return 403  if user forbidden to do this ',async()=>{
 			token=token2;
 			const res = await exec();
-			console.log(res.body);
+			expect(res.body.message).toBe('Not Access for deleting');
 			expect(res.status).toBe(403);
 		})
 		//Path-06

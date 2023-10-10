@@ -40,14 +40,14 @@ describe('/api/otps',()=>{
 			phoneNumber = "1";
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('Phone number must have 10 digits.');
 		})
 		//Path-02
 		it('should return 400 if validation OTP failed due to long number',async()=>{
 			phoneNumber = "12345678901";
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('Phone number must have 10 digits.');
 
 		})
 		//Path-03//Non String Path
@@ -55,21 +55,21 @@ describe('/api/otps',()=>{
 			phoneNumber = 1;
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"phoneNumber" must be a string');
 		})
 		//Path-04//RegEx Paths
 		it('should return 400 if validation OTP failed due to invalid number as string',async()=>{
 			phoneNumber = "12345qwert";
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('Phone number must have 10 digits.');
 		})
 		//Path-05//Required Path?
 		it('should return 400 if validation OTP failed due to null',async()=>{
 			phoneNumber = null;
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"phoneNumber" must be a string');
 		})
 		//Path-06//All is Well Path
 		it('should save otp if valid otp',async()=>{
@@ -120,7 +120,7 @@ describe('/api/otps',()=>{
 			phoneNumber="1";
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('Phone number must have 10 digits.');
 
 		})
 		//Path-02
@@ -128,7 +128,7 @@ describe('/api/otps',()=>{
 			phoneNumber="12345qwert";
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('Phone number must have 10 digits.');
 
 		})
 		//Path-03
@@ -136,7 +136,7 @@ describe('/api/otps',()=>{
 			phoneNumber=1234567890;
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"phoneNumber" must be a string');
 
 		})
 		//Path-04
@@ -145,7 +145,7 @@ describe('/api/otps',()=>{
 			phoneNumber=phoneNumber1;
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('OTP  must have 4 digits.');
 
 		})
 		//Path-05
@@ -154,7 +154,7 @@ describe('/api/otps',()=>{
 			phoneNumber=phoneNumber1;
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('OTP  must have 4 digits.');
 
 		})
 		//Path-06
@@ -163,7 +163,10 @@ describe('/api/otps',()=>{
 			phoneNumber="123";
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe("Phone number must have 10 digits.");
+
+			//wont work joi checks first failure so even random field if only given nto say random but firsr arg missing
+			//expect(res.body.message).toBe('OTP  must have 4 digits.');
 
 		})
 		//Path-07
@@ -172,7 +175,7 @@ describe('/api/otps',()=>{
 			phoneNumber=phoneNumber3;
 			const res = await exec();
 			expect(res.status).toBe(404);
-			console.log(res.body);
+			expect(res.body.message).toBe( 'Invalid OTP');
 
 
 		})
@@ -183,7 +186,7 @@ describe('/api/otps',()=>{
 			otp="1111";
 			const res = await exec();
 			expect(res.status).toBe(404);
-			console.log(res.body);
+			expect(res.body.message).toBe( 'Invalid OTP');
 
 		})
 		//Path-09
@@ -213,7 +216,7 @@ describe('/api/otps',()=>{
 			phoneNumber=phoneNumber3;
 			const res = await exec();
 			expect(res.status).toBe(404);
-			console.log(res.body);
+			expect(res.body.message).toBe( 'Invalid OTP');
 
 		})
 		//Path-11
@@ -225,7 +228,7 @@ describe('/api/otps',()=>{
 			otp="1111";
 			const res = await exec();
 			expect(res.status).toBe(404);
-			console.log(res.body);
+			expect(res.body.message).toBe( 'Invalid OTP');
 
 		})
 		//Path-12

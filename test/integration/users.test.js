@@ -38,14 +38,14 @@ describe('/api/users',()=>{
 			token='';
 			const res = await exec();
 			expect(res.status).toBe(401);
-			console.log(res.body);
+			expect(res.body.message).toBe('Access denied NO token Provided');
 		})
 		//Path-02
 		it('should return 400 if invalid token ',async()=>{
 			token="123"
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('Invalid Token');
 		})
 		//Path-03
 		it('should return 400 if validation fail due to name validation-not string',async()=>{
@@ -53,7 +53,7 @@ describe('/api/users',()=>{
 			payload={name};
 			const res = await exec();
 			expect(res.status).toBe(400);	
-			console.log(res.body);
+			expect(res.body.message).toBe('"name" must be a string');
 		})
 		//Path-04
 		it('should return 400 if validation fail due to name validation- too long',async()=>{
@@ -61,7 +61,7 @@ describe('/api/users',()=>{
 			payload={name};
 			const res = await exec();
 			expect(res.status).toBe(400);	
-			console.log(res.body);
+			expect(res.body.message).toBe('"name" length must be less than or equal to 64 characters long');
 		})
 		//Path-05
 		it('should return 400 if validation fail due to name validation-null',async()=>{
@@ -69,7 +69,7 @@ describe('/api/users',()=>{
 			payload={name};
 			const res = await exec();
 			expect(res.status).toBe(400);	
-			console.log(res.body);
+			expect(res.body.message).toBe('"name" must be a string');
 		})
 		//Path-06
 		it('should return 400 if validation fail due to PhoneNumber  not allowed to be changed',async()=>{
@@ -77,7 +77,7 @@ describe('/api/users',()=>{
 			payload={phoneNumber};
 			const res = await exec();
 			expect(res.status).toBe(400);	
-			console.log(res.body);
+			expect(res.body.message).toBe('"phoneNumber" is not allowed');
 		})
 		//Path-07
 		it('should return 400 if validation fail due to ContactsSent flag not allowed to be changed',async()=>{
@@ -85,7 +85,7 @@ describe('/api/users',()=>{
 			payload={contactsSent};
 			const res = await exec();
 			expect(res.status).toBe(400);	
-			console.log(res.body);
+			expect(res.body.message).toBe('"contactsSent" is not allowed' );
 		})
 		//Path-08
 		it('should return 400 if validation fail due to random field to change',async()=>{
@@ -93,7 +93,7 @@ describe('/api/users',()=>{
 			payload={pancard};
 			const res = await exec();
 			expect(res.status).toBe(400);	
-			console.log(res.body);
+			expect(res.body.message).toBe('"pancard" is not allowed' );
 		})
 		//Path-09
 		it('should return 400 if validation fail due to profilePictureUrl validation-not string',async()=>{
@@ -101,14 +101,14 @@ describe('/api/users',()=>{
 			payload={profilePictureUrl};
 			const res = await exec();
 			expect(res.status).toBe(400);	
-			console.log(res.body);
+			expect(res.body.message).toBe('"profilePictureUrl" must be a string');
 		})
 		//Path-10 check what code
 		it('should return 400  if user is not exits  ',async()=>{
 			token=token2
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('No User exits');
 		})
 		//Path-11
 		it('should return 400 if validation fail due to profilePictureUrl and name both  validation failed',async()=>{
@@ -117,7 +117,8 @@ describe('/api/users',()=>{
 			payload={name,profilePictureUrl};
 			const res = await exec();
 			expect(res.status).toBe(400);	
-			console.log(res.body);
+			//only foirstcheck so same withthose 3
+			expect(res.body.message).toBe('"name" must be a string');
 		})
 		//Path-12
 		it('should return 200 if only name is changed',async()=>{
@@ -160,7 +161,7 @@ describe('/api/users',()=>{
 			//expect(res.body.error).toBe(null);
 			expect(res.headers['x-auth-token']).toBeDefined();
 			//response check
-			console.log(res.body)
+			expect(res.body.message).toBe();
 			expect(res.body).toHaveProperty('name', "newName");
 			expect(res.body).toHaveProperty('profilePictureUrl', "newImage");
 
@@ -209,35 +210,35 @@ describe('/api/users',()=>{
 			token='';
 			const res = await exec();
 			expect(res.status).toBe(401);
-			console.log(res.body);
+			expect(res.body.message).toBe('Access denied NO token Provided');
 		})
 		//Path-02
 		it('should return 400 if invalid token ',async()=>{
 			token="123"
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('Invalid Token');
 		})
 		//Path-03
 		it('should return 400 if validation fail->not an array  ',async()=>{
 			phoneNumbers = "1";
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"phoneNumbers" must be an array');
 		})
 		//Path-04
 		it('should return 400 if validation fail -not array of string ',async()=>{
 			phoneNumbers = [1];
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('"phoneNumbers[0]" must be a string');
 		});
 		//Path-05
 		it('should return 400 if validation fail -array not appropriate inputs ',async()=>{
 			phoneNumbers = ["1123qweqwe"]
 			const res = await exec();
 			expect(res.status).toBe(400);
-			console.log(res.body);
+			expect(res.body.message).toBe('Phone number must have 10 digits.');
 		});
 		//Path-07
 		it('should return Profileurl  if user is have a picture uploaded-if some users find and some profilePictureUrl',async()=>{
