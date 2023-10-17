@@ -17,7 +17,7 @@ const KhataSchema = new mongoose.Schema({
 	interestType:{type:String,required:true,enum:['N','S','CW','CM','CY']}
 });
 
-const Khata = mongoose.model('Khata',TransactionSchema);
+const Khata = mongoose.model('Khata',KhataSchema);
 
 function validateKhata(khata){
 	const schema=Joi.object({
