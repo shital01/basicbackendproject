@@ -1,6 +1,7 @@
 const express = require('express');
 
 const users = require('../routes/users');
+const khatas = require('../routes/khatas');
 const transactions = require('../routes/transactions');
 const otps = require('../routes/otps');
 const uploadroutes = require('../routes/uploadroutes');
@@ -21,6 +22,7 @@ module.exports = function(app){
 	app.use('/api/sms',sendsms);
 	app.use('/api/users',users);
 	app.use('/api/contact',contacts);
+	app.use('/api/khatas',khatas);
 
 	app.use('/api/transactions',transactions);
 	app.use('/api/otps',otps);
