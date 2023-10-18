@@ -4,15 +4,8 @@ Joi.objectId = require('joi-objectid')(Joi)
 const mongoose = require('mongoose');
 
 const KhataSchema = new mongoose.Schema({
-	userName:{type:String,required:true,minLength:1,maxLength:64},
 	friendName:{type:String,required:true,minLength:1},
-	userId:{
-			type:mongoose.Schema.Types.ObjectId,
-			ref:'User',
-			required:true
-		},
 	friendPhoneNumber:{type:String,required:true,match: /^[0-9]{10}$/},
-	userPhoneNumber:{type:String,required:true,match: /^[0-9]{10}$/},
 	interestRate:{type:Number,required:true,min:0,max:100,default:0},
 	interestType:{type:String,required:true,enum:['N','S','CW','CM','CY']}
 });
