@@ -17,6 +17,7 @@ const TransactionSchema = new mongoose.Schema({
       validator: Number.isInteger,
       message: '{VALUE} is not an integer value for amount.'
     }},
+    amountGiveBool:{type:Boolean,default:true},
 	interestRate:{type:Number,required:true,min:0,max:100,default:0},
 	interestType:{type:String,required:true,enum:['N','S','CW','CM','CY']},
 	transactionDate:{type:Date,required:true},
@@ -42,6 +43,7 @@ function validateTransaction(transaction){
 	transactionDate:Joi.date().required(),
 	friendPhoneNumber:Joi.string().regex(/^[0-9]{10}$/).messages({'string.pattern.base': `Phone number must have 10 digits.`}).required(),
 	amount:Joi.number().integer().required().min(-1000000000).max(1000000000).required(),
+	amountGiveBool:Joi.boolean(),
 	interestRate:Joi.number().required().min(0).max(100).required(),
 	interestType:Joi.string().valid('S', 'N', 'CY', 'CW', 'CM').required(),
 	description:Joi.string().allow(null, '').max(500),
