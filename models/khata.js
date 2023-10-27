@@ -51,7 +51,7 @@ function validateKhata2(khata){
 	interestRate:Joi.number().required().min(0).max(100).required(),
 	interestType:Joi.string().valid('S', 'N', 'CY', 'CW', 'CM').required(),
 	rotationPeriod:Joi.string().valid('3M','6M','1Y','2Y').required(),
-	localId:Joi.String().required()
+	localId:Joi.string().required()
 	});
 	return schema.validate(khata);
 }
