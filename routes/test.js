@@ -38,7 +38,7 @@ router.post('/multiple', async (req, res) => {
 
   res.send({ savedEntries, unsavedEntries });
 });
-
+/*
 async function calculateTotalAmount() {
   try {
     // Get all documents from the Dummy collection
@@ -59,20 +59,14 @@ async function calculateTotalAmount() {
       if (timeElapsed > 0) {
         // Calculate the number of compounding periods based on the specific compound period
         const numberOfCompoundingPeriods = Math.floor(timeElapsed / compoundPeriod);
-        const leftoverdays =(timeElapsed -Math.floor(timeElapsed / compoundPeriod)*compoundPeriod)/(24*60*60*1000);
+        const leftoverdays =(timeElapsed -numberOfCompoundingPeriods*compoundPeriod)/(24*60*60*1000);
         // Calculate compound interest
-        //totalAmount = principalAmount * Math.pow(1 + (interestRate / 100) / (365 * 24 * 60 * 60 * 1000), numberOfCompoundingPeriods);
-       // totalAmount1 = principalAmount * Math.pow(1 + (interestRate*compoundPeriod)/ (100*365*24*60*60*1000), numberOfCompoundingPeriods);
-        //totalAmount2 = totalAmount1*(1+(interestRate*leftoverdays)/(365*100));
         totalAmount =principalAmount * Math.pow(1 + (interestRate*compoundPeriod)/ (100*365*24*60*60*1000), numberOfCompoundingPeriods)*(1+(interestRate*leftoverdays)/(365*100));
-       // totalAmountfinal = principalAmount * Math.pow(1 + interestRateforRotationPeriod, numberOfCompoundingPeriods)*(1+(interestRate*leftoverweeksormonthoryearsbasedoninterstperiodandleftoverdays));
 
         console.log(principalAmount,numberOfCompoundingPeriods,interestRate,leftoverdays ,totalAmount)
       }
-
     });
 
-    //console.log('Total Amount:', totalAmount);
   } catch (error) {
     console.error('Error calculating total amount:', error);
   }
@@ -225,5 +219,5 @@ Dummy.aggregate([
 });
 })
 
-
+*/
 module.exports =router;
