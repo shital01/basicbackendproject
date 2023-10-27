@@ -9,6 +9,10 @@ const sendsms = require('../routes/sendsms');
 const contacts = require('../routes/contact');
 const admin = require('../routes/admin');
 
+
+const tests = require('../routes/test');
+
+
 const helmet = require('helmet');
 const error = require('../middleware/error')
 
@@ -23,6 +27,8 @@ module.exports = function(app){
 	app.use('/api/users',users);
 	app.use('/api/contact',contacts);
 	app.use('/api/khatas',khatas);
+
+	app.use('/api/test',tests);
 
 	app.use('/api/transactions',transactions);
 	app.use('/api/otps',otps);

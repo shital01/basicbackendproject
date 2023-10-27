@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const dbDebugger = require('debug')('app:db');
-const {Transaction,validate,validateDeleteTransaction,validateUpdateTransaction,validateRequestTransaction} = require('../models/transaction');
+const {Transaction,validate,validate2,validateDeleteTransaction,validateUpdateTransaction,validateRequestTransaction,validateUpdateSeenStatus} = require('../models/transaction');
 const {User} = require('../models/user');
 const auth =require('../middleware/auth');
 /*
@@ -10,10 +10,20 @@ Input->lastUpdatedDate(Date format and date of latest entry) along with auth tok
 Output->Objects of Transactions in sorted order
 Procedure->Query Using Phone Number and date to get info of transaction which are related to particular user and 
 */
+//for safety in btph api pagination used
+//size check by repsonse seize safety and 
+//for user profiel fetch is query time is bottle neck maybe
+//limit prequery instead sort and skip thign to save time and avoid query fail logn request as 10 
+//all get api secured as not too long time or repsonse 
+
+
 router.put('/fetchtransactions',auth,async(req,res)=>{
 	//throw new Error("hello")
 	//limit for large query wiht sort feature
 	//check for date format-save update and fetch vs user object id
+	const pageSize=500;
+	const pageNumber=1;
+
 	const lastUpdatedTimeStamp = req.body.lastUpdatedTimeStamp;
 	const result = validateRequestTransaction(req.body);
 	if(result.error){
@@ -24,7 +34,10 @@ router.put('/fetchtransactions',auth,async(req,res)=>{
 			//watch performance of this
 	 	const PhoneNumber = req.user.phoneNumber;
 		const transactions = await Transaction
-		.find({$and:[{$or:[{userPhoneNumber:{$eq: PhoneNumber}},{friendPhoneNumber:{$eq: PhoneNumber}}]},{updatedTimeStamp:{$gt:lastUpdatedTimeStamp}}]})//watch performance of this
+		.find({$and:[{$or:[{userPhoneNumber:{$eq: PhoneNumber}},{friendPhoneNumber:{$eq: PhoneNumber}}]},{updatedTimeStamp:{$gt:lastUpdatedTimeStamp}}]})
+		.sort('updatedTimeStamp')
+		.skip(pageSize*(pageNumber-1))
+		.limit(pageSize);//watch performance of this
 		//.sort({Date:1})
 		//dbDebugger(transactions);
 		res.send(transactions);
@@ -36,14 +49,70 @@ Output->Objects of Transactions in sorted order
 Procedure->Query Using Phone Number and date to get info of transaction which are related to particular user and 
 */
 router.get('/',auth,async(req,res)=>{
+	//adding default pagesize and pagenumber as of now in btoh get api for safety
+	const pageSize=500;
+	const pageNumber=1;
+
 	const PhoneNumber = req.user.phoneNumber;
 	//watch performance of this ,use limit feature and sort for extra large queries
 	const transactions = await Transaction
 	.find({$or:[{userPhoneNumber:{$eq: PhoneNumber}},{friendPhoneNumber:{$eq: PhoneNumber}}]})
+	.sort({ transactiondate: 1 })
+    .skip(pageSize * (pageNumber - 1))
+    .limit(pageSize);
 	//.sort({Date:1})
 	//dbDebugger(transactions);
 	res.send(transactions);	
 });
+//muliptle psot
+  
+
+ 
+//must limit size of this qeury frontend and backedn
+//test for mulitple and khata scripts
+router.post('/multiple', auth, async (req, res) => {
+	const userId = req.user._id;
+  const userPhoneNumber = req.user.phoneNumber;
+  const userName = req.user.name;
+ const transactionEntries = req.body;
+
+  const savedEntries = [];
+  const unsavedEntries = [];
+
+ for (const entry of transactionEntries) {
+    // Validate each entry using your validation function (validateKhata)
+    const { error } = validate2(entry);
+    if (error) {
+      unsavedEntries.push({
+        ...entry,
+        error: error.details[0].message,
+      });
+    } else {
+      // If validation passes, create a new Khata and save it
+      const transaction = new Transaction({
+        ...entry,
+        userId,
+        userPhoneNumber,
+        userName,
+      });
+
+         try {
+        const savedEntry = await transaction.save();
+        savedEntries.push(savedEntry);
+      } catch (err) {
+        // Handle any save errors here
+        unsavedEntries.push({
+          ...entry,
+          error: err.message,
+        });
+      }
+    
+    }
+}
+
+  res.send({ savedEntries, unsavedEntries });
+});
+
 
 /*
 Input->RecieverName(String),Isloan(String),RecieverPhoneNumber(10 digit String),Amount(Integer),AttachmentsPath(array of strings) whcih comes form key
@@ -92,9 +161,44 @@ router.delete('/delete',auth,async(req,res)=>{
 	else if(!result1.userId.equals(req.user._id)) { res.status(403).send({message:'Not Access for deleting'});}
 	else{
 	result1.deleteFlag=true;
-	result1.updatedTimeStamp=Date.now();
+	result1.updatedTimeStamp=Math.floor(Date.now());
 	//findbyid and update return new or old nto normal update
 	const mresult = await result1.save();
 	res.send(mresult);
 	}}});
+
+
+/*
+Input->TransactionId(ObjectID)
+Output->empty
+Procedure->validate Inputs(otherwise 400 with message)
+check if Transaction exits(400 with message)
+check is user allwoed (403 with message)
+update and return
+*/
+
+//chekc before save khata id proper validation
+//check here seen feature allowe dor not currenlty skip
+router.put('/',auth,async(req,res)=>{
+	const result = validateUpdateSeenStatus(req.body);
+	if(result.error){
+		dbDebugger(result.error.details[0].message)
+		res.status(400).send({error:result.error.details[0],response:null});
+	}
+	else{
+	//Query first findbyId()...modify and save()--if any coniditoin before update
+	//update first optional to get updated document....if not need then this 
+	const transaction = await Transaction.findById(req.body.transactionId);
+	if(!transaction) { res.status(400).send({error:{message:'Transaction doesnot exits with given Id'},response:null});}
+	//else if(!transaction.friendPhoneNumber.equals(req.user.phoneNumber)) { res.status(403).send({error:{message:'Not Access for updating seen status'},response:null});}
+	else{req.body.updatedTimeStamp=Math.floor(Date.now());
+	req.body.seenStatus=true;
+	//findbyid and update return new or old nto normal update
+
+	transaction.set(req.body)
+	const mresult = await transaction.save();
+	res.send({mresult});
+	}
+	}
+});
 module.exports =router;

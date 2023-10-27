@@ -81,7 +81,7 @@ function validateUpdateUser(user){
 }
 function validateNumbers(req){
 	const schema=Joi.object({
-	phoneNumbers:Joi.array().items(Joi.string().regex(/^[0-9]{10}$/).messages({'string.pattern.base': `Phone number must have 10 digits.`}).required())
+	phoneNumbers:Joi.array().items(Joi.string().regex(/^[0-9]{10}$/).messages({'string.pattern.base': `Phone number must have 10 digits.`}).required()).max(10)
 	});
 	return schema.validate(req);
 }

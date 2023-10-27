@@ -3,26 +3,47 @@ Joi.objectId = require('joi-objectid')(Joi)
 
 const mongoose = require('mongoose');
 
+
+
+const isValidUnixTimestamp = (value) => {
+  const timestamp = new Date(value * 1000); // Convert seconds to milliseconds
+  return !isNaN(timestamp.getTime());
+};
+
+
 const TransactionSchema = new mongoose.Schema({
 	userName:{type:String,required:true,minLength:1,maxLength:64},
-	friendName:{type:String,required:true,minLength:1},
 	userId:{
 			type:mongoose.Schema.Types.ObjectId,
 			ref:'User',
 			required:true
 		},
-	friendPhoneNumber:{type:String,required:true,match: /^[0-9]{10}$/},
+	khataId:{
+			type:mongoose.Schema.Types.ObjectId,
+			ref:'Khata',
+			required:true
+		},
 	userPhoneNumber:{type:String,required:true,match: /^[0-9]{10}$/},
 	amount:{type:Number,required:true,min:-1000000000,max:1000000000,validate: {
       validator: Number.isInteger,
       message: '{VALUE} is not an integer value for amount.'
     }},
     amountGiveBool:{type:Boolean,default:true},
-	interestRate:{type:Number,required:true,min:0,max:100,default:0},
-	interestType:{type:String,required:true,enum:['N','S','CW','CM','CY']},
-	transactionDate:{type:Date,required:true},
-	updatedTimeStamp:{type:Date,required:true,default:Date.now()},//for indian timeline
+	transactionDate: {
+    type: Number,
+    required: true,
+    validate: [isValidUnixTimestamp, 'Invalid Unix timestamp'],
+    default:Math.floor(Date.now() )
+  },
+	updatedTimeStamp: {
+    type: Number,
+    required: true,
+    validate: [isValidUnixTimestamp, 'Invalid Unix timestamp'],
+    default:Math.floor(Date.now() )
+  },
 	deleteFlag:{type:Boolean,default:false},
+	seenStatus:{type:Boolean,default:false},
+
 	description:{type:String,maxLength:500},
 	attachmentsPath:{
 		type: [String], 
@@ -33,25 +54,35 @@ const TransactionSchema = new mongoose.Schema({
 	      message: 'Maximum 4 attachments allowed',
 	    },
   },
+  localId:{type:String}//confirm this type
 });
 
 const Transaction = mongoose.model('Transaction',TransactionSchema);
 
 function validateTransaction(transaction){
 	const schema=Joi.object({
-	friendName:Joi.string().min(1).required(),
-	transactionDate:Joi.date().required(),
-	friendPhoneNumber:Joi.string().regex(/^[0-9]{10}$/).messages({'string.pattern.base': `Phone number must have 10 digits.`}).required(),
+	transactionDate:Joi.date().timestamp('unix').required(),
 	amount:Joi.number().integer().required().min(-1000000000).max(1000000000).required(),
 	amountGiveBool:Joi.boolean(),
-	interestRate:Joi.number().required().min(0).max(100).required(),
-	interestType:Joi.string().valid('S', 'N', 'CY', 'CW', 'CM').required(),
+	khataId:Joi.objectId().required(),
 	description:Joi.string().allow(null, '').max(500),
 	attachmentsPath:Joi.array().items(Joi.string()).max(4)
 	});
 	return schema.validate(transaction);
 }
+function validateTransaction2(transaction){
+	const schema=Joi.object({
+	transactionDate:Joi.date().timestamp('unix').required(),
+	amount:Joi.number().integer().required().min(-1000000000).max(1000000000).required(),
+	amountGiveBool:Joi.boolean(),
+	khataId:Joi.objectId().required(),
+	description:Joi.string().allow(null, '').max(500),
+	attachmentsPath:Joi.array().items(Joi.string()).max(4),
+	localId:Joi.string().required()
 
+	});
+	return schema.validate(transaction);
+}
 
 function validateDeleteTransaction(transaction){
 	const schema=Joi.object({
@@ -63,12 +94,23 @@ function validateDeleteTransaction(transaction){
 //check if iso or without it works
 function validateRequestTransaction(transaction){
 	const schema=Joi.object({
-		lastUpdatedTimeStamp:Joi.date().iso().required()
+		lastUpdatedTimeStamp:Joi.date().timestamp('unix').required()
+	});
+	return schema.validate(transaction);
+}
+
+function validateUpdateSeenStatus(transaction){
+	const schema=Joi.object({
+	transactionId:Joi.objectId().required(),
 	});
 	return schema.validate(transaction);
 }
 exports.Transaction = Transaction;
 exports.validate = validateTransaction;
+exports.validate2 = validateTransaction2;
+
+
+exports.validateUpdateSeenStatus =validateUpdateSeenStatus;
 
 exports.validateRequestTransaction =validateRequestTransaction;
 exports.validateDeleteTransaction =validateDeleteTransaction;
