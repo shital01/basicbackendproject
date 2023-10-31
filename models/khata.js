@@ -18,9 +18,9 @@ const KhataSchema = new mongoose.Schema({
 		},
 	friendPhoneNumber:{type:String,required:true,match: /^[0-9]{10}$/},
 	userPhoneNumber:{type:String,required:true,match: /^[0-9]{10}$/},
-	interestRate:{type:Number,required:true,min:0,max:100,default:0},
-	interestType:{type:String,required:true,enum:['N','S','CW','CM','CY']},
-	rotationPeriod:{type:String,required:true,enum:['3M','6M','1Y','2Y']},
+	interestRate:{type:Number,min:0,max:100,default:0},
+	interestType:{type:String,required:true,enum:['N',,'CW','CM','CY']},
+	rotationPeriod:{type:String,enum:['0M','3M','6M','18M','1Y','2Y']},
 	updatedTimeStamp: {
     type: Number,
     required: true,
