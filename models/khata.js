@@ -36,9 +36,9 @@ function validateKhata(khata){
 	const schema=Joi.object({
 	friendName:Joi.string().min(1).required(),
 	friendPhoneNumber:Joi.string().regex(/^[0-9]{10}$/).messages({'string.pattern.base': `Phone number must have 10 digits.`}).required(),
-	interestRate:Joi.number().required().min(0).max(100).required(),
-	interestType:Joi.string().valid('S', 'N', 'CY', 'CW', 'CM').required(),
-	rotationPeriod:Joi.string().valid('3M','6M','1Y','2Y').required(),
+	interestRate:Joi.number().required().min(0).max(100),
+	interestType:Joi.string().valid( 'N', 'CY', 'CW', 'CM').required(),
+	rotationPeriod:Joi.string().valid('0M','3M','6M','1Y','2Y','18M'),
 
 	});
 	return schema.validate(khata);
@@ -48,9 +48,9 @@ function validateKhata2(khata){
 	const schema=Joi.object({
 	friendName:Joi.string().min(1).required(),
 	friendPhoneNumber:Joi.string().regex(/^[0-9]{10}$/).messages({'string.pattern.base': `Phone number must have 10 digits.`}).required(),
-	interestRate:Joi.number().required().min(0).max(100).required(),
-	interestType:Joi.string().valid('S', 'N', 'CY', 'CW', 'CM').required(),
-	rotationPeriod:Joi.string().valid('3M','6M','1Y','2Y').required(),
+	interestRate:Joi.number().required().min(0).max(100),
+	interestType:Joi.string().valid('N', 'CY', 'CW', 'CM').required(),
+	rotationPeriod:Joi.string().valid('0M','3M','6M','18M','1Y','2Y'),
 	localId:Joi.string().required()
 	});
 	return schema.validate(khata);

@@ -201,7 +201,7 @@ router.put('/',auth,async(req,res)=>{
 	else{req.body.updatedTimeStamp=Math.floor(Date.now());
 	khata.set(req.body)
 	const mresult = await khata.save();
-	res.send({mresult});
+	res.send(mresult);
 	}
 	}
 });

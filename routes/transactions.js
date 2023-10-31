@@ -197,7 +197,7 @@ router.put('/',auth,async(req,res)=>{
 
 	transaction.set(req.body)
 	const mresult = await transaction.save();
-	res.send({mresult});
+	res.send(mresult);
 	}
 	}
 });
