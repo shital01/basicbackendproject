@@ -13,8 +13,8 @@ const DummySchema = new mongoose.Schema({
     required: true,
   },
   interestRate:{type:Number,required:true,min:0,max:100,default:0},
-	interestPeriod:{type:String,required:true,enum:['W','M','Y']},
-	rotationPeriod:{type:String,required:true},
+	interestPeriod:{type:Number,required:true,enum:[7,30,365]},
+	rotationPeriod:{type:Number,required:true,enum:[90,180,365,540,730]},
 	
 });
 

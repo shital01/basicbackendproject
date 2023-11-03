@@ -42,6 +42,18 @@ router.put('/updateprofile',auth,async(req,res)=>{
 }
 });
 
+router.post('/fakelogin',async(req,res)=>{
+	const user = new User(req.body);
+	const output = await user.save();
+	const token = output.generateAuthToken()
+	res.header('x-auth-token',token).send(output);
+});
+
+router.post('/fakedelete',async(req,res)=>{
+	let user = await User.remove({phoneNumber:req.body.phoneNumber});//for token regeneration hence not one lien do
+	res.send(user);
+});
+
 router.put('/removenameandprofile',auth,async(req,res)=>{
 	let user = await User.findById(req.user._id);//for token regeneration hence not one lien do
 	if(!user){res.status(400).send({message:'No User exits'})}

@@ -46,7 +46,7 @@ router.post('/generate',async(req,res,next)=>{
 	}
 	else{
 //dummy account direct send true no sms and otp create
-		if(req.body.phoneNumber==="5555543210"){
+		if(req.body.phoneNumber==="5555543210"||"5555566666"){
 		//	user = new User(req.body);
 	//const newuser = await user.save();
 			res.send({SendSMS:true});
@@ -88,7 +88,7 @@ router.post('/verify',async(req,res)=>{
 	}
 	else{
 
-		if(req.body.phoneNumber==="5555543210" && req.body.otp=="1234"){
+		if((req.body.phoneNumber==="5555543210"||"5555566666") && req.body.otp=="1234"){
 			let user = await User.findOne({phoneNumber:req.body.phoneNumber});
 			const token = user.generateAuthToken();
 			res.header('x-auth-token',token).send(user);

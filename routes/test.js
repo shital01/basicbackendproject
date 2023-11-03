@@ -38,33 +38,40 @@ router.post('/multiple', async (req, res) => {
 
   res.send({ savedEntries, unsavedEntries });
 });
-/*
+
 async function calculateTotalAmount() {
   try {
     // Get all documents from the Dummy collection
     const allTransactions = await Dummy.find({});
-
     // Calculate the total amount
     let totalAmount = 0;
+    //NOte-01
+    //apply only on non zero interst rates
+    //only for rotational period calculations
+    //simple interst seprate as no rotational period for them
 
     allTransactions.forEach((transaction) => {
       const principalAmount = transaction.principalAmount;
-      const interestRate = adjustInterestRate(transaction.interestRate, transaction.interestPeriod);
+      const interestRate = transaction.interestRate;
+      const interestPeriod = transaction.interestPeriod
       const giveDate = transaction.giveDate;
-      const compoundPeriod = getCompoundPeriod(transaction.rotationPeriod);
+      const compoundPeriod = transaction.rotationPeriod;
+      const timeElapsed = (Date.now() - giveDate.getTime())/(24*60*60*1000);//Note-02 look for possible optimizations
+      const n = Math.floor(timeElapsed/compoundPeriod);
+      const d = timeElapsed % compoundPeriod;;
+        //Note-03 
+        //n =0 make sure not taking toomcuh time by multiply  which is not needed
+        //n=1,precalculation cached.... for calculation or in table....
+        //NOte-04 other option store interst rate/100  in original or dummy field
+        //or interst rate/interest period
+        //issue on defasult use 7,30,365 in interst peiod or rotatin period both
 
-      // Calculate the time elapsed in milliseconds
-      const timeElapsed = Date.now() - giveDate.getTime();
-
-      if (timeElapsed > 0) {
-        // Calculate the number of compounding periods based on the specific compound period
-        const numberOfCompoundingPeriods = Math.floor(timeElapsed / compoundPeriod);
-        const leftoverdays =(timeElapsed -numberOfCompoundingPeriods*compoundPeriod)/(24*60*60*1000);
-        // Calculate compound interest
-        totalAmount =principalAmount * Math.pow(1 + (interestRate*compoundPeriod)/ (100*365*24*60*60*1000), numberOfCompoundingPeriods)*(1+(interestRate*leftoverdays)/(365*100));
-
-        console.log(principalAmount,numberOfCompoundingPeriods,interestRate,leftoverdays ,totalAmount)
-      }
+        //NOte-04
+        //precalculate A,B to reduce  little calculation
+        //keep array or rotated amount to reduce repeat calcualtion and it can also avoid ambiguity in results2 percent vs other
+        totalAmount =principalAmount * Math.pow(1 + (interestRate*compoundPeriod)/ (100*interestPeriod), n)*(1+(interestRate*d)/(interestPeriod*100));
+        console.log(principalAmount,interestRate,n,d ,totalAmount)
+      
     });
 
   } catch (error) {
@@ -72,38 +79,14 @@ async function calculateTotalAmount() {
   }
 }
 
-// Adjust the annual interest rate based on the specified interest type ('W', 'M', 'Y')
-function adjustInterestRate(interestRate, interestType) {
-  if (interestType === 'W') {
-    return interestRate * 52; // Weekly to Annual
-  } else if (interestType === 'M') {
-    return interestRate * 12; // Monthly to Annual
-  }
-  return interestRate; // Yearly remains unchanged
-}
-
-// Retrieve the compound period based on the value stored in the rotation period field
-function getCompoundPeriod(rotationPeriod) {
-  // Define the conversion for each rotation period type ('3M', '6M', '1Y', '2Y', etc.)
-  const rotationPeriodInMilliseconds = {
-    '3M': 3 * 30 * 24 * 60 * 60 * 1000, // 3 months
-    '6M': 6 * 30 * 24 * 60 * 60 * 1000, // 6 months
-    '1Y': 365 * 24 * 60 * 60 * 1000, // 1 year
-    '2Y': 2 * 365 * 24 * 60 * 60 * 1000, // 2 years
-    // Add more as needed
-  };
-
-  return rotationPeriodInMilliseconds[rotationPeriod];
-}
-
 // Calculate the total amount
-calculateTotalAmount();
-
+//calculateTotalAmount();
 //insert dummy data
 //aggregate run 
 //match
 //join these if need
 //add of currently implemented NSCWMY....
+/*
 router.get('/Total', async (req, res) => {
 
 const today = new Date(); // Current date
