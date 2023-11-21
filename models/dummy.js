@@ -15,7 +15,9 @@ const DummySchema = new mongoose.Schema({
   interestRate:{type:Number,required:true,min:0,max:100,default:0},
 	interestPeriod:{type:Number,required:true,enum:[7,30,365]},
 	rotationPeriod:{type:Number,required:true,enum:[90,180,365,540,730]},
-	
+	amountArr:{type:[Number]},
+  dateArr:{type:[Number]},
+  pendingDays:{type:Number}
 });
 
 const Dummy = mongoose.model('Dummy',DummySchema);

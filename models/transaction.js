@@ -94,7 +94,10 @@ function validateDeleteTransaction(transaction){
 //check if iso or without it works
 function validateRequestTransaction(transaction){
 	const schema=Joi.object({
-		lastUpdatedTimeStamp:Joi.date().timestamp('unix').required()
+		lastUpdatedTimeStamp:Joi.date().timestamp('unix').required(),
+		pageSize:Joi.number().integer(),
+		pageNumber:Joi.number().integer()
+
 	});
 	return schema.validate(transaction);
 }

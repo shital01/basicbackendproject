@@ -21,8 +21,11 @@ router.put('/fetchtransactions',auth,async(req,res)=>{
 	//throw new Error("hello")
 	//limit for large query wiht sort feature
 	//check for date format-save update and fetch vs user object id
-	const pageSize=500;
-	const pageNumber=1;
+	var pageSize=500;
+	var pageNumber=1;
+	var nextPageNumber;
+	if(req.body.pageNumber){pageNumber=req.body.pageNumber;}
+	if(req.body.pageSize){pageSize=req.body.pageSize;}
 
 	const lastUpdatedTimeStamp = req.body.lastUpdatedTimeStamp;
 	const result = validateRequestTransaction(req.body);
@@ -40,7 +43,11 @@ router.put('/fetchtransactions',auth,async(req,res)=>{
 		.limit(pageSize);//watch performance of this
 		//.sort({Date:1})
 		//dbDebugger(transactions);
-		res.send(transactions);
+		if(transactions.length == pageSize){	
+			nextPageNumber=pageNumber+1;
+			res.send({nextPageNumber:nextPageNumber,results:transactions})
+			}
+		else{res.send({results:transactions});}
 	}	
 });
 /*
@@ -50,8 +57,11 @@ Procedure->Query Using Phone Number and date to get info of transaction which ar
 */
 router.get('/',auth,async(req,res)=>{
 	//adding default pagesize and pagenumber as of now in btoh get api for safety
-	const pageSize=500;
-	const pageNumber=1;
+	var pageSize=500;
+	var pageNumber=1;
+	var nextPageNumber;
+	if(req.body.pageNumber){pageNumber=req.body.pageNumber;}
+	if(req.body.pageSize){pageSize=req.body.pageSize;}
 
 	const PhoneNumber = req.user.phoneNumber;
 	//watch performance of this ,use limit feature and sort for extra large queries
@@ -62,7 +72,15 @@ router.get('/',auth,async(req,res)=>{
     .limit(pageSize);
 	//.sort({Date:1})
 	//dbDebugger(transactions);
-	res.send(transactions);	
+	if(transactions.length == pageSize){	
+			nextPageNumber=pageNumber+1;
+			res.send({nextPageNumber:nextPageNumber,results:transactions})
+			}
+		else{res.send({results:transactions});}
+
+
+
+	//res.send(transactions);	
 });
 //muliptle psot
   
