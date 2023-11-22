@@ -5,6 +5,17 @@ const dbDebugger = require('debug')('app:db');
 const {Transaction,validate,validate2,validateDeleteTransaction,validateUpdateTransaction,validateRequestTransaction,validateUpdateSeenStatus} = require('../models/transaction');
 const {User} = require('../models/user');
 const auth =require('../middleware/auth');
+
+//only testing 
+
+router.delete('/deleteAll', auth, async (req, res) => {
+        // Assuming khatarray is an array of Khata IDs passed in the request body
+        const userId = req.user._id;
+        // Delete transactions related to the provided array of Khata IDs
+        const deletionResult = await Transaction.deleteMany({ userId: userId });
+        res.send("done deleted"); // Sending deletion result as response
+
+});
 /*
 Input->lastUpdatedDate(Date format and date of latest entry) along with auth token
 Output->Objects of Transactions in sorted order

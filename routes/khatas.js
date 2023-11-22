@@ -48,6 +48,27 @@ router.post('/single',auth,async(req,res)=>{
 		}
 });
 
+
+/*
+Input->RecieverName(String),Isloan(String),RecieverPhoneNumber(10 digit String),Amount(Integer),AttachmentsPath(array of strings) whcih comes form key
+send x-auth-token
+Output->transaction Object
+Procedure->validate header
+validate input
+save transaction
+return saved object
+*/
+router.delete('/deleteAll', auth, async (req, res) => {
+        // Assuming userId is passed as a parameter in the URL
+        const userId = req.user._id;
+
+        // Delete all khatas associated with the given userId
+        const deletionResult = await Khata.deleteMany({ userId: userId });
+
+        res.send(deletionResult); // Sending deletion result as response
+        // Handle any errors that might occur during deletion
+      
+});
 //arrays try 
 /*
 const savedEntries = [];
