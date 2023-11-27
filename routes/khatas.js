@@ -13,11 +13,22 @@ Procedure->Query Using Phone Number and date to get info of transaction which ar
 */
 router.get('/',auth,async(req,res)=>{
 	const PhoneNumber = req.user.phoneNumber;
+    var khatas;
 	//watch performance of this ,use limit feature and sort for extra large queries
-	const khatas = await Khata
+  var lastUpdatedTimeStamp;
+  if(req.body.lastUpdatedTimeStamp){
+   lastUpdatedTimeStamp = req.body.lastUpdatedTimeStamp;
+  khatas = await Khata
+  .find({$and:[{$or:[{userPhoneNumber:{$eq: PhoneNumber}},{friendPhoneNumber:{$eq: PhoneNumber}}]},{updatedTimeStamp:{$gt:lastUpdatedTimeStamp}}]})
+  //.sort({Date:1})
+
+ }
+else{
+	 khatas = await Khata
 	.find({$or:[{userPhoneNumber:{$eq: PhoneNumber}},{friendPhoneNumber:{$eq: PhoneNumber}}]})
 	//.sort({Date:1})
 	//dbDebugger(transactions);
+}
 	res.send(khatas);	
 });
 
