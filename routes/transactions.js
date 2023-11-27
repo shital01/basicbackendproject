@@ -71,16 +71,28 @@ router.get('/',auth,async(req,res)=>{
 	var pageSize=500;
 	var pageNumber=1;
 	var nextPageNumber;
+	var lastUpdatedTimeStamp;
+	var transactions;
 	if(req.body.pageNumber){pageNumber=req.body.pageNumber;}
 	if(req.body.pageSize){pageSize=req.body.pageSize;}
+	if(req.body.lastUpdatedTimeStamp){ lastUpdatedTimeStamp = req.body.lastUpdatedTimeStamp;}
 
 	const PhoneNumber = req.user.phoneNumber;
 	//watch performance of this ,use limit feature and sort for extra large queries
-	const transactions = await Transaction
+	if(req.body.lastUpdatedTimeStamp){
+		 transactions = await Transaction
+		.find({$and:[{$or:[{userPhoneNumber:{$eq: PhoneNumber}},{friendPhoneNumber:{$eq: PhoneNumber}}]},{updatedTimeStamp:{$gt:lastUpdatedTimeStamp}}]})
+		.sort('updatedTimeStamp')
+		.skip(pageSize*(pageNumber-1))
+		.limit(pageSize);//watch performance of this
+	}
+	else{
+	 transactions = await Transaction
 	.find({$or:[{userPhoneNumber:{$eq: PhoneNumber}},{friendPhoneNumber:{$eq: PhoneNumber}}]})
 	.sort({ transactiondate: 1 })
     .skip(pageSize * (pageNumber - 1))
     .limit(pageSize);
+		}
 	//.sort({Date:1})
 	//dbDebugger(transactions);
 	if(transactions.length == pageSize){	
