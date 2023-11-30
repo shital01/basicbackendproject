@@ -1,7 +1,7 @@
 const express = require('express');
-const _ = require('lodash');
+//const _ = require('lodash');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+//const bcrypt = require('bcrypt');
 const router = express.Router();
 const {Otp,validatelogin,validateNumber} = require('../models/otp');
 const {User} = require('../models/user');
@@ -10,6 +10,17 @@ const logger = require('../startup/logging');
 const dbDebugger = require('debug')('app:db');
 
 const sendmessage =require('../middleware/sendmessage');
+
+
+const validateInput = (schema) => (req, res, next) => {
+  const { error } = schema(req.body);
+  if (error) {
+    dbDebugger(result.error.details[0].message)
+    return res.status(400).send(error.details[0]);
+  }
+  next();
+};
+
 /*helper function to generate OTP for generateOTP api
 Input->{}
 OutPut->4 digit otp string
@@ -36,15 +47,7 @@ save entry in Otp Table with Phone ,OTP as field with Otp as encrypted
 send SMS to user Phone Number
 Return boolean true,if number not 10 digit 400 request send ,if something else fail like database saving then 500 request
 */
-router.post('/generate',async(req,res,next)=>{
-	const result = validateNumber(req.body);
-	if(result.error){
-		dbDebugger(result.error.details[0].message);
-		res.status(400).send(result.error.details[0]);
-		//error.object
-		//Alternate error.message
-	}
-	else{
+router.post('/generate',validateInput(validateNumber),async(req,res,next)=>{	
 //dummy account direct send true no sms and otp create
 		if(req.body.phoneNumber==="5555543210"||"5555566666"){
 		//	user = new User(req.body);
@@ -54,14 +57,13 @@ router.post('/generate',async(req,res,next)=>{
 		else{
 	const salt = await bcrypt.genSalt(10);
 	const smsotp =generateOTP();
-	const OTP = await bcrypt.hash(smsotp,salt)
-	const otp = new Otp({phoneNumber:req.body.phoneNumber,otp:OTP});
+	//const OTP = await bcrypt.hash(smsotp,salt)
+	const otp = new Otp({phoneNumber:req.body.phoneNumber,otp:smsotp});
 	await otp.save();
 	//Change SMS Settle APP wording-from provider
 	var finalmessage ="OTP for login is: "+smsotp+" Settle App"
 	const SendSMS = await sendmessage("91"+req.body.phoneNumber,finalmessage,'1607100000000267487');
 	res.send({SendSMS});
-	}
 	}
 });
 /*
@@ -80,14 +82,7 @@ router.post('/generate',async(req,res,next)=>{
 	If OTP failed either not requested or OTP mismatch send response with 404 code and error message
 	If something else fail like database saving then Response send with code 500 and error message
 */
-router.post('/verify',async(req,res)=>{
-	const result = validatelogin(req.body);
-	if(result.error){
-		dbDebugger(result.error.details[0].message)
-		res.status(400).send(result.error.details[0]);//details or message
-	}
-	else{
-
+router.post('/verify',validateInput(validatelogin),async(req,res)=>{
 		if((req.body.phoneNumber==="5555543210"||"5555566666") && req.body.otp=="1234"){
 			let user = await User.findOne({phoneNumber:req.body.phoneNumber});
 			const token = user.generateAuthToken();
@@ -95,11 +90,11 @@ router.post('/verify',async(req,res)=>{
 		}
 		else{
 	//id is same order as date hence
-	const otps = await Otp.find({phoneNumber:req.body.phoneNumber}).sort({_id:-1})
+	const otps = await Otp.find({phoneNumber:req.body.phoneNumber,otp:req.body.otp}).sort({_id:-1})
 	if(otps.length === 0) return res.status(404).send({message:'Invalid OTP'});
-	const validotp =await bcrypt.compare(req.body.otp,otps[0].otp)
-	if(!validotp) return res.status(404).send({message:'Invalid OTP'});
-	
+	//const validotp =await bcrypt.compare(req.body.otp,otps[0].otp)
+	//if(!validotp) return res.status(404).send({message:'Invalid OTP'});
+	else{
 	let user = await User.findOne({phoneNumber:req.body.phoneNumber});
 	if(user){
 		//current not implemented not so getting latest not much security needed otherwise keep date field and check using 
@@ -115,6 +110,7 @@ router.post('/verify',async(req,res)=>{
 	}
 	}
 }
+
 
 });
 module.exports =router;

@@ -32,19 +32,17 @@ const KhataSchema = new mongoose.Schema({
 
 const Khata = mongoose.model('Khata',KhataSchema);
 
-function validateKhata(khata){
+function validateGetKhata(khata){
 	const schema=Joi.object({
-	friendName:Joi.string().min(1).required(),
-	friendPhoneNumber:Joi.string().regex(/^[0-9]{10}$/).messages({'string.pattern.base': `Phone number must have 10 digits.`}).required(),
-	interestRate:Joi.number().min(0).max(100),
-	interestType:Joi.string().valid( 'N', 'CY', 'CW', 'CM').required(),
-	rotationPeriod:Joi.string().valid('0M','3M','6M','1Y','2Y','18M'),
-
+	lastUpdatedTimeStamp:Joi.date().timestamp('unix'),
+	pageSize:Joi.number().integer().max(10000),
+	pageNumber:Joi.number().integer()	
 	});
 	return schema.validate(khata);
 }
 
-function validateKhata2(khata){
+
+function validateKhata(khata){
 	const schema=Joi.object({
 	friendName:Joi.string().min(1).required(),
 	friendPhoneNumber:Joi.string().regex(/^[0-9]{10}$/).messages({'string.pattern.base': `Phone number must have 10 digits.`}).required(),
@@ -65,8 +63,9 @@ function validateKhataArray(khatas) {
         .messages({ 'string.pattern.base': `Phone number must have 10 digits.` })
         .required(),
       interestRate: Joi.number().required().min(0).max(100).required(),
-      interestType: Joi.string().valid('S', 'N', 'CY', 'CW', 'CM').required(),
+      interestType: Joi.string().valid( 'N', 'CY', 'CW', 'CM').required(),
       rotationPeriod: Joi.string().valid('3M','6M','1Y','2Y').required(),
+      localId:Joi.string().required()
     })
   );
 
@@ -88,7 +87,7 @@ function validateUpdateKhata(khata){
 exports.validateKhataArray = validateKhataArray;
 
 exports.Khata = Khata;
+exports.validateGetKhata = validateGetKhata;
 exports.validate = validateKhata;
-exports.validate2 = validateKhata2;
 
 exports.validateUpdateKhata = validateUpdateKhata;

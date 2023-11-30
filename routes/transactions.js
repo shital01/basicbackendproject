@@ -2,70 +2,27 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const dbDebugger = require('debug')('app:db');
-const {Transaction,validate,validate2,validateDeleteTransaction,validateUpdateTransaction,validateRequestTransaction,validateUpdateSeenStatus} = require('../models/transaction');
+const {Transaction,validate,validate2,validateUpdateTransaction,validateRequestTransaction} = require('../models/transaction');
 const {User} = require('../models/user');
 const auth =require('../middleware/auth');
 
-//only testing 
 
-router.delete('/deleteAll', auth, async (req, res) => {
-        // Assuming khatarray is an array of Khata IDs passed in the request body
-        const userId = req.user._id;
-        // Delete transactions related to the provided array of Khata IDs
-        const deletionResult = await Transaction.deleteMany({ userId: userId });
-        res.send("done deleted"); // Sending deletion result as response
+// Create separate validation functions
+const validateInput = (schema) => (req, res, next) => {
+  const { error } = schema(req.body);
+  if (error) {
+    dbDebugger(error.details[0].message)
+    return res.status(400).send(error.details[0]);
+  }
+  next();
+};
 
-});
-/*
-Input->lastUpdatedDate(Date format and date of latest entry) along with auth token
-Output->Objects of Transactions in sorted order
-Procedure->Query Using Phone Number and date to get info of transaction which are related to particular user and 
-*/
-//for safety in btph api pagination used
-//size check by repsonse seize safety and 
-//for user profiel fetch is query time is bottle neck maybe
-//limit prequery instead sort and skip thign to save time and avoid query fail logn request as 10 
-//all get api secured as not too long time or repsonse 
-
-
-router.put('/fetchtransactions',auth,async(req,res)=>{
-	//throw new Error("hello")
-	//limit for large query wiht sort feature
-	//check for date format-save update and fetch vs user object id
-	var pageSize=500;
-	var pageNumber=1;
-	var nextPageNumber;
-	if(req.body.pageNumber){pageNumber=req.body.pageNumber;}
-	if(req.body.pageSize){pageSize=req.body.pageSize;}
-
-	const lastUpdatedTimeStamp = req.body.lastUpdatedTimeStamp;
-	const result = validateRequestTransaction(req.body);
-	if(result.error){
-		dbDebugger(result.error.details[0].message)
-		res.status(400).send(result.error.details[0]);
- 	}
- 	else{
-			//watch performance of this
-	 	const PhoneNumber = req.user.phoneNumber;
-		const transactions = await Transaction
-		.find({$and:[{$or:[{userPhoneNumber:{$eq: PhoneNumber}},{friendPhoneNumber:{$eq: PhoneNumber}}]},{updatedTimeStamp:{$gt:lastUpdatedTimeStamp}}]})
-		.sort('updatedTimeStamp')
-		.skip(pageSize*(pageNumber-1))
-		.limit(pageSize);//watch performance of this
-		//.sort({Date:1})
-		//dbDebugger(transactions);
-		if(transactions.length == pageSize){	
-			nextPageNumber=pageNumber+1;
-			res.send({nextPageNumber:nextPageNumber,results:transactions})
-			}
-		else{res.send({results:transactions});}
-	}	
-});
 /*
 Input->Auth token
 Output->Objects of Transactions in sorted order
 Procedure->Query Using Phone Number and date to get info of transaction which are related to particular user and 
 */
+//,validateInput(validateRequestTransaction)
 router.get('/',auth,async(req,res)=>{
 	//adding default pagesize and pagenumber as of now in btoh get api for safety
 	var pageSize=500;
@@ -73,13 +30,12 @@ router.get('/',auth,async(req,res)=>{
 	var nextPageNumber;
 	var lastUpdatedTimeStamp;
 	var transactions;
-	if(req.body.pageNumber){pageNumber=req.body.pageNumber;}
-	if(req.body.pageSize){pageSize=req.body.pageSize;}
-	if(req.body.lastUpdatedTimeStamp){ lastUpdatedTimeStamp = req.body.lastUpdatedTimeStamp;}
-
+	if(req.query.pageNumber){pageNumber=req.query.pageNumber;}
+	if(req.query.pageSize){pageSize=req.query.pageSize;}
+	if(req.query.lastUpdatedTimeStamp){ lastUpdatedTimeStamp = req.query.lastUpdatedTimeStamp;}
 	const PhoneNumber = req.user.phoneNumber;
 	//watch performance of this ,use limit feature and sort for extra large queries
-	if(req.body.lastUpdatedTimeStamp){
+	if(req.query.lastUpdatedTimeStamp){
 		 transactions = await Transaction
 		.find({$and:[{$or:[{userPhoneNumber:{$eq: PhoneNumber}},{friendPhoneNumber:{$eq: PhoneNumber}}]},{updatedTimeStamp:{$gt:lastUpdatedTimeStamp}}]})
 		.sort('updatedTimeStamp')
@@ -100,10 +56,7 @@ router.get('/',auth,async(req,res)=>{
 			res.send({nextPageNumber:nextPageNumber,results:transactions})
 			}
 		else{res.send({results:transactions});}
-
-
-
-	//res.send(transactions);	
+	//res.send(transactions);
 });
 //muliptle psot
   
@@ -150,37 +103,98 @@ router.post('/multiple', auth, async (req, res) => {
     
     }
 }
+//Modify Entry
+/*
+  // Modify savedEntries before sending the response
+  const modifiedEntries = savedEntries.map(entry => {
+    // Check if the userId matches req.user._id
+    if (entry.userId.toString() !== userId.toString()) {
+      // Flip the amountGiveBool if userId doesn't match
+      return {
+        ...entry,
+        amountGiveBool: !entry.amountGiveBool,
+      };
+    }
+    return entry;
+  });
+*/
 
   res.send({ savedEntries, unsavedEntries });
 });
 
+/*
+Input->TransactionId(ObjectID)
+Output->empty
+Procedure->validate Inputs(otherwise 400 with message)
+check if Transaction exits(400 with message)
+check is user allwoed (403 with message)
+update and return
+*/
+//check before save khata id proper validation
+//check here seen feature allowe dor not currenlty skip
+router.put('/',auth,validateInput(validateUpdateTransaction),async(req,res)=>{
+	//Query first findbyId()...modify and save()--if any coniditoin before update
+	//update first optional to get updated document....if not need then this 
+	const transaction = await Transaction.findById(req.body.transactionId);
+	if(!transaction) { res.status(400).send({error:{message:'Transaction doesnot exits with given Id'},response:null});}
+	//else if(!transaction.friendPhoneNumber.equals(req.user.phoneNumber)) { res.status(403).send({error:{message:'Not Access for updating seen status'},response:null});}
+	else{req.body.updatedTimeStamp=Math.floor(Date.now());
+	//findbyid and update return new or old nto normal update
+	//whatever it is change seenStatus or deleteFlag
+	transaction.set(req.body)
+	const mresult = await transaction.save();
+	res.send(mresult);
+	}
+});
+module.exports =router;
 
 /*
-Input->RecieverName(String),Isloan(String),RecieverPhoneNumber(10 digit String),Amount(Integer),AttachmentsPath(array of strings) whcih comes form key
-send x-auth-token
-Output->transaction Object
-Procedure->validate header
-validate input
-save transaction
-return saved object
+Input->lastUpdatedDate(Date format and date of latest entry) along with auth token
+Output->Objects of Transactions in sorted order
+Procedure->Query Using Phone Number and date to get info of transaction which are related to particular user and 
 */
-router.post('/',auth,async(req,res)=>{
-	const result = validate(req.body);
-		//get id and Number form user object so to imply safety (allowed Api and same time consistency of id as not from client)
-	req.body.userId=req.user._id;
-	req.body.userPhoneNumber = req.user.phoneNumber;
-	req.body.userName=req.user.name;
+//for safety in btph api pagination used
+//size check by repsonse seize safety and 
+//for user profiel fetch is query time is bottle neck maybe
+//limit prequery instead sort and skip thign to save time and avoid query fail logn request as 10 
+//all get api secured as not too long time or repsonse 
+/*
+
+router.put('/fetchtransactions',auth,async(req,res)=>{
+	//throw new Error("hello")
+	//limit for large query wiht sort feature
+	//check for date format-save update and fetch vs user object id
+	var pageSize=500;
+	var pageNumber=1;
+	var nextPageNumber;
+	if(req.body.pageNumber){pageNumber=req.body.pageNumber;}
+	if(req.body.pageSize){pageSize=req.body.pageSize;}
+
+	const lastUpdatedTimeStamp = req.body.lastUpdatedTimeStamp;
+	const result = validateRequestTransaction(req.body);
 	if(result.error){
 		dbDebugger(result.error.details[0].message)
 		res.status(400).send(result.error.details[0]);
-	}
-	else{//IST time
-		//req.body.updatedTimeStamp=Date.now();
-		const transaction = new Transaction(req.body);
-		const output = await transaction.save();
-		res.send(output);
-		}
+ 	}
+ 	else{
+			//watch performance of this
+	 	const PhoneNumber = req.user.phoneNumber;
+		const transactions = await Transaction
+		.find({$and:[{$or:[{userPhoneNumber:{$eq: PhoneNumber}},{friendPhoneNumber:{$eq: PhoneNumber}}]},{updatedTimeStamp:{$gt:lastUpdatedTimeStamp}}]})
+		.sort('updatedTimeStamp')
+		.skip(pageSize*(pageNumber-1))
+		.limit(pageSize);//watch performance of this
+		//.sort({Date:1})
+		//dbDebugger(transactions);
+		if(transactions.length == pageSize){	
+			nextPageNumber=pageNumber+1;
+			res.send({nextPageNumber:nextPageNumber,results:transactions})
+			}
+		else{res.send({results:transactions});}
+	}	
 });
+*/
+
 /*
 Input->Transaction id as parameter
 send x-auth-token
@@ -190,6 +204,7 @@ validate input
 delete transaction check is it allowed?
 return deleted object id  or validation error or if already deleted then 400 or if nto allowed then 403 
 */
+/*
 router.delete('/delete',auth,async(req,res)=>{
 	const result = validateDeleteTransaction({"transactionId":req.body.id})
 	if(result.error){
@@ -207,39 +222,34 @@ router.delete('/delete',auth,async(req,res)=>{
 	const mresult = await result1.save();
 	res.send(mresult);
 	}}});
+*/
+/*
+Input->RecieverName(String),Isloan(String),RecieverPhoneNumber(10 digit String),Amount(Integer),AttachmentsPath(array of strings) whcih comes form key
+send x-auth-token
+Output->transaction Object
+Procedure->validate header
+validate input
+save transaction
+return saved object
+*/
 
 
 /*
-Input->TransactionId(ObjectID)
-Output->empty
-Procedure->validate Inputs(otherwise 400 with message)
-check if Transaction exits(400 with message)
-check is user allwoed (403 with message)
-update and return
-*/
-
-//chekc before save khata id proper validation
-//check here seen feature allowe dor not currenlty skip
-router.put('/',auth,async(req,res)=>{
-	const result = validateUpdateSeenStatus(req.body);
+router.post('/',auth,async(req,res)=>{
+	const result = validate(req.body);
+		//get id and Number form user object so to imply safety (allowed Api and same time consistency of id as not from client)
+	req.body.userId=req.user._id;
+	req.body.userPhoneNumber = req.user.phoneNumber;
+	req.body.userName=req.user.name;
 	if(result.error){
 		dbDebugger(result.error.details[0].message)
-		res.status(400).send({error:result.error.details[0],response:null});
+		res.status(400).send(result.error.details[0]);
 	}
-	else{
-	//Query first findbyId()...modify and save()--if any coniditoin before update
-	//update first optional to get updated document....if not need then this 
-	const transaction = await Transaction.findById(req.body.transactionId);
-	if(!transaction) { res.status(400).send({error:{message:'Transaction doesnot exits with given Id'},response:null});}
-	//else if(!transaction.friendPhoneNumber.equals(req.user.phoneNumber)) { res.status(403).send({error:{message:'Not Access for updating seen status'},response:null});}
-	else{req.body.updatedTimeStamp=Math.floor(Date.now());
-	req.body.seenStatus=true;
-	//findbyid and update return new or old nto normal update
-
-	transaction.set(req.body)
-	const mresult = await transaction.save();
-	res.send(mresult);
-	}
-	}
+	else{//IST time
+		//req.body.updatedTimeStamp=Date.now();
+		const transaction = new Transaction(req.body);
+		const output = await transaction.save();
+		res.send(output);
+		}
 });
-module.exports =router;
+*/

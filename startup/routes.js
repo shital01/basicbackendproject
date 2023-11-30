@@ -11,6 +11,7 @@ const admin = require('../routes/admin');
 
 
 const tests = require('../routes/test');
+const development = require('../routes/development');
 
 
 const helmet = require('helmet');
@@ -33,6 +34,8 @@ module.exports = function(app){
 	app.use('/api/transactions',transactions);
 	app.use('/api/otps',otps);
 	app.use('/api/uploadurlrequest',uploadroutes);
+	
+	app.use('/api/dev',development);
 
 	app.use(error);
 }

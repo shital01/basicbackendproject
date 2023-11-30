@@ -7,6 +7,15 @@ const {User} = require('../models/user');
 const auth =require('../middleware/auth');
 const dbDebugger = require('debug')('app:db');
 
+const validateInput = (schema) => (req, res, next) => {
+  const { error } = schema(req.body);
+  if (error) {
+    dbDebugger(result.error.details[0].message)
+    return res.status(400).send(error.details[0]);
+  }
+  next();
+};
+
 /*
 Input->
 Name-String
@@ -23,13 +32,7 @@ If validation fail then code 400 and error message
 If user does not exist then 400 with error message
 If something else fail like database saving then Response send with code 500 and error message
 */
-router.put('/updateprofile',auth,async(req,res)=>{
-	const result = validateUpdateUser(req.body);
-	if(result.error){
-		dbDebugger(result.error.details[0].message)
-		res.status(400).send(result.error.details[0]);
-	}
-	else{
+router.put('/updateprofile',auth,validateInput(validateUpdateUser),async(req,res)=>{
 	let user = await User.findById(req.user._id);//for token regeneration hence not one lien do
 	if(!user){res.status(400).send({message:'No User exits'})}
 		else{
@@ -39,51 +42,15 @@ router.put('/updateprofile',auth,async(req,res)=>{
 	const token = user2.generateAuthToken()
 	res.header('x-auth-token',token).send(user2);
 	}
-}
-});
-
-router.post('/fakelogin',async(req,res)=>{
-	const user = new User(req.body);
-	const output = await user.save();
-	const token = output.generateAuthToken()
-	res.header('x-auth-token',token).send(output);
-});
-
-router.post('/fakedelete',async(req,res)=>{
-	let user = await User.remove({phoneNumber:req.body.phoneNumber});//for token regeneration hence not one lien do
-	res.send(user);
-});
-
-router.put('/removenameandprofile',auth,async(req,res)=>{
-	let user = await User.findById(req.user._id);//for token regeneration hence not one lien do
-	if(!user){res.status(400).send({message:'No User exits'})}
-		else{
-  // Update the document
-	user.name=undefined;
-	user.profilePictureUrl=undefined;
-
-	const user2 = await user.save();
-	const token = user2.generateAuthToken()
-	res.header('x-auth-token',token).send(user2);
-	}
 });
 
 //friendsprofile pic
-router.post('/friendsprofile',auth,async(req,res)=>{
+router.post('/friendsprofile',auth,validateInput(validateNumbers),async(req,res)=>{
 	//add limit on size of array to handle unexpected long requests-also decided by server as not size but query return time also a factor
-	const result = validateNumbers(req.body);
-	if(result.error){
-		dbDebugger(result.error.details[0].message)
-		res.status(400).send(result.error.details[0]);
-	}
-	else{
 	const users = await User.find({phoneNumber: { $in: req.body.phoneNumbers}}).select("phoneNumber profilePictureUrl name")
 	if(users.length===0) { res.status(404).send({message:'No User exits'})}
 	else{res.send(users);}
-	}
 })
-
-
 function validateUpdateUser(user){
 	const schema=Joi.object({
 	name:Joi.string().allow(null, '').max(64),
