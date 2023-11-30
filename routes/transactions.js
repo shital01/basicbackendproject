@@ -8,10 +8,10 @@ const auth =require('../middleware/auth');
 
 
 // Create separate validation functions
-const validateInput = (schema) => (req, res, next) => {
-  const { error } = schema(req.body);
+const validateInput = (schema, query = false) => (req, res, next) => {
+  const { error } = query ? schema(req.query) : schema(req.body);
   if (error) {
-    dbDebugger(error.details[0].message)
+    dbDebugger(error.details[0].message);
     return res.status(400).send(error.details[0]);
   }
   next();
@@ -22,12 +22,12 @@ Input->Auth token
 Output->Objects of Transactions in sorted order
 Procedure->Query Using Phone Number and date to get info of transaction which are related to particular user and 
 */
-//,validateInput(validateRequestTransaction)
-router.get('/',auth,async(req,res)=>{
+//,
+router.get('/',auth,validateInput(validateRequestTransaction,true),async(req,res)=>{
 	//adding default pagesize and pagenumber as of now in btoh get api for safety
 	var pageSize=500;
 	var pageNumber=1;
-	var nextPageNumber;
+	var nextPageNumber=pageNumber;
 	var lastUpdatedTimeStamp;
 	var transactions;
 	if(req.query.pageNumber){pageNumber=req.query.pageNumber;}
@@ -52,7 +52,7 @@ router.get('/',auth,async(req,res)=>{
 	//.sort({Date:1})
 	//dbDebugger(transactions);
 	if(transactions.length == pageSize){	
-			nextPageNumber=pageNumber+1;
+			nextPageNumber++;
 			res.send({nextPageNumber:nextPageNumber,results:transactions})
 			}
 		else{res.send({results:transactions});}

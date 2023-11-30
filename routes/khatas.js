@@ -11,10 +11,10 @@ const auth =require('../middleware/auth');
 //Seperate the middel ware of validation
 //validateGetKhata
 // Create separate validation functions
-const validateInput = (schema) => (req, res, next) => {
-  const { error } = schema(req.body);
+const validateInput = (schema, query = false) => (req, res, next) => {
+  const { error } = query ? schema(req.query) : schema(req.body);
   if (error) {
-    dbDebugger(result.error.details[0].message)
+    dbDebugger(error.details[0].message);
     return res.status(400).send(error.details[0]);
   }
   next();
@@ -25,7 +25,7 @@ Output->Objects of Transactions in sorted order
 Procedure->Query Using Phone Number and date to get info of transaction which are related to particular user and 
 */
 //,validateInput(validateGetKhata)
-router.get('/',auth,async(req,res)=>{
+router.get('/',auth,validateInput(validateGetKhata,true),async(req,res)=>{
 	const PhoneNumber = req.user.phoneNumber;
     var khatas;
 	//watch performance of this ,use limit feature and sort for extra large queries
