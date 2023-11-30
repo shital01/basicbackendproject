@@ -27,7 +27,7 @@ router.get('/',auth,validateInput(validateRequestTransaction,true),async(req,res
 	//adding default pagesize and pagenumber as of now in btoh get api for safety
 	var pageSize=500;
 	var pageNumber=1;
-	var nextPageNumber=pageNumber;
+	var nextPageNumber;
 	var lastUpdatedTimeStamp;
 	var transactions;
 	if(req.query.pageNumber){pageNumber=req.query.pageNumber;}
@@ -52,7 +52,7 @@ router.get('/',auth,validateInput(validateRequestTransaction,true),async(req,res
 	//.sort({Date:1})
 	//dbDebugger(transactions);
 	if(transactions.length == pageSize){	
-			nextPageNumber++;
+			nextPageNumber=parseInt(pageNumber)+1;
 			res.send({nextPageNumber:nextPageNumber,results:transactions})
 			}
 		else{res.send({results:transactions});}

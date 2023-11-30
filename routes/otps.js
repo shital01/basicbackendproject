@@ -83,7 +83,7 @@ router.post('/generate',validateInput(validateNumber),async(req,res,next)=>{
 	If something else fail like database saving then Response send with code 500 and error message
 */
 router.post('/verify',validateInput(validatelogin),async(req,res)=>{
-		if((req.body.phoneNumber==="5555543210"||"5555566666") && req.body.otp=="1234"){
+		if(((req.body.phoneNumber==="5555543210")||(req.body.phoneNumber==="5555566666")) && req.body.otp=="1234"){
 			let user = await User.findOne({phoneNumber:req.body.phoneNumber});
 			const token = user.generateAuthToken();
 			res.header('x-auth-token',token).send(user);
