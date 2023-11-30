@@ -45,7 +45,7 @@ router.get('/',auth,validateInput(validateRequestTransaction,true),async(req,res
 	else{
 	 transactions = await Transaction
 	.find({$or:[{userPhoneNumber:{$eq: PhoneNumber}},{friendPhoneNumber:{$eq: PhoneNumber}}]})
-	.sort({ transactiondate: 1 })
+	.sort({ transactionDate: 1 })
     .skip(pageSize * (pageNumber - 1))
     .limit(pageSize);
 		}
