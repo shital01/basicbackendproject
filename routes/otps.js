@@ -15,7 +15,7 @@ const sendmessage =require('../middleware/sendmessage');
 const validateInput = (schema) => (req, res, next) => {
   const { error } = schema(req.body);
   if (error) {
-    dbDebugger(result.error.details[0].message)
+    dbDebugger(error.details[0].message)
     return res.status(400).send(error.details[0]);
   }
   next();
@@ -90,7 +90,7 @@ router.post('/verify',validateInput(validatelogin),async(req,res)=>{
 		}
 		else{
 	//id is same order as date hence
-	const otps = await Otp.find({phoneNumber:req.body.phoneNumber,otp:req.body.otp}).sort({_id:-1})
+	const otps = await Otp.find({phoneNumber:req.body.phoneNumber,otp:req.body.otp})  //.sort({_id:-1})
 	if(otps.length === 0) return res.status(404).send({message:'Invalid OTP'});
 	//const validotp =await bcrypt.compare(req.body.otp,otps[0].otp)
 	//if(!validotp) return res.status(404).send({message:'Invalid OTP'});

@@ -95,12 +95,7 @@ function validateUpdateTransaction(transaction){
 	return schema.validate(transaction);
 }
 
-function validateDeleteTransaction(transaction){
-	const schema=Joi.object({
-	transactionId:Joi.objectId().required(),
-	});
-	return schema.validate(transaction);
-}
+
 //not much point pass all values
 //check if iso or without it works
 //date proper check now 
@@ -129,6 +124,5 @@ exports.validate2 = validateTransaction2;
 exports.validateUpdateSeenStatus =validateUpdateSeenStatus;
 
 exports.validateRequestTransaction =validateRequestTransaction;
-exports.validateDeleteTransaction =validateDeleteTransaction;
 
 exports.validateUpdateTransaction =validateUpdateTransaction;
