@@ -2,6 +2,7 @@ const express = require('express');
 //const _ = require('lodash');
 const jwt = require('jsonwebtoken');
 //const bcrypt = require('bcrypt');
+
 const router = express.Router();
 const {Otp,validatelogin,validateNumber} = require('../models/otp');
 const {User} = require('../models/user');
@@ -11,7 +12,6 @@ const dbDebugger = require('debug')('app:db');
 
 const sendmessage =require('../middleware/sendmessage');
 
-
 const validateInput = (schema) => (req, res, next) => {
   const { error } = schema(req.body);
   if (error) {
@@ -20,7 +20,21 @@ const validateInput = (schema) => (req, res, next) => {
   }
   next();
 };
+//benefit easy to change code for production 
+//also sep numbers for further addig new numbers for testing
 
+const testGenApi = () => (req, res, next) => {
+  if((req.body.phoneNumber==="5555543210")||(req.body.phoneNumber==="5555566666")){return res.send({SendSMS:true});}
+  next();
+};
+const testLoginApi = () => (req, res, next) => {
+  if(((req.body.phoneNumber==="5555543210")||(req.body.phoneNumber==="5555566666")&& req.body.otp=="1234")){
+  	let user = await User.findOne({phoneNumber:req.body.phoneNumber});
+	const token = user.generateAuthToken();
+  	return res.header('x-auth-token',token).send(user);
+  }
+  next();
+};
 /*helper function to generate OTP for generateOTP api
 Input->{}
 OutPut->4 digit otp string
@@ -47,14 +61,8 @@ save entry in Otp Table with Phone ,OTP as field with Otp as encrypted
 send SMS to user Phone Number
 Return boolean true,if number not 10 digit 400 request send ,if something else fail like database saving then 500 request
 */
-router.post('/generate',validateInput(validateNumber),async(req,res,next)=>{	
-//dummy account direct send true no sms and otp create
-		if(req.body.phoneNumber==="5555543210"||"5555566666"){
-		//	user = new User(req.body);
-	//const newuser = await user.save();
-			res.send({SendSMS:true});
-		}
-		else{
+router.post('/generate',testGenApi(),validateInput(validateNumber),async(req,res,next)=>{	
+//dummy account direct send true no sms and otp create	
 	const salt = await bcrypt.genSalt(10);
 	const smsotp =generateOTP();
 	//const OTP = await bcrypt.hash(smsotp,salt)
@@ -64,7 +72,6 @@ router.post('/generate',validateInput(validateNumber),async(req,res,next)=>{
 	var finalmessage ="OTP for login is: "+smsotp+" Settle App"
 	const SendSMS = await sendmessage("91"+req.body.phoneNumber,finalmessage,'1607100000000267487');
 	res.send({SendSMS});
-	}
 });
 /*
 	Input->PhoneNumber(10 digit String),OTP(4 digit String)
@@ -82,13 +89,7 @@ router.post('/generate',validateInput(validateNumber),async(req,res,next)=>{
 	If OTP failed either not requested or OTP mismatch send response with 404 code and error message
 	If something else fail like database saving then Response send with code 500 and error message
 */
-router.post('/verify',validateInput(validatelogin),async(req,res)=>{
-		if(((req.body.phoneNumber==="5555543210")||(req.body.phoneNumber==="5555566666")) && req.body.otp=="1234"){
-			let user = await User.findOne({phoneNumber:req.body.phoneNumber});
-			const token = user.generateAuthToken();
-			res.header('x-auth-token',token).send(user);
-		}
-		else{
+router.post('/verify',testLoginApi(),validateInput(validatelogin),async(req,res)=>{
 	//id is same order as date hence
 	const otps = await Otp.find({phoneNumber:req.body.phoneNumber,otp:req.body.otp})  //.sort({_id:-1})
 	if(otps.length === 0) return res.status(404).send({message:'Invalid OTP'});
@@ -109,8 +110,5 @@ router.post('/verify',validateInput(validatelogin),async(req,res)=>{
 	res.header('x-auth-token',token).send(user);
 	}
 	}
-}
-
-
 });
 module.exports =router;

@@ -5,5 +5,8 @@
 	"userid":"settle_userid",
 	"password":"settle_password",
 	"AWSSecretKey":"settle_AWSSecretKey",
-	"AWSAccessKey":"settle_AWSAccessKey"
+	"AWSAccessKey":"settle_AWSAccessKey",
+	"templateIdAdd":"settle_templateIdAdd",
+	"templateIdDelete":"settle_templateIdDelete",
+	"templateIdRemind":"settle_templateIdRemind"
 }

@@ -5,6 +5,7 @@ const logger = require('../startup/logging');
 const dbDebugger = require('debug')('app:db');
 const sendmessage =require('../middleware/sendmessage');
 const auth =require('../middleware/auth');
+const config = require('bcrypt');
 
 /*
 Add comment
@@ -22,20 +23,24 @@ router.post('/',auth,async(req,res,next)=>{
 
 	if(messageType == "add"){
 		result = validateMessage(req.body);
-		templateId='1607100000000265753';
+		templateId = config.get('templateIdAdd');
+		//'1607100000000265753';
+		config.get('templateIdAdd');
 		if(req.body.Isloan){message = req.body.SenderName+"("+req.body.SenderPhoneNumber+") gave you Rs "+req.body.Amount+". \nNow Balance is Rs "+req.body.TotalAmount+". \nSee all txns: "+link+" \nSettle App";}
 		else{message = "You gave "+req.body.SenderName+"("+req.body.SenderPhoneNumber+") Rs "+req.body.Amount+". \nNow Balance is Rs "+req.body.TotalAmount+". \nSee all txns: "+link+" \nSettle App";}
 	} 
 	else if(messageType == "delete"){
 		result = validateDeleteMessage(req.body);
-		templateId='1607100000000265754';
+		templateId=config.get('templateIdDelete');
+		//'1607100000000265754';
 		if(req.body.Isloan){message = req.body.SenderName+"("+req.body.SenderPhoneNumber+") gave you Rs "+req.body.Amount+". \nNow Balance is Rs "+req.body.TotalAmount+". \nSee all txns: "+link+" \nSettle App";}
 		else{ message = "You gave "+req.body.SenderName+"("+req.body.SenderPhoneNumber+") Rs "+req.body.Amount+". \nNow Balance is Rs "+req.body.TotalAmount+". \nSee all txns: "+link+" \nSettle App";}
 		message = "Deleted: \n"+message;
 	} 
 	else if(messageType == "remind"){
 		result = validateRemindMessage(req.body);
-		templateId='1607100000000265755';
+		templateId=config.get('templateIdRemind');
+		//'1607100000000265755';
 		message = "Your balance with "+req.body.SenderName+"("+req.body.SenderPhoneNumber+") is Rs "+req.body.TotalAmount+". \nSee all txns: "+link+" \nSettle App";
 	} 
 	if(result.error){
