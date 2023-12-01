@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const dbDebugger = require('debug')('app:db');
 const {Transaction,validate,validate2,validateUpdateTransaction,validateRequestTransaction} = require('../models/transaction');
 const {User} = require('../models/user');
+const {Khata} = require('../models/khata');
+
 const auth =require('../middleware/auth');
 
 
@@ -34,17 +36,22 @@ router.get('/',auth,validateInput(validateRequestTransaction,true),async(req,res
 	if(req.query.pageSize){pageSize=req.query.pageSize;}
 	if(req.query.lastUpdatedTimeStamp){ lastUpdatedTimeStamp = req.query.lastUpdatedTimeStamp;}
 	const PhoneNumber = req.user.phoneNumber;
+	
+	const khatas = await Khata
+		.find({$or:[{userPhoneNumber:{$eq: PhoneNumber}},{friendPhoneNumber:{$eq: PhoneNumber}}]})
+		.select("_id")
 	//watch performance of this ,use limit feature and sort for extra large queries
+
 	if(req.query.lastUpdatedTimeStamp){
 		 transactions = await Transaction
-		.find({$and:[{$or:[{userPhoneNumber:{$eq: PhoneNumber}},{friendPhoneNumber:{$eq: PhoneNumber}}]},{updatedTimeStamp:{$gt:lastUpdatedTimeStamp}}]})
+		.find({$and:[{khataId: { $in: khatas}},{updatedTimeStamp:{$gt:lastUpdatedTimeStamp}}]})
 		.sort('updatedTimeStamp')
 		.skip(pageSize*(pageNumber-1))
 		.limit(pageSize);//watch performance of this
 	}
 	else{
 	 transactions = await Transaction
-	.find({$or:[{userPhoneNumber:{$eq: PhoneNumber}},{friendPhoneNumber:{$eq: PhoneNumber}}]})
+	.find({khataId: { $in: khatas}})
 	.sort({ transactionDate: 1 })
     .skip(pageSize * (pageNumber - 1))
     .limit(pageSize);
