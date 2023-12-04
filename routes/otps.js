@@ -27,11 +27,16 @@ const testGenApi = () => (req, res, next) => {
   if((req.body.phoneNumber==="5555543210")||(req.body.phoneNumber==="5555566666")){return res.send({SendSMS:true});}
   next();
 };
-const testLoginApi = () => (req, res, next) => {
+const testLoginApi = () => async (req, res, next) => {
   if(((req.body.phoneNumber==="5555543210")||(req.body.phoneNumber==="5555566666")&& req.body.otp=="1234")){
-  	let user = await User.findOne({phoneNumber:req.body.phoneNumber});
+  	try{let user = await User.findOne({phoneNumber:req.body.phoneNumber});
 	const token = user.generateAuthToken();
   	return res.header('x-auth-token',token).send(user);
+  }
+  catch(error){
+      return res.status(500).send({ error: 'Internal Server Error' });
+
+  }
   }
   next();
 };

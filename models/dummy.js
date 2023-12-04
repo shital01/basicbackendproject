@@ -9,7 +9,7 @@ const DummySchema = new mongoose.Schema({
       message: '{VALUE} is not an integer value for amount.'
     }},
 	giveDate: {
-    type: Date,
+    type: Number,
     required: true,
   },
   interestRate:{type:Number,required:true,min:0,max:100,default:0},
@@ -23,3 +23,4 @@ const DummySchema = new mongoose.Schema({
 const Dummy = mongoose.model('Dummy',DummySchema);
 
 exports.Dummy = Dummy;
+ 

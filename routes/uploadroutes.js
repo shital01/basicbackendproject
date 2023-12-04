@@ -29,6 +29,16 @@ function validateUploadUrlRequest(transaction){
   return schema.validate(transaction);
 }
 
+
+//what if failed one of 4 fail shoudl be answer
+//otherwise keep tryignwht if reaosn nto resolved infinte loop hce max 4 try is reason -not while loop
+//either send all or max 3 send
+//n 4 henc e for loop ok not muchissue of paralle if take more time then see for optimization
+//if one fail geeting atleast failed respoonse not 4 achievd but atleast respoonse reoslve
+
+//possibel optimization try more but infiinte issue,porimise paralele if speed issue,return fetched so far if 1 fail 3 pass then 3 send
+
+
 router.get('/multiple', auth, validateInput(validateUploadUrlRequest),async (req, res) => {
 	//add validation as notmore than 4
   const numberOfPresignedURLs = req.body.count || 1; // Get the number of URLs from the query parameter (default to 1 if not provided)
@@ -58,8 +68,7 @@ router.get('/multiple', auth, validateInput(validateUploadUrlRequest),async (req
     });
   }
 });
-
-module.exports = router;
+module.exports =router;
 /*
 
 router.get('/',auth,async(req,res)=>{

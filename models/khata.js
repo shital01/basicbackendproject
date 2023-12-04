@@ -27,7 +27,8 @@ const KhataSchema = new mongoose.Schema({
     validate: [isValidUnixTimestamp, 'Invalid Unix timestamp'],
     default:Math.floor(Date.now())
   },
-  localId:{type:String}
+  localId:{type:String},
+  settledFlag:{type:Boolean,default:false}
 });
 
 const Khata = mongoose.model('Khata',KhataSchema);
@@ -49,7 +50,8 @@ function validateKhata(khata){
 	interestRate:Joi.number().min(0).max(100),
 	interestType:Joi.string().valid('N', 'CY', 'CW', 'CM').required(),
 	rotationPeriod:Joi.string().valid('0M','3M','6M','18M','1Y','2Y'),
-	localId:Joi.string().required()
+	localId:Joi.string().required(),
+	settledFlag:Joi.boolean()
 	});
 	return schema.validate(khata);
 }
@@ -65,7 +67,9 @@ function validateKhataArray(khatas) {
       interestRate: Joi.number().required().min(0).max(100).required(),
       interestType: Joi.string().valid( 'N', 'CY', 'CW', 'CM').required(),
       rotationPeriod: Joi.string().valid('3M','6M','1Y','2Y').required(),
-      localId:Joi.string().required()
+      localId:Joi.string().required(),
+      settledFlag:Joi.boolean()
+
     })
   );
 
@@ -80,7 +84,7 @@ function validateUpdateKhata(khata){
 	interestRate:Joi.number().min(0).max(100),
 	interestType:Joi.string().valid('S', 'N', 'CY', 'CW', 'CM'),
 	rotationPeriod:Joi.string().valid('3M','6M','1Y','2Y'),
-
+	settledFlag:Joi.boolean()
 	});
 	return schema.validate(khata);
 }
