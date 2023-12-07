@@ -27,14 +27,14 @@ const dbDebugger = require('debug')('app:db');
 //last x days users-TODO
 //last x days made transactions
 
-router.get('/GetUsers',async(req,res)=>{
-	let users = await User.find({},{Name:1,PhoneNumber:1});//for token regeneration hence not one lien do
+router.get('/GetUsers',async(req,res)=>{//,{name:1,phoneNumber:1}
+	let users = await User.find({});//for token regeneration hence not one lien do
 	res.header().send({error:null,response:users});
 });
 
 
-router.get('/GetTransactions',async(req,res)=>{
-	let users = await Transaction.find({},{SenderName:1,ReceiverName:1,Amount:1,Notes:1});//for token regeneration hence not one lien do
+router.get('/GetTransactions',async(req,res)=>{//,{SenderName:1,ReceiverName:1,Amount:1,Notes:1
+	let users = await Transaction.find({});//for token regeneration hence not one lien do
 	res.header().send({error:null,response:users});
 });
 
