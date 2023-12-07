@@ -68,7 +68,7 @@ Return boolean true,if number not 10 digit 400 request send ,if something else f
 */
 router.post('/generate',testGenApi(),validateInput(validateNumber),async(req,res,next)=>{	
 //dummy account direct send true no sms and otp create	
-	const salt = await bcrypt.genSalt(10);
+	//const salt = await bcrypt.genSalt(10);
 	const smsotp =generateOTP();
 	//const OTP = await bcrypt.hash(smsotp,salt)
 	const otp = new Otp({phoneNumber:req.body.phoneNumber,otp:smsotp});

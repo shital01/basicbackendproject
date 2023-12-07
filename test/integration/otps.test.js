@@ -37,7 +37,7 @@ describe('/api/otps',()=>{
 		//Constains->String,10 digit RegEx,Required
 		//Path-01
 		it('should return 400 if validation OTP failed due to short number',async()=>{
-			phoneNumber = "1";
+			phoneNumber = "1";//all phonemnumebein one for loop
 			const res = await exec();
 			expect(res.status).toBe(400);
 			expect(res.body.message).toBe('Phone number must have 10 digits.');
@@ -72,8 +72,12 @@ describe('/api/otps',()=>{
 			expect(res.body.message).toBe('"phoneNumber" must be a string');
 		})
 		//Path-06//All is Well Path
+		//Add path for testing numbers
+		//Add export varible to avoid sms send error
 		it('should save otp if valid otp',async()=>{
 			const res = await exec();
+			console.log(phoneNumber);
+			console.log(res.body)
 			expect(res.status).toBe(200);
 			//expect(res.body.error).toBe(null);
 			//expect(res.headers['x-auth-token']).toBeDefined();
@@ -103,8 +107,6 @@ describe('/api/otps',()=>{
 			//await User.collection.dropIndex('phoneNumber_1');
 
 			otp = "1234";
-			const salt = await bcrypt.genSalt(10);
-			OTPhashed = await bcrypt.hash(otp,salt)
 			phoneNumber1 = "1234567890";
 			phoneNumber2 = "1231231231";
 			phoneNumber3 = "1234512346";
@@ -171,7 +173,7 @@ describe('/api/otps',()=>{
 		})
 		//Path-07
 		it('should return 404 if wrong OTP as not requested no entry and also new user',async()=>{
-			await Otp.collection.insertMany([{phoneNumber:phoneNumber1,otp:OTPhashed},{phoneNumber:phoneNumber2,otp:OTPhashed}])
+			await Otp.collection.insertMany([{phoneNumber:phoneNumber1,otp:otp},{phoneNumber:phoneNumber2,otp:otp}])
 			phoneNumber=phoneNumber3;
 			const res = await exec();
 			expect(res.status).toBe(404);
@@ -181,7 +183,7 @@ describe('/api/otps',()=>{
 		})
 		//Path-08
 		it('should return 404 if wrong OTP and user is new ',async()=>{
-			await Otp.collection.insertMany([{phoneNumber:phoneNumber1,otp:OTPhashed},{phoneNumber:phoneNumber2,otp:OTPhashed}])
+			await Otp.collection.insertMany([{phoneNumber:phoneNumber1,otp:otp},{phoneNumber:phoneNumber2,otp:otp}])
 			phoneNumber=phoneNumber1;
 			otp="1111";
 			const res = await exec();
@@ -191,7 +193,7 @@ describe('/api/otps',()=>{
 		})
 		//Path-09
 		it('should return 200 if correct OTP and user is new ',async()=>{
-			await Otp.collection.insertMany([{phoneNumber:phoneNumber1,otp:OTPhashed},{phoneNumber:phoneNumber2,otp:OTPhashed}])
+			await Otp.collection.insertMany([{phoneNumber:phoneNumber1,otp:otp},{phoneNumber:phoneNumber2,otp:otp}])
 			phoneNumber=phoneNumber1;
 			const res = await exec();
 			//response code 200 and empty error body and non empty response
@@ -211,7 +213,7 @@ describe('/api/otps',()=>{
 		//Path-10
 		it('should return 404 if wrong OTP as not requested no entry and also old user',async()=>{
 
-			await Otp.collection.insertMany([{phoneNumber:phoneNumber1,otp:OTPhashed},{phoneNumber:phoneNumber2,otp:OTPhashed}])
+			await Otp.collection.insertMany([{phoneNumber:phoneNumber1,otp:otp},{phoneNumber:phoneNumber2,otp:otp}])
 			await User.collection.insertMany([{phoneNumber:phoneNumber1,name:"name1"},{phoneNumber:phoneNumber3,name:"name1"}])
 			phoneNumber=phoneNumber3;
 			const res = await exec();
@@ -222,7 +224,7 @@ describe('/api/otps',()=>{
 		//Path-11
 		it('should return 404 if wrong OTP and user is old ',async()=>{
 
-			await Otp.collection.insertMany([{phoneNumber:phoneNumber1,otp:OTPhashed},{phoneNumber:phoneNumber2,otp:OTPhashed}])
+			await Otp.collection.insertMany([{phoneNumber:phoneNumber1,otp:otp},{phoneNumber:phoneNumber2,otp:otp}])
 			await User.collection.insertMany([{phoneNumber:phoneNumber1,name:"name1"},{phoneNumber:phoneNumber3,name:"name1"}])
 			phoneNumber=phoneNumber1;
 			otp="1111";
@@ -234,7 +236,7 @@ describe('/api/otps',()=>{
 		//Path-12
 		it('should return 200 if correct OTP and user is old ',async()=>{
 
-			await Otp.collection.insertMany([{phoneNumber:phoneNumber1,otp:OTPhashed},{phoneNumber:phoneNumber2,otp:OTPhashed}])
+			await Otp.collection.insertMany([{phoneNumber:phoneNumber1,otp:otp},{phoneNumber:phoneNumber2,otp:otp}])
 			await User.collection.insertMany([{phoneNumber:phoneNumber1,name:"name1"},{phoneNumber:phoneNumber3,name:"name1"}])
 			phoneNumber=phoneNumber1;
 			const res = await exec();

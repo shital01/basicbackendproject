@@ -84,7 +84,7 @@ function validateUpdateKhata(khata){
 	interestRate:Joi.number().min(0).max(100),
 	interestType:Joi.string().valid('S', 'N', 'CY', 'CW', 'CM'),
 	rotationPeriod:Joi.string().valid('3M','6M','1Y','2Y'),
-	settledFlag:Joi.boolean()
+	settledFlag:Joi.boolean().valid(true)
 	});
 	return schema.validate(khata);
 }

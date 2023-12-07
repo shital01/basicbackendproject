@@ -25,6 +25,7 @@ Output->Objects of Transactions in sorted order
 Procedure->Query Using Phone Number and date to get info of transaction which are related to particular user and 
 */
 //,validateInput(validateGetKhata)
+//PageSize and Page Number to be included in get function
 router.get('/',auth,validateInput(validateGetKhata,true),async(req,res)=>{
 	const PhoneNumber = req.user.phoneNumber;
     var khatas;
@@ -131,6 +132,8 @@ function validateKhataArray(khataEntries) {
 
 
 //to edit khata
+//DELETE KHATA OPTION
+
 
 router.put('/',auth,validateInput(validateUpdateKhata),async(req,res)=>{
 	//Query first findbyId()...modify and save()--if any coniditoin before update

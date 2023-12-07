@@ -94,7 +94,7 @@ describe('/api/upload routes',()=>{
 			//Happy Path
 			let exec = () => {
 			return  request(server)
-			.get('/api/uploadurlrequest/')
+			.get('/api/uploadurlrequest/multiple')
 			.set('x-auth-token',token)
 			}
 			beforeEach(async()=>{

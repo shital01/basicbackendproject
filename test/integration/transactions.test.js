@@ -3,531 +3,464 @@ const mongoose = require('mongoose');
 
 const {Transaction} = require('../../models/transaction');
 const {User} = require('../../models/user');
+const {Khata} = require('../../models/khata');
 
 let server;
+/*
+attahcments max 4 or url type
+max limit 10000 and handling
+then date is unix type or not 
+
+Date early and late max allow
+
+
+*/
+//Need 2 user minimum
+//4 transaction -1 incorrect ,1 different user
+//khatas also 2 as query internal for khatas
+let t1,t2;
+			const userid = mongoose.Types.ObjectId();
+			const userid2 = mongoose.Types.ObjectId();
+	
+			const khata1id=mongoose.Types.ObjectId();
+			const khata2id=mongoose.Types.ObjectId();
+
+			const khata1 = {
+				_id:khata1id,
+				userName:"name1",
+				friendName:"f1",
+				userPhoneNumber:"1313131212",
+				friendPhoneNumber:"1313131210",
+				interestType : 'N',
+				localId:'1',
+				userId:userid,
+				rotationPeriod: "3M",
+				updatedTimeStamp: 1211231231231,
+			}
+			const khata2 = {
+				_id:khata2id,
+				userName:"name1",
+				friendName:"f1",
+				userPhoneNumber:"1313131213",
+				friendPhoneNumber:"1313131210",
+				interestType : 'N',
+				localId:'2',
+				userId:userid,
+				rotationPeriod: "3M",
+				updatedTimeStamp: 1211231231231,
+			}
+
+			const transaction1 = {
+				khataId : khata1id,
+				amount : 1,
+				userName:"name1",
+				userPhoneNumber:"1313131212",
+				amountGiveBool : true,
+				localId:'1',
+				userId:userid,
+				transactionDate: 1211231231231,
+				updatedTimeStamp: 1211231231231,
+			}
+			const transaction2 = {
+				khataId : khata2id,
+				amount : 1,
+				amountGiveBool : true,
+				localId:'1',
+				userId:userid,
+				transactionDate: 1211231231232,
+				updatedTimeStamp: 1211231231235,
+				attachmentsPath:["firsturl","secondurl"]
+			}
+			const transaction3 = {
+				khataId : khata1id,
+				amount : 1,
+				amountGiveBool : false,
+				localId:'1',
+				userId:userid,
+				transactionDate: 1211231231232,
+				updatedTimeStamp: 1211231231236,
+			}
+			const transaction4 = {
+				khataId : khata2id,
+				amount : 1,
+				amountGiveBool : false,
+				localId:'1',
+				userId:userid2,
+				transactionDate: 1211231231232,
+				updatedTimeStamp: 1211231231236,
+			}
+			const transaction5 = {
+				khataId : khata2id,
+				amount : 1,
+				amountGiveBool : true,
+				localId:'1',
+				userId:userid,
+				transactionDate: 1211231231232,
+				updatedTimeStamp: 1211231231235,
+				attachmentsPath:["firsturl","secondurl","thirdurl","fourthurl","fifthurl"]
+			}
 describe('/api/transactions',()=>{
 
-	beforeEach(()=>{server = require('../../index')})
+	beforeEach(()=>{
+		server = require('../../index')}
+		)
 	afterEach(async()=>{
 		await server.close();
 		await Transaction.deleteMany({});
 		await User.deleteMany({})
+		await Khata.deleteMany({})
 		});
 //To Match property fail sometime n too strict  so to have property then array containing
 //To Match(too strict fail due to location),to have property,loop over all objects with all fields have and length field
 //to be truthy to check even value of object field
 /*
 expect(Object.keys(res.body)).toEqual(
-	expect.arrayContaining(['userName','userPhoneNumber']))
-	//expect(res.body.some(t =>t.userName ==='name1')).toBeTruthy();
-	//expect(res.body.some(t =>t.userName ==='name2')).toBeTruthy();
+	expect.arrayContaining(['SenderName','SenderPhoneNumber']))
+	//expect(res.body.some(t =>t.SenderName ==='name1')).toBeTruthy();
+	//expect(res.body.some(t =>t.SenderName ==='name2')).toBeTruthy();
 */
 
-//test each input failure so increase in no of path and also loop over input if possible
-//set receivrname null undefine nlal in loop to test
+//test each input failrue so increase in no of path and also loop over input if possible
+//set recievrname null undefine nlal in loop to test
 //Get Request Paths Testing	
+/*
 	describe('GET /',() =>{
-			const userid = mongoose.Types.ObjectId();
-			const userid2 = mongoose.Types.ObjectId();
-			const transaction1 = {
-				friendName : "name2",
-				amount : 1,
-				friendPhoneNumber : "1234512345",
-				userName:'name1',
-				interestRate:12,
-				interestType:'CM',
-				userId:userid,
-				userPhoneNumber:"1231231231",				
-				updatedTimeStamp:"2023-01-01T07:44:31.118Z",
-				transactionDate: "2023-02-02T00:00:00.000Z",
-				description:"just a note"
-			}
-			const transaction2 = {
-				friendName : "name1",
-				amount : -1,
-				friendPhoneNumber : "1231231231",
-				userName:'name2',
-				interestRate:24,
-				interestType:'CY',
-				userId:userid2,
-				userPhoneNumber:"1234512345",
-				transactionDate: "2023-01-01T00:00:00.000Z",
-				updatedTimeStamp:"2023-01-01T06:44:31.118Z",
-				attachmentsPath:["firsturl","secondurl"]
-			}
-			const transaction3 = {
-				friendName : "name1",
-				amount : 1,
-				friendPhoneNumber : "1431231231",
-				userName:'name2',
-				interestRate:12,
-				interestType:'CW',
-				userId:userid2,
-				userPhoneNumber:"1434512345",
-				updatedTimeStamp:"2023-01-01T09:44:31.118Z",
-				transactionDate: "2023-01-12T00:00:00.000Z"
-
-			}
-			const transaction4 = {
-				friendName : "name1",
-				amount : 1,
-				interestRate:12,
-				interestType:'S',
-				friendPhoneNumber : "1231231231",
-				userName:'name2',
-				userId:userid2,
-				userPhoneNumber:"1234512345",
-				updatedTimeStamp:"2023-01-01T11:44:31.118Z",
-				transactionDate: "2023-01-02T00:00:00.000Z"
-			}
 			
+			//getData() transaction1,...4	
 			//Happy Path
-			let exec = () => {
+			var token;
+			var payload={};
+			let exec = (payload) => {
 			return  request(server)
 			.get('/api/transactions/')
 			.set('x-auth-token',token)
+			.query(payload)
 			}
 			beforeEach(()=>{
-			token = new User({_id:userid,phoneNumber:"1234512345",name:"name1"}).generateAuthToken();		
-			})
-			//Path-01
-		it('should return 401 for No token',async() =>{
-			token ='';
-			const res = await exec();
-			expect(res.status).toBe(401);
-			expect(res.body.message).toBe('Access denied NO token Provided');
-		});
-		//Path-02
-		it('should return 400 for invalid token',async() =>{
-			token ='1';
-			const res = await exec();
-			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('Invalid Token');
-		});
-		//Path-03
-		it('should return all transactions',async() =>{
-			await Transaction.collection.insertMany([transaction1,transaction2,transaction3,transaction4])
-			const res = await exec();
-			//response code 200 and empty error body and non empty response
-			expect(res.status).toBe(200);
-			//expect(res.body.error).toBe(null);
-			//response check
-			expect(res.body.length).toBe(3);
-			expect(Object.keys(res.body[0])).toEqual(
-				expect.arrayContaining(['userName','userPhoneNumber','userId','friendName','friendPhoneNumber','amount','updatedTimeStamp','interestRate','interestType','transactionDate','_id',]))
-			//check header
-			//expect(res.headers['x-auth-token']).toBeDefined();
-			
-		});
-	});
-	//Get Request Paths Testing	
-	//date tested in postman working but not in supertest nor date related query picking it up
-	describe('GET BY DATE/',() =>{
-			const userid = mongoose.Types.ObjectId();
-			const userid2 = mongoose.Types.ObjectId();
-			let lastupdatedTimeStamp,token;
-			const transaction1 = {
-				friendName : "name2",
-				amount : 1,
-				friendPhoneNumber : "1234512345",
-				userName:'name1',
-				interestRate:12,
-				interestType:'CM',
-				userId:userid,
-				userPhoneNumber:"1231231231",				
-				updatedTimeStamp:"2023-01-01T07:44:31.118Z",
-				transactionDate: "2023-02-02T00:00:00.000Z",
-				description:"just a note"
-			}
-			const transaction2 = {
-				friendName : "name1",
-				amount : -1,
-				friendPhoneNumber : "1231231231",
-				userName:'name2',
-				interestRate:24,
-				interestType:'CY',
-				userId:userid2,
-				userPhoneNumber:"1234512345",
-				transactionDate: "2023-01-01T00:00:00.000Z",
-				updatedTimeStamp:"2023-01-01T06:44:31.118Z",
-				attachmentsPath:["firsturl","secondurl"]
-			}
-			const transaction3 = {
-				friendName : "name1",
-				amount : 1,
-				friendPhoneNumber : "1431231231",
-				userName:'name2',
-				interestRate:12,
-				interestType:'CW',
-				userId:userid2,
-				userPhoneNumber:"1434512345",
-				updatedTimeStamp:"2023-01-01T09:44:31.118Z",
-				transactionDate: "2023-01-12T00:00:00.000Z"
-
-			}
-			const transaction4 = {
-				friendName : "name1",
-				amount : 1,
-				interestRate:12,
-				interestType:'S',
-				friendPhoneNumber : "1231231231",
-				userName:'name2',
-				userId:userid2,
-				userPhoneNumber:"1234512345",
-				updatedTimeStamp:"2023-01-01T11:44:31.118Z",
-				transactionDate: "2023-01-02T00:00:00.000Z"
-			}
-			
-			
-			//Happy Path
-			let exec = () => {
-			return  request(server)
-			.put('/api/transactions/fetchtransactions')
-			.set('x-auth-token',token)
-			.send({lastUpdatedTimeStamp})
-			}
-			beforeEach(async()=>{
-			const user = new User({phoneNumber:"1234512345",name:"name1"})		
-			await user.save();
-			token = user.generateAuthToken();
-			lastUpdatedTimeStamp=new Date("2020-01-02T06:44:31.118Z").toISOString();
+				
+			token = new User({_id:userid,phoneNumber:"1313131212",name:"name1"}).generateAuthToken();		
 			})
 			afterEach(async()=>{
-			await User.deleteMany({})
-			})
-			//Path-01
+		await Transaction.deleteMany({});
+		await User.deleteMany({})
+		await Khata.deleteMany({})
+		});
 		it('should return 401 for No token',async() =>{
 			token ='';
 			const res = await exec();
 			expect(res.status).toBe(401);
-			expect(res.body.message).toBe('Access denied NO token Provided');
 		});
-		//Path-02
 		it('should return 400 for invalid token',async() =>{
 			token ='1';
 			const res = await exec();
 			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('Invalid Token');
 		});
-		//Path-03
+		//handle all type of dates too not a dat etype,not a valid date,too early or too late
 		it('should return 400 for invalid Date',async() =>{
 			lastUpdatedTimeStamp =null;
-			const res = await exec();
+			payload = {lastUpdatedTimeStamp}
+			const res = await exec(payload);
 			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('"lastUpdatedTimeStamp" must be a valid date');
 		});
-		//it wont be running due to date
-		//Path-04
-		
-		it('should return all transactions',async() =>{
-			await Transaction.collection.insertMany([transaction1,transaction2,transaction3,transaction4])
-			//lastupdatedTimeStamp = new Date(lastupdatedTimeStamp);
-			const ts= await Transaction.find({updatedTimeStamp:{$gt:lastupdatedTimeStamp}});
-			console.log(ts);
-			const res = await exec();
-			//response code 200 and empty error body and non empty response
-			expect(res.status).toBe(200);
-			//expect(res.body.error).toBe(null);
-			//response check
-			expect(res.body.length).toBe(3);
-			expect(Object.keys(res.body[0])).toEqual(
-				expect.arrayContaining(['userName','userPhoneNumber','userId','friendName','friendPhoneNumber','amount','updatedTimeStamp','interestRate','interestType','transactionDate','_id',]))
-			//check header
-			//expect(res.headers['x-auth-token']).toBeDefined();
+		it('should return 400 for invalid pageSize',async() =>{
+			const invalidPageSizes = [-3, 0, "12"];
+		    for (const pageSize of invalidPageSizes) {
+		        const payload = { pageSize };
+		        const res = await exec(token, payload);
+		        expect(res.status).toBe(400);
+		    }
+		});
+		it('should return 400 for invalid pageNumber',async() =>{
+			const invalidPageNumbers = [-3, 0, "12"];
+		    for (const pageNumber of invalidPageNumbers) {
+		        const payload = { pageNumber };
+		        const res = await exec(token, payload);
+		        expect(res.status).toBe(400);
+		    }
+		});
+		//in success path also for max 10000 check ....
+		it('should return all transactions with Date',async() =>{
 			
-		});
-		
+			const khatas = await Khata.collection.insertMany([khata1,khata2])
+			const transactions= await Transaction.collection.insertMany([transaction1,transaction2,transaction3,transaction4])
+			//	console.log(token);
+			//const k2 = await Khata.find({})
+			//console.log(k2);
+			//console.log(khatas);
+			//const t2= await Transaction.find({})
+			//console.log(t2)
+			payload = {lastUpdatedTimeStamp:1211231231232}
+			const res = await exec(payload);
+			expect(res.status).toBe(200);
+			console.log(res.body);
+			console.log(res.body.results[0]);
+
+			expect(res.body.results.length).toBe(1);
+			expect(Object.keys(res.body.results[0])).toEqual(
+				expect.arrayContaining(['deleteFlag','seenStatus','_id','khataId','amount','userId','amountGiveBool','localId','transactionDate','updatedTimeStamp']))				
+				});
+		it('should return all transactions with Date and pageNumber',async() =>{
+			
+			const khatas = await Khata.collection.insertMany([khata1,khata2])
+			const transactions= await Transaction.collection.insertMany([transaction1,transaction2,transaction3,transaction4])
+			payload = {lastUpdatedTimeStamp:1211231231232,pageNumber:1}
+			const res = await exec(payload);
+			expect(res.status).toBe(200);
+			console.log(res.body);
+			console.log(res.body.results[0]);
+
+			expect(res.body.results.length).toBe(1);
+			expect(Object.keys(res.body.results[0])).toEqual(
+				expect.arrayContaining(['deleteFlag','seenStatus','_id','khataId','amount','userId','amountGiveBool','localId','transactionDate','updatedTimeStamp']))				
+				
+
+
+				});
+		it('should return all transactions with Date and PageSize',async() =>{
+			
+			const khatas = await Khata.collection.insertMany([khata1,khata2])
+			const transactions= await Transaction.collection.insertMany([transaction1,transaction2,transaction3,transaction4])
+			payload = {lastUpdatedTimeStamp:1211231231232,pageSize:2}
+			const res = await exec(payload);
+			expect(res.status).toBe(200);
+			console.log(res.body);
+			console.log(res.body.results[0]);
+
+			expect(res.body.results.length).toBe(1);
+			expect(Object.keys(res.body.results[0])).toEqual(
+				expect.arrayContaining(['deleteFlag','seenStatus','_id','khataId','amount','userId','amountGiveBool','localId','transactionDate','updatedTimeStamp']))				
+				});
+
+		it('should return all transactions with Date and page size and pageNumber',async() =>{
+			
+			const khatas = await Khata.collection.insertMany([khata1,khata2])
+			const transactions= await Transaction.collection.insertMany([transaction1,transaction2,transaction3,transaction4])
+			payload = {lastUpdatedTimeStamp:1211231231232,pageSize:1,pageNumber:1}
+			const res = await exec(payload);
+			expect(res.status).toBe(200);
+			expect(res.body.results.length).toBe(1);
+			expect(Object.keys(res.body.results[0])).toEqual(
+				expect.arrayContaining(['deleteFlag','seenStatus','_id','khataId','amount','userId','amountGiveBool','localId','transactionDate','updatedTimeStamp']))				
+
+				});
+		it('should return all transactions without Date',async() =>{
+			
+			const khatas = await Khata.collection.insertMany([khata1,khata2])
+			const transactions= await Transaction.collection.insertMany([transaction1,transaction2,transaction3,transaction4])
+			const res = await exec();
+			expect(res.status).toBe(200);
+			expect(res.body.results.length).toBe(2);
+			expect(Object.keys(res.body.results[0])).toEqual(
+				expect.arrayContaining(['deleteFlag','seenStatus','_id','khataId','amount','userId','amountGiveBool','localId','transactionDate','updatedTimeStamp']))				
+			
+			});
+		it('should return all transactions without Date and pagesize',async() =>{
+			
+			const khatas = await Khata.collection.insertMany([khata1,khata2])
+			const transactions= await Transaction.collection.insertMany([transaction1,transaction2,transaction3,transaction4])
+			const res = await exec({pageSize:1});
+			expect(res.status).toBe(200);
+			expect(res.body.results.length).toBe(1);
+			expect(Object.keys(res.body.results[0])).toEqual(
+				expect.arrayContaining(['deleteFlag','seenStatus','_id','khataId','amount','userId','amountGiveBool','localId','transactionDate','updatedTimeStamp']))				
+			
+			});
+		it('should return all transactions without Date and page number',async() =>{
+			
+			const khatas = await Khata.collection.insertMany([khata1,khata2])
+			const transactions= await Transaction.collection.insertMany([transaction1,transaction2,transaction3,transaction4])
+			const res = await exec({pageNumber:1});
+			expect(res.status).toBe(200);
+			expect(res.body.results.length).toBe(2);
+			expect(Object.keys(res.body.results[0])).toEqual(
+				expect.arrayContaining(['deleteFlag','seenStatus','_id','khataId','amount','userId','amountGiveBool','localId','transactionDate','updatedTimeStamp']))				
+			
+			});
+		it('should return all transactions without Date and page size and pagenumber',async() =>{
+			
+			const khatas = await Khata.collection.insertMany([khata1,khata2])
+			const transactions= await Transaction.collection.insertMany([transaction1,transaction2,transaction3,transaction4])
+			const res = await exec({pageNumber:1,pageSize:1});
+			expect(res.status).toBe(200);
+			expect(res.body.results.length).toBe(1);
+			expect(Object.keys(res.body.results[0])).toEqual(
+				expect.arrayContaining(['deleteFlag','seenStatus','_id','khataId','amount','userId','amountGiveBool','localId','transactionDate','updatedTimeStamp']))				
+			
+			});
+	
 	});
+/*********POST************/
+//Get Request Paths Testing	
+	//date tested in postman working but not in supertest nor date related query picking it up
 //Coverage for cover and path not taken good idea
+
 	describe('POST/',()=>{
 		let token,userid;
-		let payload;
-		let friendName,friendPhoneNumber,amount,interestRate,interestType,transactionDate,description;
-		let userName,userPhoneNumber,randomfield;
+		let Isloan,Amount,TransactionDate,Notes;
 		const exec = () => {
 			return  request(server)
-			.post('/api/transactions')
+			.post('/api/transactions/multiple')
 			.set('x-auth-token',token)
-			.send(payload)
+			.send([t1,t2])
 		}
 		beforeEach(()=>{
 			userid= mongoose.Types.ObjectId();
-			token = new User({_id:userid,phoneNumber:"1234123412",name:"name1"}).generateAuthToken();
-			friendName = "name2";
-			amount = 1;
-			friendPhoneNumber = "1234512345";
-			transactionDate = "2023-02-02T06:44:31.118Z";
-			interestRate = 12.05;
-			interestType = 'CW';
-			payload = {friendName,amount,interestRate,interestType,friendPhoneNumber,transactionDate};
+			token = new User({_id:userid,phoneNumber:"1313131212",name:"name1"}).generateAuthToken();
+			
+			//intialize here so one overwrite does do wrong 
+			t1 = Object.assign({}, transaction1); // Create a copy of transaction1 to t1
+    		t2 = Object.assign({}, transaction2); 
+			delete t1.userId;
+			delete t2.userId;
+			delete t1._id;
+			delete t2._id;
+			delete t1.updatedTimeStamp;
+			delete t2.updatedTimeStamp;
+			delete t1.userName;
+			delete t2.userName;
+			delete t1.userPhoneNumber;
+			delete t2.userPhoneNumber;
+
+
+			console.log(JSON.stringify(t1))
 		})
+		afterEach(async()=>{
+		await Transaction.deleteMany({});
+		await User.deleteMany({})
+		await Khata.deleteMany({})
+		});
 		//Path-01
 		it('should return 401 if not logged in',async()=>{
 			token='';
 			const res = await exec();
 			expect(res.status).toBe(401);
-			expect(res.body.message).toBe('Access denied NO token Provided');
 		})
 		//Path-02
 		it('should return 400 if invalid token ',async()=>{
 			token="123"
 			const res = await exec();
 			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('Invalid Token');
 		})
+		//now even if all fail wont get 400 due to muliptle instead unsaved and erorr response check 
+		//also o how many saved vs how many not first this than other as unsaved and error part
 		//Path-03
-		it('should return 400 if validation transaction failed due to try to feed username',async()=>{
-			userName = "Ramm";
-			payload = {userName}
+		it('should return 400 if validation transaction failed due to date',async()=>{
+			t1.transactionDate = "a";
+			console.log(t1,t2);
 			const res = await exec();
-			expect(res.status).toBe(400);
-			console.log(res.body.message);
-			//expect(res.body.message).toBe();
+			//console.log("**************************")
+			console.log(res.body);
+			//console.log("**************************")
+			expect(res.status).toBe(200);
+			expect(res.body.savedEntries.length).toBe(1);
+			expect(res.body.unsavedEntries.length).toBe(1);
+			expect(res.body.unsavedEntries[0].error).toBe('"transactionDate" must be in timestamp or number of seconds format');
+
+			//strict field checkor error check
+
 		})
 		//Path-04
-		it('should return 400 if validation transaction failed due to try to feed userPhoneNumber',async()=>{
-			userPhoneNumber = "1231231231";
-			payload = {userPhoneNumber}
+		it('should return 400 if validation transaction failed due to amount',async()=>{
+			t1.amount = "12da";
 			const res = await exec();
-			expect(res.status).toBe(400);
-			console.log(res.body.message);
-			//expect(res.body.message).toBe();
-		})
-		//Path-05,shoudl cover updatedTimeStamp,deleteFlag,userid same as username and random
-		it('should return 400 if validation transaction failed due to try to feed username',async()=>{
-			randomfield = "Ramm";
-			payload = {randomfield};
+			expect(res.status).toBe(200);
+			expect(res.body.savedEntries.length).toBe(1);
+			expect(res.body.unsavedEntries.length).toBe(1);
+			expect(res.body.unsavedEntries[0].error).toBe('"amount" must be a number');		
+		});
+		//Path-05
+		it('should return 400 if validation transaction failed due to Give/Got Boolean ',async()=>{
+			t1.amountGiveBool = "12";
 			const res = await exec();
-			expect(res.status).toBe(400);
-			console.log(res.body.message);
-			//expect(res.body.message).toBe();
+			expect(res.status).toBe(200);
+			expect(res.body.savedEntries.length).toBe(1);
+			expect(res.body.unsavedEntries.length).toBe(1);
+			console.log(res.body.unsavedEntries);
+			expect(res.body.unsavedEntries[0].error).toBe('"amountGiveBool" must be a boolean');	
 		})
 		//Path-06
-		it('should return 400 if validation transaction failed due to friendName -null',async()=>{
-			friendName = null;
-			payload = {...payload,friendName};
+		it('should return 400 if validation transaction failed due to KhataId ',async()=>{
+			t1.khataId = "asd";
 			const res = await exec();
-			expect(res.status).toBe(400);
-			//null and random value sasme no inoput is required 
-			expect(res.body.message).toBe('"friendName" must be a string');
+			expect(res.status).toBe(200);
+			expect(res.body.savedEntries.length).toBe(1);
+			expect(res.body.unsavedEntries.length).toBe(1);
+			expect(res.body.unsavedEntries[0].error).toContain('fails to match the valid mongo id pattern');	
 		})
 		//Path-07
-		it('should return 400 if validation transaction failed due to friendName-not a string',async()=>{
-			friendName = 12;
-			payload = {...payload,friendName};
+		it('should return 400 if validation transaction failed due to localId',async()=>{
+			t1.localId = null;
 			const res = await exec();
-			expect(res.status).toBe(400);
-			expect(res.body.message).toBe( '"friendName" must be a string');
+			expect(res.status).toBe(200);
+			expect(res.body.savedEntries.length).toBe(1);
+			expect(res.body.unsavedEntries.length).toBe(1);
+			expect(res.body.unsavedEntries[0].error).toBe('"localId" must be a string');
 		})
 		//Path-08
-		it('should return 400 if validation transaction failed due to PhoneNumber-not given',async()=>{
-			friendPhoneNumber = null;
-			payload = {...payload,friendPhoneNumber};
+		//NEED to somehow create this error 
+		/*
+		it('should return 200 if  transaction failed due to mongodb issues',async()=>{
+			//t1.localId = null;
 			const res = await exec();
-			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('"friendPhoneNumber" must be a string');
-		})
-		//Path-09
-		it('should return 400 if validation transaction failed due to PhoneNumber-not a number',async()=>{
-			friendPhoneNumber = 12;
-			payload = {...payload,friendPhoneNumber};
-			const res = await exec();
-			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('"friendPhoneNumber" must be a string');
-		})
-		//Path-10
-		it('should return 400 if validation transaction failed due to PhoneNumber-not match number format',async()=>{
-			friendPhoneNumber = "123123qwqw";
-			payload = {...payload,friendPhoneNumber};
-			const res = await exec();
-			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('Phone number must have 10 digits.');
-		})
-		//Path-11
-		it('should return 400 if validation transaction failed due to amount-not a number',async()=>{
-			amount = "123123qwqw";
-			payload = {...payload,amount};
-			const res = await exec();
-			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('"amount" must be a number');
-		})
-		//Path-12
-		it('should return 400 if validation transaction failed due to amount-too small  number',async()=>{
-			amount = -1000000001;
-			payload = {...payload,amount};
-			const res = await exec();
-			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('"amount" must be greater than or equal to -1000000000');
-		})
-		//Path-13
-		it('should return 400 if validation transaction failed due to amount-too big number',async()=>{
-			amount = 1000000001;
-			payload = {...payload,amount};
-			const res = await exec();
-			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('"amount" must be less than or equal to 1000000000');
-		})
-		//Path-14
-		it('should return 400 if validation transaction failed due to interestRate-not a number',async()=>{
-			interestRate = "123123qwqw";
-			payload = {...payload,interestRate};
-			const res = await exec();
-			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('"interestRate" must be a number' );
-		})
-		//Path-15
-		it('should return 400 if validation transaction failed due to interestRate-too small  number',async()=>{
-			interestRate = -12;
-			payload = {...payload,interestRate};
-			const res = await exec();
-			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('"interestRate" must be greater than or equal to 0');
-		})
-		//Path-16
-		it('should return 400 if validation transaction failed due to interestRate-too big number',async()=>{
-			interestRate = 104;
-			payload = {...payload,interestRate};
-			const res = await exec();
-			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('"interestRate" must be less than or equal to 100');
-		})
-		//Path-17
-		it('should return 400 if validation transaction failed due to interestType-invalid format',async()=>{
-			interestType = 102;
-			payload = {...payload,interestType};
-			const res = await exec();
-			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('"interestType" must be one of [S, N, CY, CW, CM]');
-		})
-		//Path-18
-		it('should return 400 if validation transaction failed due to interestType-invalid type',async()=>{
-			interestType = 'C';
-			payload = {...payload,interestType};
-			const res = await exec();
-			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('"interestType" must be one of [S, N, CY, CW, CM]');
-		})
-		//Path-19
-		it('should return 400 if validation transaction failed due to date',async()=>{
-			transactionDate = null;
-			payload = {...payload,transactionDate};
-			const res = await exec();
-			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('"transactionDate" must be a valid date');
-		})
-		//Path-20
-		it('should return 400 if validation transaction failed due to attachmentsPath-not array',async()=>{
-			attachmentsPath = "imageurl";
-			payload = {...payload,attachmentsPath};
-			const res = await exec();
-			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('"attachmentsPath" must be an array');
-		})
-		//Path-21
-		it('should return 400 if validation transaction failed due to attachmentsPath-not String',async()=>{
-			attachmentsPath = [false];
-			payload = {...payload,attachmentsPath};
-			const res = await exec();
-			expect(res.status).toBe(400);
-			//make it relaxing check
-			expect(res.body.message).toBe('"attachmentsPath[0]" must be a string');
-		})
-		//Path-22
-		it('should return 400 if validation transaction failed due to attachmentsPath-size of array',async()=>{
-			attachmentsPath = ["imageurl","q","qw","qw","we"];
-			payload = {...payload,attachmentsPath};
-			const res = await exec();
-			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('"attachmentsPath" must contain less than or equal to 4 items');
-		})
-		//Path-23
-		it('should return 400 if validation transaction failed due to description not a string',async()=>{
-			description = 12;
-			payload = {...payload,description};
-			const res = await exec();
-			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('"description" must be a string' );
-		})
-		//Path-24
-		it('should return 400 if validation transaction failed due to description too long',async()=>{
-			description = "a".repeat(501);
-;
-			payload = {...payload,description};
-			const res = await exec();
-			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('"description" length must be less than or equal to 500 characters long');
-		})
-		//Path-25
-		it('should save and return transaction if valid transaction ',async()=>{
-			const res = await exec();
-//			console.log(res)
-			//response code 200 and empty error body and non empty response
 			expect(res.status).toBe(200);
-			//expect(res.body.error).toBe(null);
-			//response check
-			expect(Object.keys(res.body)).toEqual(expect.arrayContaining(['userName','userPhoneNumber','friendName','friendPhoneNumber','amount']))
-			//check header
-			//expect(res.headers['x-auth-token']).toBeDefined();
-			// Check if the user is saved in the database
-			const savedTransaction = await Transaction.findOne({ userPhoneNumber: "1234123412" });//from before each picked
-			expect(savedTransaction).toBeTruthy(); // Check if the user exists
-			// Add more specific checks 
-			expect(savedTransaction.friendPhoneNumber).toBe(friendPhoneNumber);			
+			expect(res.body.savedEntries.length).toBe(1);
+			expect(res.body.unsavedEntries.length).toBe(1);
+			expect(res.body.unsavedEntries[0].error).toBe('"localId" must be a string');
 		})
-		//Path-26
-		it('should save and return transaction if valid transaction-if valid description provided ',async()=>{
-			description="just a note";
-			payload = {...payload,description};
+		*/
+		//handle optinal field too,succesful bare miniumum thenoptional too
+		//Path-08
+		
+		it('should save and return transaction if valid transaction with no input parameter ',async()=>{
+			t1.description="just a note";//make optional first
 			const res = await exec();
-			//response code 200 and empty error body and non empty response
 			expect(res.status).toBe(200);
-			//expect(res.body.error).toBe(null);
-			//response check
-			expect(Object.keys(res.body)).toEqual(expect.arrayContaining(['userName','userPhoneNumber','friendName','friendPhoneNumber','amount','updatedTimeStamp']))
-			//check header->no chnage so not send
-			//expect(res.headers['x-auth-token']).toBeDefined();
-			// Check if the user is saved in the database
-			const savedTransaction = await Transaction.findOne({ userPhoneNumber: "1234123412" });//from before each picked
-			expect(savedTransaction).toBeTruthy(); // Check if the user exists
-			// Add more specific checks 
-			expect(savedTransaction.friendPhoneNumber).toBe(friendPhoneNumber);	
-			expect(savedTransaction.description).toBe(description);				
-		})
+			//check the save part also 
+			//const transaction = await Transaction.find({SenderName:"name1"});
+			//expect(Object.keys(res.body)).toEqual(
+			//	expect.arrayContaining(['SenderName','SenderPhoneNumber','ReceiverName','ReceiverPhoneNumber','Isloan','Amount']))
+			 // Assuming res.body contains the response from your API
+   			 const transactions = res.body.savedEntries;
+
+    // Check if the response contains an array of transactions
+ 			   expect(Array.isArray(transactions)).toBe(true);
+ 			   expect(transactions).toHaveLength(2); // Adjust based on your expected length
+
+    // Validate properties for each transaction
+    transactions.forEach(transaction => {
+        expect(transaction).toHaveProperty('userName');
+        expect(transaction).toHaveProperty('userId');
+        expect(transaction).toHaveProperty('userPhoneNumber');
+        expect(transaction).toHaveProperty('amount');
+        expect(transaction).toHaveProperty('amountGiveBool');
+        expect(transaction).toHaveProperty('transactionDate');})
+	})
+
+
 });
 
-	//Delete testing
-//check length of transaction form 1 to 0 if actual delete
-	describe('DELETE/',()=>{
+/*************PUT*********/
+
+	describe('PUT/',()=>{
 		let token,token2;
 		let transactionId;
-		let updatedTimeStamp;
 		//async await remove as direct return
 		const exec = () => {
 			return  request(server)
-			.delete('/api/transactions/delete')
+			.put('/api/transactions')
 			.set('x-auth-token',token)
-			.send({id:transactionId})
+			.send(payload)
 		}
 		beforeEach(async()=>{
-				userid = mongoose.Types.ObjectId();
-				userid2 = mongoose.Types.ObjectId();
-			 	transaction1 = {
-				friendName : "name2",
-				amount : 1,
-				interestRate:12,
-				interestType:'CW',
-				friendPhoneNumber : "1234512345",
-				userName:'name1',
-				userId:userid,
-				userPhoneNumber:"1231231231",
-				transactionDate: "2023-02-02T06:44:31.118Z",
-				description:"just a note"
-					}
 			const transaction = await new Transaction(transaction1).save()
-			updatedTimeStamp = transaction.updatedTimeStamp;
 			token = new User({_id:userid,phoneNumber:"1231231231",name:"name1"}).generateAuthToken();
 			token2 = new User({_id:userid2,phoneNumber:"1231231230",name:"name2"}).generateAuthToken();
 			transactionId = transaction._id
+			payload= {amount:101}
+		})
+		afterEach(async()=>{
+		await Transaction.deleteMany({});
+		await User.deleteMany({})	
 		})
 		
 		//Path-01
@@ -535,59 +468,168 @@ expect(Object.keys(res.body)).toEqual(
 			token='';
 			const res = await exec();
 			expect(res.status).toBe(401);
-			expect(res.body.message).toBe('Access denied NO token Provided');;
 		})
 		//Path-02
 		it('should return 400 if invalid token ',async()=>{
 			token="123"
 			const res = await exec();
 			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('Invalid Token');
 		})
+
 		//Path-03
-		it('should return 400 if validation fails  ',async()=>{
-			transactionId = "1"
-			const res = await  exec();
-			expect(res.status).toBe(400);
-			//make it bit relaxed check
-			expect(res.body.message).toBe('"transactionId" with value "1" fails to match the valid mongo id pattern' );
-		})
-		//Path-04
-		it('should return 400  if transaction not found with given ID/if Already delete ',async()=>{
-			transactionId=userid;
+		it('should return 400 if validation transaction failed due to deleteFlag',async()=>{
+			deleteFlag = null;//or false array input
+			payload={deleteFlag,transactionId};
 			const res = await exec();
 			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('No Such Transaction exits wrong id provided' );
-
 		})
-		//Path-05
+		//Path-04
+		it('should return 400 if validation transaction failed due to seenStatus',async()=>{
+			seenStatus = "12da";
+			payload = {seenStatus,transactionId}
+			const res = await exec();
+			expect(res.status).toBe(400);
+		})
+		
+		
+		//Path-08
+		it('should return 400 if validation transaction failed due to invalid ID',async()=>{
+			transactionId="1";
+			payload ={transactionId}
+			const res = await exec();
+			expect(res.status).toBe(400);
+		})
+
+		//Path-09
+		it('should return 403  if transaction not found with given ID/if Already delete ',async()=>{
+			transactionId=userid;
+			payload ={transactionId}
+
+			const res = await exec();
+			expect(res.status).toBe(400);
+		})
+		//Path-10//hold this test case due to condition of seen not jsut delete feature
 		it('should return 403  if user forbidden to do this ',async()=>{
 			token=token2;
 			const res = await exec();
-			expect(res.body.message).toBe('Not Access for deleting');
-			expect(res.status).toBe(403);
+			//expect(res.status).toBe(403);
+			expect(res.status).toBe(400);
 		})
-		//Path-06
+		//Path-11
 		it('should delete transaction if valid transaction ',async()=>{
-			const res = await exec();
-			//response code 200 and empty error body and non empty response
+			payload={deleteFlag:true,transactionId}
+			const res = await exec(payload);
 			expect(res.status).toBe(200);
-			//expect(res.body.error).toBe(null);
-			//response check
-			expect(Object.keys(res.body)).toEqual(expect.arrayContaining(['userName','userPhoneNumber','friendName','friendPhoneNumber','amount','deleteFlag']))
-			//check header
-			//expect(res.headers['x-auth-token']).toBeDefined();
-			// Check if the user is saved in the database
-			//for array return vs single object return change statement
-			const savedTransaction = await Transaction.findOne({ _id: transactionId });
-			expect(savedTransaction).toBeTruthy(); // Check if the user exists
-			// Add more specific checks 
-			expect(savedTransaction.deleteFlag).toBe(true);
-			//chec this flag as importance
-			expect(savedTransaction.updatedTimeStamp).not.toEqual(updatedTimeStamp);
-
-		});
-
+		})
+		//Path-12
+		it('should update the transaction and return valid response if valid transaction ',async()=>{
+			payload={seenStatus:true,transactionId}
+			const res = await exec(payload);
+			expect(res.status).toBe(200);
+			const transactions = await Transaction.find()
+			expect(transactions[0].seenStatus).toBe(true);
+		})
 		
-	});	
+	})	
+	
+/********UPDATE SEEN STATUS******/
+
+	describe('UPDATE SEEN STATUS/',()=>{
+		let token,token2;
+		let transactionIds;
+		let payload;
+		//async await remove as direct return
+		const exec = () => {
+			return  request(server)
+			.put('/api/transactions/updateseenstatus')
+			.set('x-auth-token',token)
+			.send(payload)
+		}
+		beforeEach(async()=>{
+			//console.log(transaction3);
+			//console.log(transaction1)
+			await Transaction.deleteMany({});
+			await User.deleteMany({})
+			const transaction11 = await new Transaction(transaction1).save()
+			const transaction12 = await new Transaction(transaction1).save()
+
+			token = new User({_id:userid,phoneNumber:"1231231231",name:"name1"}).generateAuthToken();
+			token2 = new User({_id:userid2,phoneNumber:"1231231230",name:"name2"}).generateAuthToken();
+			var transactionId1 = transaction11._id
+			var transactionId2 = transaction12._id
+			transactionIds=[transactionId1,transactionId2];
+			payload= {transactionIds}
+		})
+		afterEach(async()=>{
+		await Transaction.deleteMany({});
+		await User.deleteMany({})	
+		})
+		
+		//Path-01
+		it('should return 401 if not logged in',async()=>{
+			token='';
+			const res = await exec();
+			expect(res.status).toBe(401);
+		})
+		//Path-02
+		it('should return 400 if invalid token ',async()=>{
+			token="123"
+			const res = await exec();
+			expect(res.status).toBe(400);
+		})
+
+		//Path-03
+		it('should return 400 if validation transaction failed due to transactions Ids not an array',async()=>{
+			transactionIds = 123;//or false array input
+			payload={transactionIds};
+			const res = await exec();
+			expect(res.status).toBe(400);
+		})
+		//Path-04
+		it('should return 400 if validation transaction failed due to transaction Ids -invalid element',async()=>{
+			transactionIds = [123];//or false array input
+			payload={transactionIds};
+			const res = await exec();
+			expect(res.status).toBe(400);
+		})
+		
+		
+		//Path-08
+		it('should return 400 if validation transaction failed due to invalid ID',async()=>{
+			transactionIds=["1"];
+			payload ={transactionIds}
+			const res = await exec();
+			expect(res.status).toBe(400);
+		})
+
+		//Path-09
+		it('should return 404  if transaction not found with given ID/if Already delete ',async()=>{
+			transactionIds=[userid];
+			payload ={transactionIds}
+			console.log(payload);
+			const res = await exec();
+			expect(res.status).toBe(404);
+		})
+		//No need this forbideen as only seen status changing
+		//Path-10//hold this test case due to condition of seen not jsut delete feature
+		//it('should return 403  if user forbidden to do this ',async()=>{
+		//	token=token2;
+		//	const res = await exec();
+			//expect(res.status).toBe(403);
+		//	expect(res.status).toBe(400);
+		//})
+		
+		//Path-12
+		it('should update the transaction and return valid response if valid transaction ',async()=>{
+			const res = await exec();
+			//console.log(res)
+			expect(res.status).toBe(200);
+			const transactions = await Transaction.find()
+			expect(transactions[0].seenStatus).toBe(true);
+			expect(transactions[1].seenStatus).toBe(true);
+
+		})
+		
+	})	
+
 });

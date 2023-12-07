@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const dbDebugger = require('debug')('app:db');
-const {Transaction,validate,validate2,validateUpdateTransaction,validateRequestTransaction} = require('../models/transaction');
+const {Transaction,validate,validate2,validateUpdateTransaction,validateUpdateSeenStatus,validateRequestTransaction} = require('../models/transaction');
 const {User} = require('../models/user');
 const {Khata} = require('../models/khata');
 
@@ -41,7 +41,6 @@ router.get('/',auth,validateInput(validateRequestTransaction,true),async(req,res
 		.find({$or:[{userPhoneNumber:{$eq: PhoneNumber}},{friendPhoneNumber:{$eq: PhoneNumber}}]})
 		.select("_id")
 	//watch performance of this ,use limit feature and sort for extra large queries
-
 	if(req.query.lastUpdatedTimeStamp){
 		 transactions = await Transaction
 		.find({$and:[{khataId: { $in: khatas}},{updatedTimeStamp:{$gt:lastUpdatedTimeStamp}}]})
@@ -145,6 +144,7 @@ router.put('/',auth,validateInput(validateUpdateTransaction),async(req,res)=>{
 	const transaction = await Transaction.findById(req.body.transactionId);
 	if(!transaction) { res.status(400).send({error:{message:'Transaction doesnot exits with given Id'},response:null});}
 	//else if(!transaction.friendPhoneNumber.equals(req.user.phoneNumber)) { res.status(403).send({error:{message:'Not Access for updating seen status'},response:null});}
+	//deleteFlag and seen both seperate feature-seperate authentication
 	else{req.body.updatedTimeStamp=Math.floor(Date.now());
 	//findbyid and update return new or old nto normal update
 	//whatever it is change seenStatus or deleteFlag
@@ -153,6 +153,24 @@ router.put('/',auth,validateInput(validateUpdateTransaction),async(req,res)=>{
 	res.send(mresult);
 	}
 });
+//
+router.put('/updateSeenStatus', auth, validateInput(validateUpdateSeenStatus), async (req, res) => {
+    const { transactionIds } = req.body;
+    // Update seenStatus to true for the provided transactionIds
+    const updateResult = await Transaction.updateMany(
+      { _id: { $in: transactionIds } },
+      { $set: { seenStatus: true, updatedTimeStamp: Math.floor(Date.now()) } }
+    );
+    // Check if any transactions were updated
+    console.log(updateResult)
+    if (updateResult.modifiedCount > 0) {
+      res.send({ message: 'Seen status updated successfully for specified transactions' });
+    } else {
+      res.status(404).send({ errormessage: 'No transactions found for the provided IDs' });
+    }
+  
+});
+
 module.exports =router;
 
 /*

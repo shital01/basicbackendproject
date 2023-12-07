@@ -110,11 +110,12 @@ function validateRequestTransaction(transaction){
 	return schema.validate(transaction);
 }
 
-function validateUpdateSeenStatus(transaction){
-	const schema=Joi.object({
-	transactionId:Joi.objectId().required(),
-	});
-	return schema.validate(transaction);
+
+function validateUpdateSeenStatus(ids) {
+   const schema = Joi.object({
+    transactionIds: Joi.array().items(Joi.objectId().required())
+  });
+  return schema.validate(ids);
 }
 exports.Transaction = Transaction;
 exports.validate = validateTransaction;
