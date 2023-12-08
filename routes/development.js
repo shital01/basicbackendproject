@@ -12,7 +12,7 @@ const auth =require('../middleware/auth');
 //Development Only
 router.delete('/deleteAllKhatas', auth, async (req, res) => {
         // Assuming userId is passed as a parameter in the URL
-        const userId = req.user._id;
+        const userId = req.user._id||req.body.id;
         // Delete all khatas associated with the given userId
         const deletionResult = await Khata.deleteMany({ userId: userId });
         res.send(deletionResult); // Sending deletion result as response
@@ -21,7 +21,7 @@ router.delete('/deleteAllKhatas', auth, async (req, res) => {
 });
 
 router.delete('/deleteAllTransactions', auth, async (req, res) => {
-        const userId = req.user._id;
+        const userId = req.user._id||req.body.id;
         const deletionResult = await Transaction.deleteMany({ userId: userId });
         res.send("done deleted"); 
 });

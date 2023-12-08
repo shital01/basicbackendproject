@@ -8,6 +8,7 @@ const uploadroutes = require('../routes/uploadroutes');
 const sendsms = require('../routes/sendsms');
 const contacts = require('../routes/contact');
 const admin = require('../routes/admin');
+const test5 = require('../routes/testscript/test5');
 
 /*
 const tests1 = require('../routes/test');
@@ -32,6 +33,8 @@ module.exports = function(app){
 	app.use('/api/users',users);
 	app.use('/api/contact',contacts);
 	app.use('/api/khatas',khatas);
+	app.use('/api/calculation',test5);
+
 /*
 	app.use('/api/test1',tests1);
 	app.use('/api/test2',tests2);
@@ -40,9 +43,8 @@ module.exports = function(app){
 */
 	app.use('/api/transactions',transactions);
 	app.use('/api/otps',otps);
-	app.use('/api/uploadurlrequest',uploadroutes);
-	
+	app.use('/api/uploadurlrequest',uploadroutes);	
 	app.use('/api/dev',development);
-
 	app.use(error);
+
 }
