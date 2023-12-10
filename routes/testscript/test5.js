@@ -23,7 +23,7 @@ and rest from arrya of khaat ids n rest in random
 //then randpmo user,random khata ,random transction with limits genereae and test
 //Remove unnnesory data types 
 //or modifey data types if needed
-  
+ /* 
 function generateRandomKhataData(a,b,c,numObjects) {
   const dummyData = [];
   const userName=a;
@@ -80,7 +80,7 @@ function generateRandomTransactionData(a,b,c,d,numObjects) {
     const interestPeriod = interestPeriods[Math.floor(Math.random() * interestPeriods.length)]; // Random interest period
     const rotationPeriod = [90, 180, 365][Math.floor(Math.random() * 3)]; // Random rotation period
     */
-
+/*
     dummyData.push({
       userName,
       userPhoneNumber,
@@ -160,7 +160,7 @@ router.post('/showcalculations', auth, async (req, res) => {
         const transactionDateMoment = moment(transactionDate);
         const diffMonths = currentDate.diff(transactionDateMoment, 'months');
         const remainingDays = currentDate.diff(transactionDateMoment, 'days');
-
+console.log(currentDate,transactionDate,transactionDateMoment,diffMonths,remainingDays);
         let interest = 0;
 
         switch (interestType) {
@@ -195,7 +195,7 @@ router.post('/showcalculations', auth, async (req, res) => {
 function calculateCompoundInterest(amount, interestRate, rotationPeriod, totalRotations, remainingDays, periodMultiplier) {
   const monthlyInterestRate = interestRate / (periodMultiplier * 100);
   const power = totalRotations + remainingDays / (365 * periodMultiplier);
-  const compoundAmount = amount * Math.pow((1 + monthlyInterestRate), power);
+  const compoundAmount = amount * Math.pow((1 + monthlyInterestRate), totalRotations) *(1+);
   return compoundAmount - amount;
 }
 

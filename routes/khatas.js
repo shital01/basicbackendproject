@@ -6,6 +6,7 @@ const {Khata,validate,validateGetKhata,validateUpdateKhata,validateKhata} = requ
 const {User} = require('../models/user');
 const auth =require('../middleware/auth');
 //Validation Start
+const logger = require('../startup/logging');
 
 
 //Seperate the middel ware of validation
@@ -63,7 +64,7 @@ router.post('/multiple', auth, async (req, res) => {
   const userPhoneNumber = req.user.phoneNumber;
   const userName = req.user.name;
   const khataEntries = req.body;
-
+logger.info(khataEntries)
   const savedEntries = [];
   const unsavedEntries = [];
 
@@ -96,7 +97,7 @@ router.post('/multiple', auth, async (req, res) => {
       }
     }
   }
-
+logger.info({ savedEntries, unsavedEntries });
   res.send({ savedEntries, unsavedEntries });
 });
 

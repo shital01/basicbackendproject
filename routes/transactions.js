@@ -7,6 +7,7 @@ const {User} = require('../models/user');
 const {Khata} = require('../models/khata');
 
 const auth =require('../middleware/auth');
+const logger = require('../startup/logging');
 
 
 // Create separate validation functions
@@ -78,7 +79,7 @@ router.post('/multiple', auth, async (req, res) => {
 
   const savedEntries = [];
   const unsavedEntries = [];
-
+logger.info(req.body);
  for (const entry of transactionEntries) {
     // Validate each entry using your validation function (validateKhata)
     const { error } = validate2(entry);
@@ -124,6 +125,7 @@ router.post('/multiple', auth, async (req, res) => {
     return entry;
   });
 */
+logger.info({ savedEntries, unsavedEntries })
 
   res.send({ savedEntries, unsavedEntries });
 });
