@@ -7,7 +7,7 @@ const winston = require('winston');
 require('./startup/config')();
 const logger = require('./startup/logging');
 
-if(app.get('env')=== 'production'){
+if(app.get('env')=== 'production'||'development'){
 require('./startup/prod')(app);
 app.use((req, res, next) => {
   const start = Date.now();
