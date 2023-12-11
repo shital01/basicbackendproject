@@ -79,7 +79,7 @@ router.post('/multiple', auth, async (req, res) => {
 
   const savedEntries = [];
   const unsavedEntries = [];
-logger.info(req.body);
+console.log(req.body);
  for (const entry of transactionEntries) {
     // Validate each entry using your validation function (validateKhata)
     const { error } = validate2(entry);
@@ -125,7 +125,7 @@ logger.info(req.body);
     return entry;
   });
 */
-logger.info({ savedEntries, unsavedEntries })
+console.log({ savedEntries, unsavedEntries })
 
   res.send({ savedEntries, unsavedEntries });
 });

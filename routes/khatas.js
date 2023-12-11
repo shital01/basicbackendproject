@@ -97,7 +97,7 @@ logger.info(khataEntries)
       }
     }
   }
-logger.info({ savedEntries, unsavedEntries });
+console.log({ savedEntries, unsavedEntries });
   res.send({ savedEntries, unsavedEntries });
 });
 

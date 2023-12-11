@@ -15,7 +15,7 @@ app.use((req, res, next) => {
     const responseTime = Date.now() - start;
     const userAgent = req.headers['user-agent'] || 'Unknown';
     const authToken = req.headers['x-auth-token'] || 'N/A';//maybe avoid and do this for erroror to seelog of unwanted request whomaking
-    logger.info(`${req.ip} - ${userAgent} - Auth Token: ${authToken} - ${req.method} ${req.originalUrl} - ${res.statusCode} - ${responseTime}ms`);
+    console.log(`${req.ip} - ${userAgent} - Auth Token: ${authToken} - ${req.method} ${req.originalUrl} - ${res.statusCode} - ${responseTime}ms`);
     //logger.info(`${req.ip} - ${req.method} ${req.originalUrl} - ${res.statusCode} - ${responseTime}ms`);
   });
   next();
