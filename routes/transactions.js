@@ -52,7 +52,7 @@ router.get('/',auth,validateInput(validateRequestTransaction,true),async(req,res
 	else{
 	 transactions = await Transaction
 	.find({khataId: { $in: khatas}})
-	.sort({ transactionDate: 1 })
+	.sort({ updatedTimeStamp: 1 })
     .skip(pageSize * (pageNumber - 1))
     .limit(pageSize);
 		}

@@ -24,10 +24,11 @@ const TransactionSchema = new mongoose.Schema({
 			required:true
 		},
 	userPhoneNumber:{type:String,required:true,match: /^[0-9]{10}$/},
-	amount:{type:Number,required:true,min:-1000000000,max:1000000000,validate: {
+	amount:{type:Number,required:true,min:-1000000000,max:1000000000},
+		/*,validate: {
       validator: Number.isInteger,
       message: '{VALUE} is not an integer value for amount.'
-    }},
+    }*/
     amountGiveBool:{type:Boolean,default:true},
 	transactionDate: {
     type: Number,
@@ -62,7 +63,7 @@ const Transaction = mongoose.model('Transaction',TransactionSchema);
 function validateTransaction(transaction){
 	const schema=Joi.object({
 	transactionDate:Joi.date().timestamp('unix').required(),
-	amount:Joi.number().integer().required().min(-1000000000).max(1000000000).required(),
+	amount:Joi.number().required().min(-1000000000).max(1000000000).required(),
 	amountGiveBool:Joi.boolean(),
 	khataId:Joi.objectId().required(),
 	description:Joi.string().allow(null, '').max(500),
@@ -73,7 +74,7 @@ function validateTransaction(transaction){
 function validateTransaction2(transaction){
 	const schema=Joi.object({
 	transactionDate:Joi.date().timestamp('unix').required(),
-	amount:Joi.number().integer().required().min(-1000000000).max(1000000000).required(),
+	amount:Joi.number().required().min(-1000000000).max(1000000000).required(),
 	amountGiveBool:Joi.boolean(),
 	khataId:Joi.objectId().required(),
 	description:Joi.string().allow(null, '').max(500),
