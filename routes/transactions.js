@@ -44,7 +44,7 @@ router.get('/',auth,validateInput(validateRequestTransaction,true),async(req,res
 	//watch performance of this ,use limit feature and sort for extra large queries
 	if(req.query.lastUpdatedTimeStamp){
 		 transactions = await Transaction
-		.find({$and:[{khataId: { $in: khatas}},{updatedTimeStamp:{$gt:lastUpdatedTimeStamp}}]})
+		.find({$and:[{khataId: { $in: khatas}},{updatedTimeStamp:{$gte:lastUpdatedTimeStamp}}]})
 		.sort('updatedTimeStamp')
 		.skip(pageSize*(pageNumber-1))
 		.limit(pageSize);//watch performance of this
@@ -147,7 +147,7 @@ router.put('/',auth,validateInput(validateUpdateTransaction),async(req,res)=>{
 	if(!transaction) { res.status(400).send({error:{message:'Transaction doesnot exits with given Id'},response:null});}
 	//else if(!transaction.friendPhoneNumber.equals(req.user.phoneNumber)) { res.status(403).send({error:{message:'Not Access for updating seen status'},response:null});}
 	//deleteFlag and seen both seperate feature-seperate authentication
-	else{req.body.updatedTimeStamp=Math.floor(Date.now());
+	else{req.body.updatedTimeStamp=Date.now();
 	//findbyid and update return new or old nto normal update
 	//whatever it is change seenStatus or deleteFlag
 	transaction.set(req.body)
@@ -161,7 +161,7 @@ router.put('/updateSeenStatus', auth, validateInput(validateUpdateSeenStatus), a
     // Update seenStatus to true for the provided transactionIds
     const updateResult = await Transaction.updateMany(
       { _id: { $in: transactionIds } },
-      { $set: { seenStatus: true, updatedTimeStamp: Math.floor(Date.now()) } }
+      { $set: { seenStatus: true, updatedTimeStamp: Date.now() } }
     );
     // Check if any transactions were updated
     console.log(updateResult)

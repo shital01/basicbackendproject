@@ -25,7 +25,7 @@ const KhataSchema = new mongoose.Schema({
     type: Number,
     required: true,
     validate: [isValidUnixTimestamp, 'Invalid Unix timestamp'],
-    default:Math.floor(Date.now())
+    default:Date.now()
   },
   localId:{type:String},
   settledFlag:{type:Boolean,default:false}

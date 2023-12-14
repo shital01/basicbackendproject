@@ -142,7 +142,7 @@ router.put('/',auth,validateInput(validateUpdateKhata),async(req,res)=>{
 	const khata = await Khata.findById(req.body.khataId);
 	if(!khata) { res.status(400).send({error:{message:'Khata doesnot exits with given Id'},response:null});}
 	else if(!khata.userId.equals(req.user._id)) { res.status(403).send({error:{message:'Not Access for updating seen status'},response:null});}
-	else{req.body.updatedTimeStamp=Math.floor(Date.now());
+	else{req.body.updatedTimeStamp=Date.now();
 	khata.set(req.body)
 	const mresult = await khata.save();
 	res.send(mresult);

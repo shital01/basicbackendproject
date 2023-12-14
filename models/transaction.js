@@ -34,13 +34,13 @@ const TransactionSchema = new mongoose.Schema({
     type: Number,
     required: true,
     validate: [isValidUnixTimestamp, 'Invalid Unix timestamp'],
-    default:Math.floor(Date.now() )
+    default:Date.now()
   },
 	updatedTimeStamp: {
     type: Number,
     required: true,
     validate: [isValidUnixTimestamp, 'Invalid Unix timestamp'],
-    default:Math.floor(Date.now() )
+    default:Date.now() 
   },
 	deleteFlag:{type:Boolean,default:false},
 	seenStatus:{type:Boolean,default:false},
