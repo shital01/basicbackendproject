@@ -161,7 +161,7 @@ router.put('/updateSeenStatus', auth, validateInput(validateUpdateSeenStatus), a
     // Update seenStatus to true for the provided transactionIds
     const updateResult = await Transaction.updateMany(
       { _id: { $in: transactionIds } },
-      { $set: { seenStatus: true, updatedTimeStamp: Date.now() } }
+      { $set: { seenStatus: true } }//, updatedTimeStamp: Date.now()
     );
     // Check if any transactions were updated
     console.log(updateResult)
