@@ -44,7 +44,7 @@ router.get('/',auth,validateInput(validateRequestTransaction,true),async(req,res
 	//watch performance of this ,use limit feature and sort for extra large queries
 	if(req.query.lastUpdatedTimeStamp){
 		 transactions = await Transaction
-		.find({$and:[{khataId: { $in: khatas}},{updatedTimeStamp:{$gte:lastUpdatedTimeStamp}}]})
+		.find({$and:[{khataId: { $in: khatas}},{updatedTimeStamp:{$gt:lastUpdatedTimeStamp}}]})
 		.sort('updatedTimeStamp')
 		.skip(pageSize*(pageNumber-1))
 		.limit(pageSize);//watch performance of this
