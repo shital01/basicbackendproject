@@ -37,13 +37,13 @@ router.get('/',auth,validateInput(validateGetKhata,true),async(req,res)=>{
    console.log(lastUpdatedTimeStamp)
   khatas = await Khata
   .find({$and:[{$or:[{userPhoneNumber:{$eq: PhoneNumber}},{friendPhoneNumber:{$eq: PhoneNumber}}]},{updatedTimeStamp:{$gt:lastUpdatedTimeStamp}}]})
-  //.sort({Date:1})
+  .sort({updatedTimeStamp:-1})
 
  }
 else{
 	 khatas = await Khata
 	.find({$or:[{userPhoneNumber:{$eq: PhoneNumber}},{friendPhoneNumber:{$eq: PhoneNumber}}]})
-	//.sort({Date:1})
+	.sort({updatedTimeStamp:-1})
 	//dbDebugger(transactions);
 }
 	res.send(khatas);	
