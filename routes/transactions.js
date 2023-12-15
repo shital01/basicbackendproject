@@ -27,6 +27,9 @@ Procedure->Query Using Phone Number and date to get info of transaction which ar
 */
 //,
 router.get('/',auth,validateInput(validateRequestTransaction,true),async(req,res)=>{
+
+			const deviceId = req.header('deviceId');;
+
 	//adding default pagesize and pagenumber as of now in btoh get api for safety
 	var pageSize=500;
 	var pageNumber=1;
@@ -58,11 +61,38 @@ router.get('/',auth,validateInput(validateRequestTransaction,true),async(req,res
 		}
 	//.sort({Date:1})
 	//dbDebugger(transactions);
+
+	// Filter by deviceId
+const categorizedEntries = transactions.reduce(
+  (result, entry) => {
+    if (entry.deviceId !== deviceId) {
+      if (entry.deleteFlag === true) {
+        result.deletedEntries.push(entry);
+      } else if (entry.updatedFlag === true) {
+        result.updatedEntries.push(entry);
+      } else {
+        result.newEntries.push(entry);
+      }
+    }
+    return result;
+  },
+  { deletedEntries: [], updatedEntries: [], newEntries: [] }
+);
+
+const { deletedEntries, updatedEntries, newEntries } = categorizedEntries;
+
+
+
+
+
+
+
 	if(transactions.length == pageSize){	
 			nextPageNumber=parseInt(pageNumber)+1;
-			res.send({nextPageNumber:nextPageNumber,results:transactions})
+			res.send({nextPageNumber:nextPageNumber,deletedEntries,updatedEntries,newEntries})
 			}
-		else{res.send({results:transactions});}
+		else{			res.send({deletedEntries,updatedEntries,newEntries})
+}
 	//res.send(transactions);
 });
 //muliptle psot
@@ -73,6 +103,8 @@ router.get('/',auth,validateInput(validateRequestTransaction,true),async(req,res
 //test for mulitple and khata scripts
 router.post('/multiple', auth, async (req, res) => {
 	const userId = req.user._id;
+	const deviceId = req.header('deviceId');;
+
   const userPhoneNumber = req.user.phoneNumber;
   const userName = req.user.name;
  const transactionEntries = req.body;
@@ -92,6 +124,7 @@ console.log(req.body);
       // If validation passes, create a new Khata and save it
       const transaction = new Transaction({
         ...entry,
+        deviceId,
         userId,
         userPhoneNumber,
         userName,
@@ -111,6 +144,13 @@ console.log(req.body);
     }
 }
 //Modify Entry
+
+
+
+
+
+
+
 /*
   // Modify savedEntries before sending the response
   const modifiedEntries = savedEntries.map(entry => {
@@ -141,6 +181,8 @@ update and return
 //check before save khata id proper validation
 //check here seen feature allowe dor not currenlty skip
 router.put('/',auth,validateInput(validateUpdateTransaction),async(req,res)=>{
+		const deviceId = req.header('deviceId');;
+
 	//Query first findbyId()...modify and save()--if any coniditoin before update
 	//update first optional to get updated document....if not need then this 
 	const transaction = await Transaction.findById(req.body.transactionId);
@@ -148,6 +190,8 @@ router.put('/',auth,validateInput(validateUpdateTransaction),async(req,res)=>{
 	//else if(!transaction.friendPhoneNumber.equals(req.user.phoneNumber)) { res.status(403).send({error:{message:'Not Access for updating seen status'},response:null});}
 	//deleteFlag and seen both seperate feature-seperate authentication
 	else{req.body.updatedTimeStamp=Date.now();
+		req.body.deviceId=deviceId;
+		req.body.updatedFlag=true;
 	//findbyid and update return new or old nto normal update
 	//whatever it is change seenStatus or deleteFlag
 	transaction.set(req.body)
@@ -157,6 +201,8 @@ router.put('/',auth,validateInput(validateUpdateTransaction),async(req,res)=>{
 });
 //
 router.put('/updateSeenStatus', auth, validateInput(validateUpdateSeenStatus), async (req, res) => {
+		const deviceId = req.header('deviceId');;
+
     const { transactionIds } = req.body;
     // Update seenStatus to true for the provided transactionIds
     const updateResult = await Transaction.updateMany(
@@ -173,6 +219,24 @@ router.put('/updateSeenStatus', auth, validateInput(validateUpdateSeenStatus), a
   
 });
 
+
+router.put('/delete', auth, validateInput(validateUpdateSeenStatus), async (req, res) => {
+		const deviceId = req.header('deviceId');;
+
+    const { transactionIds } = req.body;
+    // Update seenStatus to true for the provided transactionIds
+    const updateResult = await Transaction.updateMany(
+      { _id: { $in: transactionIds } },
+      { $set: { deleteFlag: true  , updatedTimeStamp: Date.now(),deviceId}}
+	)
+    // Check if any transactions were updated
+    //console.log(updateResult)
+    if (updateResult.modifiedCount > 0) {
+      res.send({ message: 'delete status updated successfully for specified transactions' });
+    } else {
+      res.status(404).send({ errormessage: 'No transactions found for the provided IDs' });
+    }
+})
 module.exports =router;
 
 /*

@@ -28,6 +28,8 @@ Procedure->Query Using Phone Number and date to get info of transaction which ar
 //,validateInput(validateGetKhata)
 //PageSize and Page Number to be included in get function
 router.get('/',auth,validateInput(validateGetKhata,true),async(req,res)=>{
+      const deviceId = req.header('deviceId');;
+
 	const PhoneNumber = req.user.phoneNumber;
     var khatas;
 	//watch performance of this ,use limit feature and sort for extra large queries
@@ -46,7 +48,32 @@ else{
 	.sort({updatedTimeStamp:-1})
 	//dbDebugger(transactions);
 }
-	res.send(khatas);	
+
+const categorizedEntries = khatas.reduce(
+  (result, entry) => {
+    if (entry.deviceId !== deviceId) {
+      if (entry.deleteFlag === true) {
+        result.deletedEntries.push(entry);
+      } else if (entry.updatedFlag === true) {
+        result.updatedEntries.push(entry);
+      } else {
+        result.newEntries.push(entry);
+      }
+    }
+    return result;
+  },
+  { deletedEntries: [], updatedEntries: [], newEntries: [] }
+);
+
+const { deletedEntries, updatedEntries, newEntries } = categorizedEntries;
+
+
+
+
+
+
+
+	res.send({ deletedEntries, updatedEntries, newEntries });	
 });
 
 /*
@@ -60,6 +87,8 @@ return saved object
 */
 
 router.post('/multiple', auth, async (req, res) => {
+    const deviceId = req.header('deviceId');
+console.log(deviceId)
   const userId = req.user._id;
   const userPhoneNumber = req.user.phoneNumber;
   const userName = req.user.name;
@@ -80,6 +109,7 @@ logger.info(khataEntries)
       // If validation passes, create a new Khata and save it
       const khata = new Khata({
         ...entry,
+        deviceId,
         userId,
         userPhoneNumber,
         userName,
@@ -137,12 +167,15 @@ function validateKhataArray(khataEntries) {
 
 
 router.put('/',auth,validateInput(validateUpdateKhata),async(req,res)=>{
+    const deviceId = req.header('deviceId');;
+
 	//Query first findbyId()...modify and save()--if any coniditoin before update
 	//update first optional to get updated document....if not need then this 
 	const khata = await Khata.findById(req.body.khataId);
 	if(!khata) { res.status(400).send({error:{message:'Khata doesnot exits with given Id'},response:null});}
 	else if(!khata.userId.equals(req.user._id)) { res.status(403).send({error:{message:'Not Access for updating seen status'},response:null});}
 	else{req.body.updatedTimeStamp=Date.now();
+    req.body.deviceId=deviceId;
 	khata.set(req.body)
 	const mresult = await khata.save();
 	res.send(mresult);

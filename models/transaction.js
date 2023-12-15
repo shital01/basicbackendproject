@@ -12,6 +12,7 @@ const isValidUnixTimestamp = (value) => {
 
 
 const TransactionSchema = new mongoose.Schema({
+	deviceId:{type:String},
 	userName:{type:String,required:true,minLength:1,maxLength:64},
 	userId:{
 			type:mongoose.Schema.Types.ObjectId,
@@ -46,6 +47,8 @@ const TransactionSchema = new mongoose.Schema({
     return Date.now();
   } 
   },
+  	updatedFlag:{type:Boolean,default:false},
+
 	deleteFlag:{type:Boolean,default:false},
 	seenStatus:{type:Boolean,default:false},
 
@@ -92,6 +95,7 @@ function validateTransaction2(transaction){
 //valid workes allow doesnt
 function validateUpdateTransaction(transaction){
 	const schema=Joi.object({
+
 	transactionId:Joi.objectId().required(),
 	deleteFlag:Joi.boolean().valid(true),
 	seenStatus:Joi.boolean().valid(true)
@@ -118,6 +122,7 @@ function validateRequestTransaction(transaction){
 
 function validateUpdateSeenStatus(ids) {
    const schema = Joi.object({
+
     transactionIds: Joi.array().items(Joi.objectId().required())
   });
   return schema.validate(ids);

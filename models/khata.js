@@ -9,6 +9,7 @@ const isValidUnixTimestamp = (value) => {
 };
 
 const KhataSchema = new mongoose.Schema({
+		deviceId:{type:String},
 	userName:{type:String,required:true,minLength:1,maxLength:64},
 	friendName:{type:String,required:true,minLength:1},
 	userId:{
@@ -61,6 +62,7 @@ function validateKhata(khata){
 function validateKhataArray(khatas) {
   const schema = Joi.array().items(
     Joi.object({
+
       friendName: Joi.string().min(1).required(),
       friendPhoneNumber: Joi.string()
         .regex(/^[0-9]{10}$/)
