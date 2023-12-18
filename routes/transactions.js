@@ -29,7 +29,7 @@ Procedure->Query Using Phone Number and date to get info of transaction which ar
 router.get('/',auth,validateInput(validateRequestTransaction,true),async(req,res)=>{
 
 			const deviceId = req.header('deviceId');;
-
+			var timeStamp;
 	//adding default pagesize and pagenumber as of now in btoh get api for safety
 	var pageSize=500;
 	var pageNumber=1;
@@ -63,6 +63,7 @@ router.get('/',auth,validateInput(validateRequestTransaction,true),async(req,res
 	//dbDebugger(transactions);
 
 	// Filter by deviceId
+	if(transactions[0]){timeStamp=transactions[0].updatedTimeStamp;}
 const categorizedEntries = transactions.reduce(
   (result, entry) => {
     if (entry.deviceId !== deviceId) {
@@ -89,9 +90,9 @@ const { deletedEntries, updatedEntries, newEntries } = categorizedEntries;
 
 	if(transactions.length == pageSize){	
 			nextPageNumber=parseInt(pageNumber)+1;
-			res.send({nextPageNumber:nextPageNumber,deletedEntries,updatedEntries,newEntries})
+			res.send({nextPageNumber:nextPageNumber,deletedEntries,updatedEntries,newEntries,timeStamp})
 			}
-		else{			res.send({deletedEntries,updatedEntries,newEntries})
+		else{			res.send({deletedEntries,updatedEntries,newEntries,timeStamp})
 }
 	//res.send(transactions);
 });

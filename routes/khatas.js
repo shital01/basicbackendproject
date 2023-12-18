@@ -34,6 +34,7 @@ router.get('/',auth,validateInput(validateGetKhata,true),async(req,res)=>{
     var khatas;
 	//watch performance of this ,use limit feature and sort for extra large queries
   var lastUpdatedTimeStamp;
+  var timeStamp;
   if(req.query.lastUpdatedTimeStamp){
    lastUpdatedTimeStamp = req.query.lastUpdatedTimeStamp;
    console.log(lastUpdatedTimeStamp)
@@ -48,6 +49,7 @@ else{
 	.sort({updatedTimeStamp:-1})
 	//dbDebugger(transactions);
 }
+  if(khatas[0]){timeStamp=khatas[0].updatedTimeStamp;}
 
 const categorizedEntries = khatas.reduce(
   (result, entry) => {
@@ -73,7 +75,7 @@ const { deletedEntries, updatedEntries, newEntries } = categorizedEntries;
 
 
 
-	res.send({ deletedEntries, updatedEntries, newEntries });	
+	res.send({ deletedEntries, updatedEntries, newEntries ,timeStamp});	
 });
 
 /*
