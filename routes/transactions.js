@@ -55,15 +55,19 @@ router.get('/',auth,validateInput(validateRequestTransaction,true),async(req,res
 	else{
 	 transactions = await Transaction
 	.find({khataId: { $in: khatas}})
-	.sort({ updatedTimeStamp: -1 })
+	.sort({ updatedTimeStamp: 1 })
     .skip(pageSize * (pageNumber - 1))
     .limit(pageSize);
 		}
 	//.sort({Date:1})
 	//dbDebugger(transactions);
+	//console.log(transactions)
+	if(transactions.length>0){
+		timeStamp=transactions[transactions.length-1].updatedTimeStamp;
+	}
+
 
 	// Filter by deviceId
-	if(transactions[0]){timeStamp=transactions[0].updatedTimeStamp;}
 const categorizedEntries = transactions.reduce(
   (result, entry) => {
     if (entry.deviceId !== deviceId) {
