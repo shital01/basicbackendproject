@@ -52,7 +52,10 @@ else{
 if(khatas.length>0){
     timeStamp=khatas[khatas.length-1].updatedTimeStamp;
   }
-const categorizedEntries = khatas.reduce(
+
+var categorizedEntries;
+    if(req.query.lastUpdatedTimeStamp){
+ categorizedEntries = khatas.reduce(
   (result, entry) => {
     if (entry.deviceId !== deviceId) {
       if (entry.deleteFlag === true) {
@@ -67,6 +70,22 @@ const categorizedEntries = khatas.reduce(
   },
   { deletedEntries: [], updatedEntries: [], newEntries: [] }
 );
+}
+else{
+ categorizedEntries = khatas.reduce(
+  (result, entry) => {
+      if (entry.deleteFlag === true) {
+        result.deletedEntries.push(entry);
+      } else if (entry.updatedFlag === true) {
+        result.updatedEntries.push(entry);
+      } else {
+        result.newEntries.push(entry);
+      }
+    return result;
+  },
+  { deletedEntries: [], updatedEntries: [], newEntries: [] }
+);
+}
 
 const { deletedEntries, updatedEntries, newEntries } = categorizedEntries;
 

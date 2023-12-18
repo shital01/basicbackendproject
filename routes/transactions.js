@@ -66,9 +66,10 @@ router.get('/',auth,validateInput(validateRequestTransaction,true),async(req,res
 		timeStamp=transactions[transactions.length-1].updatedTimeStamp;
 	}
 
-
+var categorizedEntries;
 	// Filter by deviceId
-const categorizedEntries = transactions.reduce(
+		if(req.query.lastUpdatedTimeStamp){
+	 categorizedEntries = transactions.reduce(
   (result, entry) => {
     if (entry.deviceId !== deviceId) {
       if (entry.deleteFlag === true) {
@@ -84,12 +85,24 @@ const categorizedEntries = transactions.reduce(
   { deletedEntries: [], updatedEntries: [], newEntries: [] }
 );
 
+}
+else{
+ categorizedEntries = transactions.reduce(
+  (result, entry) => {
+      if (entry.deleteFlag === true) {
+        result.deletedEntries.push(entry);
+      } else if (entry.updatedFlag === true) {
+        result.updatedEntries.push(entry);
+      } else {
+        result.newEntries.push(entry);
+      }
+    return result;
+  },
+  { deletedEntries: [], updatedEntries: [], newEntries: [] }
+);
+}
+
 const { deletedEntries, updatedEntries, newEntries } = categorizedEntries;
-
-
-
-
-
 
 
 	if(transactions.length == pageSize){	
