@@ -351,6 +351,70 @@ var times=[];
   }
 });
 
+//for khata specific but correctone
+router.post('/showcalculations4/', auth, async (req, res) => {
+  try {
+    const  khataId  = req.body.khataId; // Extract khataId from request parameters
+
+    // Find the specific Khata using khataId and user's ID
+    const khata = await Khata.findOne({ _id: khataId, userId: req.user._id });
+
+    if (!khata) {
+      return res.status(404).json({ error: 'Khata not found for the user' });
+    }
+
+    // Find all transactions for the specific Khata
+    const transactions = await Transaction.find({ khataId });
+
+    let khataTotal = 0;
+
+    const currentDate = moment(); // Current date/time
+var interestarr=[];
+var totalarr=[];
+var times=[];
+    for (const transaction of transactions) {
+      const { amount, transactionDate } = transaction;
+      const { interestType, interestRate, rotationPeriod } = khata;
+      const transactionDateMoment = moment(transactionDate );//*1000
+
+      // Calculate periods and remaining days
+      const t = givePeriod(rotationPeriod);
+      const test = calculateRotations(transactionDateMoment, t, currentDate);
+
+      let interest = 0;
+
+      switch (interestType) {
+        case 'N':
+          interest = 0;
+          break;
+        case 'CM':
+          interest = calculateCompoundInterest(amount, interestRate * t, interestRate / 30, test.completedPeriods, test.remainingDays);
+          break;
+        case 'CY':
+          interest = calculateCompoundInterest(amount, (interestRate * t) / 12, interestRate / 365, test.completedPeriods, test.remainingDays);
+          break;
+        default:
+          interest = 0;
+          break;
+      }
+
+      // Calculate total for each transaction
+      khataTotal += transaction.amountGiveBool ? -1 * (amount + interest) : amount + interest;
+
+      // Attach interest to each transaction
+      transaction.interest = interest;
+      interestarr.push(interest);
+      totalarr.push(interest+amount);
+      times.push(test);
+    }
+
+    res.json({ khataId: khata._id, totalAmount: khataTotal, transactions,interestarr,totalarr,times });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server Error' });
+  }
+});
+
 
 
 

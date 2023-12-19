@@ -5,6 +5,7 @@ const Joi = require('joi');
 const config = require('config');
 const {User} = require('../models/user');
 const {Transaction} = require('../models/transaction');
+const {Khata} = require('../models/khata');
 
 const authorization =require('../middleware/authorization');
 const dbDebugger = require('debug')('app:db');
@@ -36,6 +37,11 @@ router.get('/GetUsers',async(req,res)=>{//,{name:1,phoneNumber:1}
 router.get('/GetTransactions',async(req,res)=>{//,{SenderName:1,ReceiverName:1,Amount:1,Notes:1
 	let users = await Transaction.find({});//for token regeneration hence not one lien do
 	res.header().send({error:null,response:users});
+});
+
+router.get('/GetKhatas',async(req,res)=>{//,{SenderName:1,ReceiverName:1,Amount:1,Notes:1
+  let users = await Khata.find({});//for token regeneration hence not one lien do
+  res.header().send({error:null,response:users});
 });
 
 router.get('/TotalUsers',async(req,res)=>{
