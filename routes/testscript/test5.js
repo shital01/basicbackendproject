@@ -23,7 +23,7 @@ and rest from arrya of khaat ids n rest in random
 //then randpmo user,random khata ,random transction with limits genereae and test
 //Remove unnnesory data types 
 //or modifey data types if needed
- /* 
+  
 function generateRandomKhataData(a,b,c,numObjects) {
   const dummyData = [];
   const userName=a;
@@ -75,12 +75,6 @@ function generateRandomTransactionData(a,b,c,d,numObjects) {
     
     const amountGiveBool = bools[Math.floor(Math.random()*2)];
     const khataId = d[Math.floor(Math.random() * d.length)]; // Random interest period
-    /*
-    const interestRate = Math.floor(Math.random() * 100); // Random interest rate up to 100
-    const interestPeriod = interestPeriods[Math.floor(Math.random() * interestPeriods.length)]; // Random interest period
-    const rotationPeriod = [90, 180, 365][Math.floor(Math.random() * 3)]; // Random rotation period
-    */
-/*
     dummyData.push({
       userName,
       userPhoneNumber,
@@ -137,8 +131,45 @@ router.post('/genTransaction',auth, async (req, res) => {
 
 // Assuming you have models for User, Khata, and Transaction
 const moment = require('moment'); // Use a date library like Moment.js for date calculations
+function calculateRotations(transactionDate, rotationPeriod, currentDate) {
+    const diffMonths = currentDate.diff(transactionDate, 'months');
+    const periods = Math.floor(diffMonths / rotationPeriod);
+    console.log("periods",diffMonths,periods)
+    const nextRotation = moment(transactionDate).add(periods * rotationPeriod, 'months');
+    const remainingDays = currentDate.diff(nextRotation, 'days');
 
+    return { completedPeriods: periods, remainingDays };
+}
 
+function calculateRotations1(transactionDate, rotationPeriod, currentDate) {
+  if((rotationPeriod==3)||(rotationPeriod==6)||(rotationPeriod==18)){
+    const diffDays = currentDate.diff(transactionDate, 'days');
+    const periods = Math.floor(diffDays / (30*rotationPeriod));
+    console.log("periods",diffDays,periods)
+    const remainingDays = diffDays-periods*30*rotationPeriod;
+        return { completedPeriods: periods, remainingDays };
+
+  }
+  else{
+    const diffDays = currentDate.diff(transactionDate, 'days');
+    const periods = Math.floor((diffDays*12) / (365*rotationPeriod));
+    console.log("periods",diffDays,periods)
+    const remainingDays = diffDays-(periods*365*rotationPeriod/12);
+        return { completedPeriods: periods, remainingDays };
+
+  }
+
+}
+
+function givePeriod(input){
+  if(input=='3M'){return 3}
+  else if(input=='6M'){return 6}
+  else if(input=='1Y'){return 12}
+  else if(input=='18M'){return 18}
+  else if(input=='2Y'){return 24}
+  if(input=='0M'){return 1;}
+
+}
 // Assuming you have models defined for User, Khata, and Transaction
 router.post('/showcalculations', auth, async (req, res) => {
   try {
@@ -156,22 +187,26 @@ router.post('/showcalculations', auth, async (req, res) => {
       for (const transaction of transactions) {
         const { amount, transactionDate } = transaction;
         const { interestType, interestRate, rotationPeriod } = khata;
+        const transactionDateMoment = moment(transactionDate*1000);
+        console.log(currentDate,"*****",transactionDate,transactionDateMoment);
+        const t= givePeriod(rotationPeriod);
 
-        const transactionDateMoment = moment(transactionDate);
-        const diffMonths = currentDate.diff(transactionDateMoment, 'months');
-        const remainingDays = currentDate.diff(transactionDateMoment, 'days');
-console.log(currentDate,transactionDate,transactionDateMoment,diffMonths,remainingDays);
+        const test = calculateRotations(transactionDateMoment,t,currentDate);
+        console.log(test)
+
+console.log(interestType,currentDate,transactionDate,transactionDateMoment,test.completedPeriods,test.remainingDays,interestRate,rotationPeriod);
         let interest = 0;
+ console.log(transaction);
 
         switch (interestType) {
           case 'N':
             interest = 0;
             break;
           case 'CM':
-            interest = calculateCompoundInterest(amount, interestRate, rotationPeriod, diffMonths, remainingDays, 12);
+            interest = calculateCompoundInterest(amount, interestRate*t,interestRate/30, test.completedPeriods,test.remainingDays);
             break;
           case 'CY':
-            interest = calculateCompoundInterest(amount, interestRate, rotationPeriod, diffMonths, remainingDays, 1);
+            interest = calculateCompoundInterest(amount, (interestRate*t)/12, interestRate/365, test.completedPeriods,test.remainingDays);
             break;
           default:
             interest = 0;
@@ -192,10 +227,141 @@ console.log(currentDate,transactionDate,transactionDateMoment,diffMonths,remaini
 });
 
 
-function calculateCompoundInterest(amount, interestRate, rotationPeriod, totalRotations, remainingDays, periodMultiplier) {
-  const monthlyInterestRate = interestRate / (periodMultiplier * 100);
-  const power = totalRotations + remainingDays / (365 * periodMultiplier);
-  const compoundAmount = amount * Math.pow((1 + monthlyInterestRate), totalRotations) *(1+);
+
+// Assuming you have models defined for User, Khata, and Transaction
+router.post('/showcalculations1', auth, async (req, res) => {
+  try {
+    const khatas = await Khata.find({ userId: req.user._id });
+
+    const khataTotals = [];
+
+    for (const khata of khatas) {
+      const transactions = await Transaction.find({ khataId: khata._id });
+
+      let khataTotal = 0;
+
+      const currentDate = moment(); // Current date/time
+
+      for (const transaction of transactions) {
+        const { amount, transactionDate } = transaction;
+        const { interestType, interestRate, rotationPeriod } = khata;
+        const transactionDateMoment = moment(transactionDate*1000);
+        console.log(currentDate,"*****",transactionDate,transactionDateMoment);
+        const t= givePeriod(rotationPeriod);
+        
+        const test = calculateRotations1(transactionDateMoment,t,currentDate);
+        console.log(test)
+
+console.log(interestType,currentDate,transactionDate,transactionDateMoment,test.completedPeriods,test.remainingDays,interestRate,rotationPeriod);
+        let interest = 0;
+ console.log(transaction);
+
+        switch (interestType) {
+          case 'N':
+            interest = 0;
+            break;
+          case 'CM':
+            interest = calculateCompoundInterest(amount, interestRate*t,interestRate/30, test.completedPeriods,test.remainingDays);
+            break;
+          case 'CY':
+            interest = calculateCompoundInterest(amount, (interestRate*t)/12, interestRate/365, test.completedPeriods,test.remainingDays);
+            break;
+          default:
+            interest = 0;
+            break;
+        }
+
+        khataTotal += transaction.amountGiveBool ? -1 * (amount + interest) : amount + interest;
+      }
+
+      khataTotals.push({ khataId: khata._id, totalAmount: khataTotal });
+    }
+
+    res.json({ khataTotals });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server Error' });
+  }
+});
+
+
+
+// Assuming you have models defined for User, Khata, and Transaction
+//for khata specific
+router.post('/showcalculations3/', auth, async (req, res) => {
+  try {
+    const  khataId  = req.body.khataId; // Extract khataId from request parameters
+
+    // Find the specific Khata using khataId and user's ID
+    const khata = await Khata.findOne({ _id: khataId, userId: req.user._id });
+
+    if (!khata) {
+      return res.status(404).json({ error: 'Khata not found for the user' });
+    }
+
+    // Find all transactions for the specific Khata
+    const transactions = await Transaction.find({ khataId });
+
+    let khataTotal = 0;
+
+    const currentDate = moment(); // Current date/time
+var interestarr=[];
+var totalarr=[];
+    for (const transaction of transactions) {
+      const { amount, transactionDate } = transaction;
+      const { interestType, interestRate, rotationPeriod } = khata;
+      const transactionDateMoment = moment(transactionDate );//*1000
+
+      // Calculate periods and remaining days
+      const t = givePeriod(rotationPeriod);
+      const test = calculateRotations1(transactionDateMoment, t, currentDate);
+
+      let interest = 0;
+
+      switch (interestType) {
+        case 'N':
+          interest = 0;
+          break;
+        case 'CM':
+          interest = calculateCompoundInterest(amount, interestRate * t, interestRate / 30, test.completedPeriods, test.remainingDays);
+          break;
+        case 'CY':
+          interest = calculateCompoundInterest(amount, (interestRate * t) / 12, interestRate / 365, test.completedPeriods, test.remainingDays);
+          break;
+        default:
+          interest = 0;
+          break;
+      }
+
+      // Calculate total for each transaction
+      khataTotal += transaction.amountGiveBool ? -1 * (amount + interest) : amount + interest;
+
+      // Attach interest to each transaction
+      transaction.interest = interest;
+      interestarr.push(interest);
+      totalarr.push(interest+amount);
+    }
+
+    res.json({ khataId: khata._id, totalAmount: khataTotal, transactions,interestarr,totalarr });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server Error' });
+  }
+});
+
+
+
+
+
+function calculateCompoundInterest(amount, interestRate1,interestRate2, totalRotations, remainingDays) {
+  const r1 = interestRate1 /  100;
+  const r2 = interestRate2 /  100;
+
+ // const power = totalRotations + remainingDays / (365 * periodMultiplier);
+ console.log(">>>>>>>>>");
+
+ console.log(amount,r1,totalRotations,remainingDays,r2);
+  const compoundAmount = amount * Math.pow((1 + r1), totalRotations) *(1+(remainingDays*r2));
   return compoundAmount - amount;
 }
 
