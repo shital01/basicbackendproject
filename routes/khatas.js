@@ -34,7 +34,7 @@ router.get('/',auth,validateInput(validateGetKhata,true),async(req,res)=>{
     var khatas;
 	//watch performance of this ,use limit feature and sort for extra large queries
   var lastUpdatedTimeStamp;
-  var timeStamp;
+  var timeStamp=Date.now();
   if(req.query.lastUpdatedTimeStamp){
    lastUpdatedTimeStamp = req.query.lastUpdatedTimeStamp;
    console.log(lastUpdatedTimeStamp)

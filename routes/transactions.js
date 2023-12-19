@@ -29,7 +29,7 @@ Procedure->Query Using Phone Number and date to get info of transaction which ar
 router.get('/',auth,validateInput(validateRequestTransaction,true),async(req,res)=>{
 
 			const deviceId = req.header('deviceId');;
-			var timeStamp;
+  	var timeStamp=Date.now();
 	//adding default pagesize and pagenumber as of now in btoh get api for safety
 	var pageSize=500;
 	var pageNumber=1;
