@@ -307,6 +307,7 @@ router.post('/showcalculations3/', auth, async (req, res) => {
     const currentDate = moment(); // Current date/time
 var interestarr=[];
 var totalarr=[];
+var times=[];
     for (const transaction of transactions) {
       const { amount, transactionDate } = transaction;
       const { interestType, interestRate, rotationPeriod } = khata;
@@ -340,9 +341,10 @@ var totalarr=[];
       transaction.interest = interest;
       interestarr.push(interest);
       totalarr.push(interest+amount);
+      times.push(test);
     }
 
-    res.json({ khataId: khata._id, totalAmount: khataTotal, transactions,interestarr,totalarr });
+    res.json({ khataId: khata._id, totalAmount: khataTotal, transactions,interestarr,totalarr,times });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server Error' });
