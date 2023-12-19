@@ -24,11 +24,11 @@ const validateInput = (schema) => (req, res, next) => {
 //also sep numbers for further addig new numbers for testing
 
 const testGenApi = () => (req, res, next) => {
-  if((req.body.phoneNumber==="5555543210")||(req.body.phoneNumber==="5555566666")){return res.send({SendSMS:true});}
+  if((req.body.phoneNumber==="5555543210")||(req.body.phoneNumber==="5555566666")||(req.body.phoneNumber==="5555544444")||(req.body.phoneNumber==="5555533333")||(req.body.phoneNumber==="5555522222")||(req.body.phoneNumber==="5555511111")){return res.send({SendSMS:true});}
   next();
 };
 const testLoginApi = () => async (req, res, next) => {
-  if(((req.body.phoneNumber==="5555543210")||(req.body.phoneNumber==="5555566666")&& req.body.otp=="1234")){
+  if(((req.body.phoneNumber==="5555543210")||(req.body.phoneNumber==="5555566666")||(req.body.phoneNumber==="5555544444")||(req.body.phoneNumber==="5555533333")||(req.body.phoneNumber==="5555522222")||(req.body.phoneNumber==="5555511111"))&& (req.body.otp=="1234")){
   	try{let user = await User.findOne({phoneNumber:req.body.phoneNumber});
 	const token = user.generateAuthToken();
   	return res.header('x-auth-token',token).send(user);
