@@ -63,6 +63,15 @@ const TransactionSchema = new mongoose.Schema({
 	    },
   },
   localId:{type:String}//confirm this type
+  ,
+	createdTimeStamp: {
+    type: Number,
+    required: true,
+    validate: [isValidUnixTimestamp, 'Invalid Unix timestamp'],
+    default: function() {
+    return Date.now();
+  } 
+  }
 });
 
 const Transaction = mongoose.model('Transaction',TransactionSchema);
