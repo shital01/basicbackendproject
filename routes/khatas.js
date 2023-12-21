@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const dbDebugger = require('debug')('app:db');
-const {Khata,validate,validateGetKhata,validateUpdateKhata,validateKhata} = require('../models/khata');
+const {Khata,validate,validateGetKhata,validateUpdateKhata,validateKhata,validateUpdateSettle} = require('../models/khata');
 const {User} = require('../models/user');
 const auth =require('../middleware/auth');
 //Validation Start
@@ -58,7 +58,7 @@ var categorizedEntries;
  categorizedEntries = khatas.reduce(
   (result, entry) => {
     if (entry.deviceId !== deviceId) {
-      if (entry.deleteFlag === true) {
+      if (entry.settledFlag === true) {
         result.deletedEntries.push(entry);
       } else if (entry.updatedFlag === true) {
         result.updatedEntries.push(entry);
@@ -74,7 +74,7 @@ var categorizedEntries;
 else{
  categorizedEntries = khatas.reduce(
   (result, entry) => {
-      if (entry.deleteFlag === true) {
+      if (entry.settledFlag === true) {
         result.deletedEntries.push(entry);
       } else if (entry.updatedFlag === true) {
         result.updatedEntries.push(entry);
@@ -204,6 +204,23 @@ router.put('/',auth,validateInput(validateUpdateKhata),async(req,res)=>{
 	}
 });
 
+router.put('/settle', auth, validateInput(validateUpdateSettle), async (req, res) => {
+    const deviceId = req.header('deviceId');;
+
+    const { khataIds } = req.body;
+    // Update seenStatus to true for the provided transactionIds
+    const updateResult = await Khata.updateMany(
+      { _id: { $in: khataIds } },
+      { $set: { settledFlag: true  , updatedTimeStamp: Date.now(),deviceId}}
+  )
+    // Check if any transactions were updated
+    //console.log(updateResult)
+    if (updateResult.modifiedCount > 0) {
+      res.send({ message: 'settled status updated successfully for specified transactions' });
+    } else {
+      res.status(404).send({ errormessage: 'No khata found for the provided IDs' });
+    }
+})
 
 module.exports =router;
 /*

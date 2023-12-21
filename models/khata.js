@@ -92,7 +92,15 @@ function validateUpdateKhata(khata){
 	});
 	return schema.validate(khata);
 }
+
+function validateUpdateSettle(ids) {
+   const schema = Joi.object({
+    khataIds: Joi.array().items(Joi.objectId().required())
+  });
+  return schema.validate(ids);
+}
 exports.validateKhataArray = validateKhataArray;
+exports.validateUpdateSettle = validateUpdateSettle;
 
 exports.Khata = Khata;
 exports.validateGetKhata = validateGetKhata;
