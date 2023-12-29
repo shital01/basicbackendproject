@@ -59,7 +59,7 @@ var categorizedEntries;
   (result, entry) => {
     if (entry.deviceId !== deviceId) {
       if (entry.settledFlag === true) {
-        result.deletedEntries.push(entry);
+        result.settledEntries.push(entry);
       } else if (entry.updatedFlag === true) {
         result.updatedEntries.push(entry);
       } else {
@@ -68,14 +68,14 @@ var categorizedEntries;
     }
     return result;
   },
-  { deletedEntries: [], updatedEntries: [], newEntries: [] }
+  { settledEntries: [], updatedEntries: [], newEntries: [] }
 );
 }
 else{
  categorizedEntries = khatas.reduce(
   (result, entry) => {
       if (entry.settledFlag === true) {
-        result.deletedEntries.push(entry);
+        result.settledEntries.push(entry);
       } else if (entry.updatedFlag === true) {
         result.updatedEntries.push(entry);
       } else {
@@ -83,11 +83,11 @@ else{
       }
     return result;
   },
-  { deletedEntries: [], updatedEntries: [], newEntries: [] }
+  { settledEntries: [], updatedEntries: [], newEntries: [] }
 );
 }
 
-const { deletedEntries, updatedEntries, newEntries } = categorizedEntries;
+const { settledEntries, updatedEntries, newEntries } = categorizedEntries;
 
 
 
