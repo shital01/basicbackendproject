@@ -95,7 +95,7 @@ const { settledEntries, updatedEntries, newEntries } = categorizedEntries;
 
 
 
-	res.send({ deletedEntries, updatedEntries, newEntries ,timeStamp});	
+	res.send({ settledEntries, updatedEntries, newEntries ,timeStamp});	
 });
 
 /*
