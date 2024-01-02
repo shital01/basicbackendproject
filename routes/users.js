@@ -44,6 +44,17 @@ router.put('/updateprofile',auth,validateInput(validateUpdateUser),async(req,res
 	}
 });
 
+router.put('/updatetoken',auth,validateInput(validateUpdatetoken),async(req,res)=>{
+	let user = await User.findById(req.user._id);//for token regeneration hence not one lien do
+	if(!user){res.status(400).send({message:'No User exits'})}
+		else{
+	user.FcmToken =req.body.FcmToken;
+	const user2 = await user.save();
+	const token = user2.generateAuthToken()
+	res.header('x-auth-token',token).send(user2);
+	}
+});
+
 //friendsprofile pic
 router.post('/friendsprofile',auth,validateInput(validateNumbers),async(req,res)=>{
 	//add limit on size of array to handle unexpected long requests-also decided by server as not size but query return time also a factor
@@ -51,6 +62,13 @@ router.post('/friendsprofile',auth,validateInput(validateNumbers),async(req,res)
 	if(users.length===0) { res.status(404).send({message:'No User exits'})}
 	else{res.send(users);}
 })
+
+function validateUpdatetoken(user){
+	const schema=Joi.object({
+	FcmToken:Joi.string().allow(null, ''),
+	});
+	return schema.validate(user);
+}
 function validateUpdateUser(user){
 	const schema=Joi.object({
 	name:Joi.string().allow(null, '').max(64),
