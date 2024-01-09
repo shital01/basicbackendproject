@@ -1,5 +1,5 @@
 {
 	"name":"Settle -production",
-	"db":"mongodb://localhost/playground"
+	"settle_db":"mongodb://localhost/playground"
 
 }
