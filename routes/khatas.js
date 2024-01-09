@@ -115,7 +115,7 @@ console.log(deviceId)
   const userPhoneNumber = req.user.phoneNumber;
   const userName = req.user.name;
   const khataEntries = req.body;
-logger.info(khataEntries)
+console.log(khataEntries)
   const savedEntries = [];
   const unsavedEntries = [];
 

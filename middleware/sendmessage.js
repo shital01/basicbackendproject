@@ -32,7 +32,7 @@ const requestURL = options.url + '?method=' + options.data.method +
     '&password=' + options.data.password +
     '&format=' + options.data.format;
 console.log(requestURL);
-  logger.info('Final URL:'+ requestURL);
+  console.log('Final URL:'+ requestURL);
 
 
 const response = await axios(options);

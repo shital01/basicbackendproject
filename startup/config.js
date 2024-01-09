@@ -9,5 +9,5 @@ module.exports =function(){
 }
 
 //configuration 
-logger.info('app name: '+ config.get('name'));
+console.log('app name: '+ config.get('name'));
 }
