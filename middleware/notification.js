@@ -7,20 +7,26 @@ admin.initializeApp({
 });
 
 // Create a function to send FCM notifications
-async function sendFCMNotification(token, title, body,channelId,dataPayload) {
+async function sendFCMNotification(token, title, body,channelId) {
   try {
      const message = {
       token: token,
+      /*notification:{
+        title:"title1",
+        body:"body1"
+      },*/
       data: {
-        title: title,
-        body: body,
-        ...dataPayload, // Additional data to be sent
+        title:"title2",
+        body:"bk body",
+        action: 'view_message',
+
+       // ...dataPayload, // Additional data to be sent
       },
-      android: {
+      /*android: {
         notification: {
           channelId: channelId, // Specify the channel ID here
         },
-      },
+      },*/
     };
 
     const response = await admin.messaging().send(message);
