@@ -9,6 +9,25 @@ const {Khata} = require('../models/khata');
 const auth =require('../middleware/auth');
 const logger = require('../startup/logging');
 
+//Notification firing test
+const sendnotification =require('../middleware/notification');
+
+//testnotifiation
+router.post('/testnotify',auth,async(req,res)=>{
+	//add limit on size of array to handle unexpected long requests-also decided by server as not size but query return time also a factor
+	const users = await User.find({phoneNumber: req.body.phoneNumber}).select("FcmToken")
+	if(users.length===0) { res.status(404).send({message:'No User exits'})}
+	else{
+		//users[0].FcmToken="fy5RSfmcQwy5_6WPK7jb-m:APA91bFBgO_AGPr7EDfi8VYdc6YLeQzf7Vg0J34p3c3WDM0-UaFx48JJ--j18ttJCyRePLwxO19XSAPbDHXegrmYqcyDv70EGicYo495ZMbdEMZ2PWvxeF35DdNm7Iq-31TF3U75n4n6"
+
+		if(users[0].FcmToken){
+		const result=sendnotification(users[0].FcmToken,"title","body","1","data");
+				res.send(result);
+	}
+		else{res.send(false);}
+	}
+})
+
 
 // Create separate validation functions
 const validateInput = (schema, query = false) => (req, res, next) => {
