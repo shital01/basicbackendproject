@@ -30,8 +30,11 @@ const testGenApi = () => (req, res, next) => {
 const testLoginApi = () => async (req, res, next) => {
   if(((req.body.phoneNumber==="5555543210")||(req.body.phoneNumber==="5555566666")||(req.body.phoneNumber==="5555544444")||(req.body.phoneNumber==="5555533333")||(req.body.phoneNumber==="5555522222")||(req.body.phoneNumber==="5555511111"))&& (req.body.otp=="1234")){
   	try{let user = await User.findOne({phoneNumber:req.body.phoneNumber});
-	const token = user.generateAuthToken();
-  	return res.header('x-auth-token',token).send(user);
+
+		user.fcmToken=req.body.fcmToken;
+		const user2 = await user.save();
+		const token = user2.generateAuthToken();
+		return res.header('x-auth-token',token).send(user2);
   }
   catch(error){
       return res.status(500).send({ error: 'Internal Server Error' });
