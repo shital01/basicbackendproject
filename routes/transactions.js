@@ -21,8 +21,8 @@ router.post('/testnotify',auth,async(req,res)=>{
 		//users[0].fcmToken="fy5RSfmcQwy5_6WPK7jb-m:APA91bFBgO_AGPr7EDfi8VYdc6YLeQzf7Vg0J34p3c3WDM0-UaFx48JJ--j18ttJCyRePLwxO19XSAPbDHXegrmYqcyDv70EGicYo495ZMbdEMZ2PWvxeF35DdNm7Iq-31TF3U75n4n6"
 
 		if(users[0].fcmToken){
-		const result=sendnotification(users[0].fcmToken,"title","body");
-				res.send(result);
+		const result=await sendnotification(users[0].fcmToken,"title","body");
+				res.send(true);
 	}
 		else{res.send(false);}
 	}
@@ -331,7 +331,7 @@ router.put('/delete', auth, validateInput(validateUpdateSeenStatus), async (req,
           	message=message+"You gave me Rs "+amount+"on "+transactionDate;
 
           }
-          await sendNotificationByToken(
+          await sendnotification(
             user.fcmToken,
             userName,
            	message,

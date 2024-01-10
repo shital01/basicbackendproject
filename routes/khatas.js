@@ -8,6 +8,7 @@ const auth =require('../middleware/auth');
 //Validation Start
 const logger = require('../startup/logging');
 
+const sendNotification =require('../middleware/notification');
 
 //Seperate the middel ware of validation
 //validateGetKhata
@@ -145,8 +146,9 @@ console.log(khataEntries)
         const user = await User.findOne({ phoneNumber: savedEntry.friendPhoneNumber });
 
         if (user && user.fcmToken) {
-          // Assuming sendNotificationByToken takes fcmToken as a parameter
-          await sendNotificationByToken(user.fcmToken, savedEntry.userName,"Added you to thier ByajKhata");
+          console.log("came here")
+          // Assuming sendNotification takes fcmToken as a parameter
+          await sendNotification(user.fcmToken, savedEntry.userName,"Added you to thier ByajKhata");
         }
 
 
@@ -254,8 +256,8 @@ router.put('/settle', auth, validateInput(validateUpdateSettle), async (req, res
         const user = await User.findOne({ phoneNumber: friendPhoneNumber });
 
         if (user && user.fcmToken) {
-          // Assuming sendNotificationByToken takes userName and fcmToken as parameters
-          await sendNotificationByToken(user.fcmToken, userName,"Account Settled. Updated Balance is Zero");
+          // Assuming sendNotification takes userName and fcmToken as parameters
+          await sendNotification(user.fcmToken, userName,"Account Settled. Updated Balance is Zero");
         }
       }
 
