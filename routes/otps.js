@@ -105,8 +105,10 @@ router.post('/verify',testLoginApi(),validateInput(validatelogin),async(req,res)
 	if(user){
 		//current not implemented not so getting latest not much security needed otherwise keep date field and check using 
 		//created At and moment library
-		const token = user.generateAuthToken();
-		res.header('x-auth-token',token).send(user);
+		user.fcmToken=req.body.fcmToken;
+		const user2 = await user.save();
+		const token = user2.generateAuthToken();
+		res.header('x-auth-token',token).send(user2);
 	}
 	else{
 	user = new User(req.body);

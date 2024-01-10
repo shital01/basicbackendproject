@@ -140,6 +140,17 @@ console.log(khataEntries)
          try {
         const savedEntry = await khata.save();
         savedEntries.push(savedEntry);
+
+// Send notification to friendPhoneNumber for savedEntry
+        const user = await User.findOne({ phoneNumber: savedEntry.friendPhoneNumber });
+
+        if (user && user.fcmToken) {
+          // Assuming sendNotificationByToken takes fcmToken as a parameter
+          await sendNotificationByToken(user.fcmToken, savedEntry.userName,"Added you to thier ByajKhata");
+        }
+
+
+
       } catch (err) {
         // Handle any save errors here
         unsavedEntries.push({
@@ -204,14 +215,14 @@ router.put('/',auth,validateInput(validateUpdateKhata),async(req,res)=>{
 	}
 });
 
-router.put('/settle', auth, validateInput(validateUpdateSettle), async (req, res) => {
+router.put('/unsettle', auth, validateInput(validateUpdateSettle), async (req, res) => {
     const deviceId = req.header('deviceId');;
-
+    const userName =req.user.name;
     const { khataIds } = req.body;
     // Update seenStatus to true for the provided transactionIds
     const updateResult = await Khata.updateMany(
       { _id: { $in: khataIds } },
-      { $set: { settledFlag: true  , updatedTimeStamp: Date.now(),deviceId}}
+      { $set: { settledFlag: false  , updatedTimeStamp: Date.now(),deviceId}}
   )
     // Check if any transactions were updated
     //console.log(updateResult)
@@ -221,6 +232,44 @@ router.put('/settle', auth, validateInput(validateUpdateSettle), async (req, res
       res.status(404).send({ errormessage: 'No khata found for the provided IDs' });
     }
 })
+
+router.put('/settle', auth, validateInput(validateUpdateSettle), async (req, res) => {
+    const deviceId = req.header('deviceId');;
+    const userName =req.user.name;
+    const { khataIds } = req.body;
+    // Update seenStatus to true for the provided transactionIds
+    const updateResult = await Khata.updateMany(
+      { _id: { $in: khataIds } },
+      { $set: { settledFlag: true  , updatedTimeStamp: Date.now(),deviceId}}
+  )
+    // Check if any transactions were updated
+    //console.log(updateResult)
+    if (updateResult.modifiedCount > 0) {
+
+      const khataDetails = await Khata.find({ _id: { $in: khataIds } });
+
+      for (const khata of khataDetails) {
+        const {  friendPhoneNumber } = khata;
+        // Find fcmToken using the friend's phone number
+        const user = await User.findOne({ phoneNumber: friendPhoneNumber });
+
+        if (user && user.fcmToken) {
+          // Assuming sendNotificationByToken takes userName and fcmToken as parameters
+          await sendNotificationByToken(user.fcmToken, userName,"Account Settled. Updated Balance is Zero");
+        }
+      }
+
+      res.send({ message: 'settled status updated successfully for specified transactions' });
+    } else {
+      res.status(404).send({ errormessage: 'No khata found for the provided IDs' });
+    }
+})
+
+
+
+      
+     
+
 
 module.exports =router;
 /*

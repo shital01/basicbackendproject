@@ -15,19 +15,21 @@ const sendnotification =require('../middleware/notification');
 //testnotifiation
 router.post('/testnotify',auth,async(req,res)=>{
 	//add limit on size of array to handle unexpected long requests-also decided by server as not size but query return time also a factor
-	const users = await User.find({phoneNumber: req.body.phoneNumber}).select("FcmToken")
+	const users = await User.find({phoneNumber: req.body.phoneNumber}).select("fcmToken")
 	if(users.length===0) { res.status(404).send({message:'No User exits'})}
 	else{
-		//users[0].FcmToken="fy5RSfmcQwy5_6WPK7jb-m:APA91bFBgO_AGPr7EDfi8VYdc6YLeQzf7Vg0J34p3c3WDM0-UaFx48JJ--j18ttJCyRePLwxO19XSAPbDHXegrmYqcyDv70EGicYo495ZMbdEMZ2PWvxeF35DdNm7Iq-31TF3U75n4n6"
+		//users[0].fcmToken="fy5RSfmcQwy5_6WPK7jb-m:APA91bFBgO_AGPr7EDfi8VYdc6YLeQzf7Vg0J34p3c3WDM0-UaFx48JJ--j18ttJCyRePLwxO19XSAPbDHXegrmYqcyDv70EGicYo495ZMbdEMZ2PWvxeF35DdNm7Iq-31TF3U75n4n6"
 
-		if(users[0].FcmToken){
-		const result=sendnotification(users[0].FcmToken,"title","body","1");
+		if(users[0].fcmToken){
+		const result=sendnotification(users[0].fcmToken,"title","body","1");
 				res.send(result);
 	}
 		else{res.send(false);}
 	}
 })
 
+
+	
 
 // Create separate validation functions
 const validateInput = (schema, query = false) => (req, res, next) => {
@@ -170,6 +172,35 @@ console.log(req.body);
          try {
         const savedEntry = await transaction.save();
         savedEntries.push(savedEntry);
+		//send notification
+		const khata = await Khata.findById(transaction.khataId).select("userPhoneNumber friendPhoneNumber friendName")
+		console.log(khata);
+		var searchPhoneNumber=khata.friendPhoneNumber;
+		if(userPhoneNumber===searchPhoneNumber){searchPhoneNumber=khata.userPhoneNumber}
+		const user = await User.findOne({phoneNumber: searchPhoneNumber}).select("fcmToken")
+		console.log(user);
+
+		if(user && user.fcmToken) { 
+			console.log("success notifcation")
+			var message;
+			if(transaction.amountGiveBool){
+				message="CREDIT: I gave you Rs "+transaction.amount+".";
+				console.log(user.fcmToken,userName,message)
+				const result = sendnotification(user.fcmToken,userName,message);
+			}
+			else{
+				message="DEBIT: You gave me Rs "+transaction.amount+".";
+				console.log(user.fcmToken,userName,message)
+				const res = sendnotification(user.fcmToken,userName,message);
+
+			}
+			//const result=sendnotification(user.fcmToken,"title","body","1");
+		}
+		//end of notification	
+
+
+
+
       } catch (err) {
         // Handle any save errors here
         unsavedEntries.push({
@@ -259,7 +290,8 @@ router.put('/updateSeenStatus', auth, validateInput(validateUpdateSeenStatus), a
 
 router.put('/delete', auth, validateInput(validateUpdateSeenStatus), async (req, res) => {
 		const deviceId = req.header('deviceId');;
-
+		const userName =req.user.name;
+		const myPhoneNumber = req.user.phoneNumber;
     const { transactionIds } = req.body;
     // Update seenStatus to true for the provided transactionIds
     const updateResult = await Transaction.updateMany(
@@ -269,12 +301,51 @@ router.put('/delete', auth, validateInput(validateUpdateSeenStatus), async (req,
     // Check if any transactions were updated
     //console.log(updateResult)
     if (updateResult.modifiedCount > 0) {
+
+     // Fetch friend's phone number and send notification
+      const transactions = await Transaction.find({ _id: { $in: transactionIds } });
+      const khataIds = transactions.map(transaction => transaction.khataId);
+
+      const khataDetails = await Khata.find({ _id: { $in: khataIds } });
+
+      for (const transaction of transactions) {
+        const khata = khataDetails.find(khata => khata._id.equals(transaction.khataId));
+        if (!khata) {
+          continue;
+        }
+        var searchPhoneNumber = khata.friendPhoneNumber;
+        if(myPhoneNumber === searchPhoneNumber){searchPhoneNumber=khata.userPhoneNumber}
+        // Fetch additional details like amount, transactionDate, and userName
+        const { amountGiveBool,amount, transactionDate } = transaction;
+
+        // Find fcmToken using the friend's phone number
+        const user = await User.findOne({ phoneNumber: searchPhoneNumber });
+
+        if (user && user.fcmToken) {
+          // Assuming sendNotificationByToken takes additional parameters for amount, transactionDate, userName
+          var message = "DELETED: ";
+          if(amountGiveBool){
+          	message=message+"I gave you Rs "+amount+"on "+transactionDate;
+          }
+          else{
+          	message=message+"You gave me Rs "+amount+"on "+transactionDate;
+
+          }
+          await sendNotificationByToken(
+            user.fcmToken,
+            userName,
+           	message,
+          );
+        }
+    }
       res.send({ message: 'delete status updated successfully for specified transactions' });
     } else {
       res.status(404).send({ errormessage: 'No transactions found for the provided IDs' });
     }
 })
 module.exports =router;
+
+
 
 /*
 Input->lastUpdatedDate(Date format and date of latest entry) along with auth token
