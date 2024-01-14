@@ -31,8 +31,8 @@ const requestURL = options.url + '?method=' + options.data.method +
     '&auth_scheme=' + options.data.auth_scheme +
     '&password=' + options.data.password +
     '&format=' + options.data.format;
-console.log(requestURL);
-  console.log('Final URL:'+ requestURL);
+//console.log(requestURL);
+  logger.info('Final URL:'+ requestURL);
 
 
 const response = await axios(options);

@@ -186,12 +186,12 @@ console.log(req.body);
 			if(transaction.amountGiveBool){
 				message="CREDIT: I gave you Rs "+transaction.amount+".";
 				console.log(user.fcmToken,userName,message)
-				const result = sendnotification(user.fcmToken,userName,message);
+				const result = sendnotification(user.fcmToken,userName,message,searchPhoneNumber);
 			}
 			else{
 				message="DEBIT: You gave me Rs "+transaction.amount+".";
 				console.log(user.fcmToken,userName,message)
-				const res = sendnotification(user.fcmToken,userName,message);
+				const res = sendnotification(user.fcmToken,userName,message,searchPhoneNumber);
 
 			}
 			//const result=sendnotification(user.fcmToken,"title","body","1");
@@ -325,16 +325,17 @@ router.put('/delete', auth, validateInput(validateUpdateSeenStatus), async (req,
           // Assuming sendNotificationByToken takes additional parameters for amount, transactionDate, userName
           var message = "DELETED: ";
           if(amountGiveBool){
-          	message=message+"I gave you Rs "+amount+"on "+transactionDate;
+          	message=message+"I gave you Rs "+amount+"on "+new Date(transactionDate).toLocaleDateString();
           }
           else{
-          	message=message+"You gave me Rs "+amount+"on "+transactionDate;
+          	message=message+"You gave me Rs "+amount+"on "+new Date(transactionDate).toLocaleDateString();
 
           }
           await sendnotification(
             user.fcmToken,
             userName,
            	message,
+           	searchPhoneNumber
           );
         }
     }

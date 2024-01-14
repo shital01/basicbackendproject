@@ -116,7 +116,7 @@ console.log(deviceId)
   const userPhoneNumber = req.user.phoneNumber;
   const userName = req.user.name;
   const khataEntries = req.body;
-console.log(khataEntries)
+  logger.info(khataEntries)
   const savedEntries = [];
   const unsavedEntries = [];
 
@@ -148,7 +148,7 @@ console.log(khataEntries)
         if (user && user.fcmToken) {
           console.log("came here")
           // Assuming sendNotification takes fcmToken as a parameter
-          await sendNotification(user.fcmToken, savedEntry.userName,"Added you to thier ByajKhata");
+          await sendNotification(user.fcmToken, savedEntry.userName,"Added you to their ByajKhata",savedEntry.friendPhoneNumber);
         }
 
 
@@ -238,6 +238,7 @@ router.put('/unsettle', auth, validateInput(validateUpdateSettle), async (req, r
 router.put('/settle', auth, validateInput(validateUpdateSettle), async (req, res) => {
     const deviceId = req.header('deviceId');;
     const userName =req.user.name;
+    const phoneNumber = req.user.phoneNumber;
     const { khataIds } = req.body;
     // Update seenStatus to true for the provided transactionIds
     const updateResult = await Khata.updateMany(
@@ -251,13 +252,16 @@ router.put('/settle', auth, validateInput(validateUpdateSettle), async (req, res
       const khataDetails = await Khata.find({ _id: { $in: khataIds } });
 
       for (const khata of khataDetails) {
-        const {  friendPhoneNumber } = khata;
+        const {  userPhoneNumber,friendPhoneNumber } = khata;
+        //
+        var searchPhoneNumber = friendPhoneNumber;
+        if(phoneNumber === friendPhoneNumber){searchPhoneNumber=userPhoneNumber}
         // Find fcmToken using the friend's phone number
-        const user = await User.findOne({ phoneNumber: friendPhoneNumber });
+        const user = await User.findOne({ phoneNumber: searchPhoneNumber });
 
         if (user && user.fcmToken) {
           // Assuming sendNotification takes userName and fcmToken as parameters
-          await sendNotification(user.fcmToken, userName,"Account Settled. Updated Balance is Zero");
+          await sendNotification(user.fcmToken, userName,"Account Settled. Updated Balance is Zero",searchPhoneNumber);
         }
       }
 

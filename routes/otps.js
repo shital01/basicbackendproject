@@ -53,7 +53,7 @@ function generateOTP() {
     for (let i = 0; i < 4; i++ ) {
         OTP += digits[Math.floor(Math.random() * 10)];
     }
-   console.log(OTP)
+   logger.info(OTP)
     //console.log(OTP)
     //dbDebugger(OTP)
     return OTP;

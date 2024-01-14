@@ -34,6 +34,8 @@ router.post('/fakelogin',async(req,res)=>{
 });
 
 router.post('/fakedelete',async(req,res)=>{
+  await Khata.deleteMany({ userPhoneNumber: req.body.phoneNumber });
+    await Khata.deleteMany({ friendPhoneNumber: req.body.phoneNumber });
 	let user = await User.remove({phoneNumber:req.body.phoneNumber});//for token regeneration hence not one lien do
 	res.send(user);
 });

@@ -5,7 +5,7 @@ const logger = require('../startup/logging');
 const dbDebugger = require('debug')('app:db');
 const sendmessage =require('../middleware/sendmessage');
 const auth =require('../middleware/auth');
-const config = require('bcrypt');
+const config = require('config');
 
 /*
 Add comment

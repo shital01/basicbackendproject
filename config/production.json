@@ -1,5 +1,7 @@
 {
 	"name":"Settle -production",
-	"settle_db":"mongodb://localhost/playground"
+	"file1":"productioncombined.log",
+	"file2":"productionexception.log",
+	"file3":"productionrejections.log"
 
 }
