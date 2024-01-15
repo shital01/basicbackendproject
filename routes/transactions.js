@@ -325,10 +325,10 @@ router.put('/delete', auth, validateInput(validateUpdateSeenStatus), async (req,
           // Assuming sendNotificationByToken takes additional parameters for amount, transactionDate, userName
           var message = "DELETED: ";
           if(amountGiveBool){
-          	message=message+"I gave you Rs "+amount+"on "+new Date(transactionDate).toLocaleDateString();
+          	message=message+"I gave you Rs "+amount+" on "+new Date(transactionDate).toLocaleDateString();
           }
           else{
-          	message=message+"You gave me Rs "+amount+"on "+new Date(transactionDate).toLocaleDateString();
+          	message=message+"You gave me Rs "+amount+" on "+new Date(transactionDate).toLocaleDateString();
 
           }
           await sendnotification(

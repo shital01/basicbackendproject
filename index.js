@@ -21,6 +21,13 @@ app.use((req, res, next) => {
   next();
 });
 }
+// Define a health check route
+app.get('/health', (req, res) => {
+  // You can perform custom health checks here
+  // For a basic health check, you can just send a success response
+  res.status(200).send('Health check passed');
+});
+
 
 
 process.on('unhandledRejections',(ex) =>{
