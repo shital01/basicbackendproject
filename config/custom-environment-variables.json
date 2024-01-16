@@ -1,12 +1,12 @@
 {
-	"jwtPrivateKey":"settle_jwtPrivateKey",
-	"db":"settle_db",
-	"bucketName":"settle_bucketName",
-	"userid":"settle_userid",
-	"password":"settle_password",
-	"AWSSecretKey":"settle_AWSSecretKey",
-	"AWSAccessKey":"settle_AWSAccessKey",
-	"templateIdAdd":"settle_templateIdAdd",
-	"templateIdDelete":"settle_templateIdDelete",
-	"templateIdRemind":"settle_templateIdRemind"
+	"jwtPrivateKey":"BK_jwtPrivateKey",
+	"db":"BK_db",
+	"bucketName":"BK_bucketName",
+	"userid":"BK_userid",
+	"password":"BK_password",
+	"AWSSecretKey":"BK_AWSSecretKey",
+	"AWSAccessKey":"BK_AWSAccessKey",
+	"templateIdAdd":"BK_templateIdAdd",
+	"templateIdDelete":"BK_templateIdDelete",
+	"templateIdRemind":"BK_templateIdRemind"
 }
