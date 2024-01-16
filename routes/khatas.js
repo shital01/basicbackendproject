@@ -59,6 +59,7 @@ var categorizedEntries;
  categorizedEntries = khatas.reduce(
   (result, entry) => {
     if (entry.deviceId !== deviceId) {
+/*
       if (entry.settledFlag === true) {
         result.settledEntries.push(entry);
       } else if (entry.updatedFlag === true) {
@@ -66,6 +67,8 @@ var categorizedEntries;
       } else {
         result.newEntries.push(entry);
       }
+*/
+      result.newEntries.push(entry);
     }
     return result;
   },
@@ -75,6 +78,7 @@ var categorizedEntries;
 else{
  categorizedEntries = khatas.reduce(
   (result, entry) => {
+/*
       if (entry.settledFlag === true) {
         result.settledEntries.push(entry);
       } else if (entry.updatedFlag === true) {
@@ -82,6 +86,9 @@ else{
       } else {
         result.newEntries.push(entry);
       }
+      */
+      result.newEntries.push(entry);
+
     return result;
   },
   { settledEntries: [], updatedEntries: [], newEntries: [] }
