@@ -33,6 +33,8 @@ const testLoginApi = () => async (req, res, next) => {
 
 		user.fcmToken=req.body.fcmToken;
 		const user2 = await user.save();
+		logger.info(user2);
+		logger.info(req.body);
 		const token = user2.generateAuthToken();
 		return res.header('x-auth-token',token).send(user2);
   }
