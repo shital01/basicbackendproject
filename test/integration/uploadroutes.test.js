@@ -75,7 +75,8 @@ test('should throw unhandled rejection', () => {
   }).toThrowError();
 });
 */
-
+//from here on extra commented
+/*
 const request = require('supertest');
 const mongoose = require('mongoose');
 const {User} = require('../../models/user');

@@ -4,7 +4,7 @@ const winston = require('winston');
 require	('express-async-errors');
 require('winston-mongodb');
 const { combine, timestamp, json, errors } = winston.format;
-
+//console.log(config.get('db'))
 //exception handle 
 //and unhandled rejection-random error or promise unhandled
 const logger = winston.createLogger({

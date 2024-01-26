@@ -32,18 +32,28 @@ If validation fail then code 400 and error message
 If user does not exist then 400 with error message
 If something else fail like database saving then Response send with code 500 and error message
 */
-router.put('/updateprofile',auth,validateInput(validateUpdateUser),async(req,res)=>{
-	let user = await User.findById(req.user._id);//for token regeneration hence not one lien do
-	if(!user){res.status(400).send({message:'No User exits'})}
-		else{
-	if(req.body.name){user.name=req.body.name;}
-	if(req.body.profilePictureUrl){user.profilePictureUrl =req.body.profilePictureUrl;}
-	const user2 = await user.save();
-	const token = user2.generateAuthToken()
-	res.header('x-auth-token',token).send(user2);
-	}
-});
+router.put('/updateprofile', auth, validateInput(validateUpdateUser), async (req, res) => {
+    const user = await User.findById(req.user._id);
 
+    if (!user) {
+        res.status(400).send({ message: 'No User exists' });
+    } else {
+        // Define the fields you want to update
+        const fieldsToUpdate = ['name', 'profilePictureUrl', 'fcmToken']; // Add other fields as needed
+
+        // Update user fields dynamically
+        fieldsToUpdate.forEach(field => {
+            if (req.body[field]) {
+                user[field] = req.body[field];
+            }
+        });
+
+        const updatedUser = await user.save();
+        const token = updatedUser.generateAuthToken();
+        res.header('x-auth-token', token).send(updatedUser);
+    }
+});
+/*
 router.put('/updatetoken',auth,validateInput(validateUpdatetoken),async(req,res)=>{
 	let user = await User.findById(req.user._id);//for token regeneration hence not one lien do
 	if(!user){res.status(400).send({message:'No User exits'})}
@@ -54,7 +64,7 @@ router.put('/updatetoken',auth,validateInput(validateUpdatetoken),async(req,res)
 	res.header('x-auth-token',token).send(user2);
 	}
 });
-
+*/
 //friendsprofile pic
 router.post('/friendsprofile',auth,validateInput(validateNumbers),async(req,res)=>{
 	//add limit on size of array to handle unexpected long requests-also decided by server as not size but query return time also a factor
@@ -72,7 +82,8 @@ function validateUpdatetoken(user){
 function validateUpdateUser(user){
 	const schema=Joi.object({
 	name:Joi.string().allow(null, '').max(64),
-	profilePictureUrl:Joi.string().allow(null, '')
+	profilePictureUrl:Joi.string().allow(null, ''),
+	fcmToken:Joi.string().allow(null,'')
 	});
 	return schema.validate(user);
 }

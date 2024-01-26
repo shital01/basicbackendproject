@@ -7,7 +7,7 @@
     "loadtest": "export NODE_ENV=loadtest&&export PORT=2500&&node index.js",
     "staging": "export NODE_ENV=staging&&export PORT=2000&&node index.js",
     "dev": "export DEBUG=app:*&&export NODE_ENV=development&& nodemon index.js",
-    "test": "export NODE_ENV=test&&export PORT=0 && jest --watchAll --verbose --coverage "
+    "test": "export NODE_ENV=test&&export  PORT=0&&  jest --watchAll --verbose --coverage "
   },
   "engines": {
     "node": "21.5.0"

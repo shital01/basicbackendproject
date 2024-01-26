@@ -24,7 +24,8 @@ async function sendFCMNotification(token, title, body,phoneNumber) {
     return response;
   } catch (error) {
     console.error('Error sending message:', error);
-    throw error;
+    //throw error;
+    return error
   }
 }
 //addchanel Id extra input

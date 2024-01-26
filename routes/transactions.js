@@ -13,6 +13,8 @@ const logger = require('../startup/logging');
 const sendnotification =require('../middleware/notification');
 
 //testnotifiation
+/*
+
 router.post('/testnotify',auth,async(req,res)=>{
 	//add limit on size of array to handle unexpected long requests-also decided by server as not size but query return time also a factor
 	const users = await User.find({phoneNumber: req.body.phoneNumber}).select("fcmToken")
@@ -28,7 +30,7 @@ router.post('/testnotify',auth,async(req,res)=>{
 	}
 })
 
-
+*/
 	
 
 // Create separate validation functions
@@ -95,15 +97,13 @@ var categorizedEntries;
     if (entry.deviceId !== deviceId) {
       if (entry.deleteFlag === true) {
         result.deletedEntries.push(entry);
-      } else if (entry.updatedFlag === true) {
-        result.updatedEntries.push(entry);
       } else {
         result.newEntries.push(entry);
       }
     }
     return result;
   },
-  { deletedEntries: [], updatedEntries: [], newEntries: [] }
+  { deletedEntries: [], newEntries: [] }
 );
 
 }
@@ -112,25 +112,23 @@ else{
   (result, entry) => {
       if (entry.deleteFlag === true) {
         result.deletedEntries.push(entry);
-      } else if (entry.updatedFlag === true) {
-        result.updatedEntries.push(entry);
       } else {
         result.newEntries.push(entry);
       }
     return result;
   },
-  { deletedEntries: [], updatedEntries: [], newEntries: [] }
+  { deletedEntries: [], newEntries: [] }
 );
 }
 
-const { deletedEntries, updatedEntries, newEntries } = categorizedEntries;
+const { deletedEntries, newEntries } = categorizedEntries;
 
 
 	if(transactions.length == pageSize){	
 			nextPageNumber=parseInt(pageNumber)+1;
-			res.send({nextPageNumber:nextPageNumber,deletedEntries,updatedEntries,newEntries,timeStamp})
+			res.send({nextPageNumber:nextPageNumber,deletedEntries,newEntries,timeStamp})
 			}
-		else{			res.send({deletedEntries,updatedEntries,newEntries,timeStamp})
+		else{			res.send({deletedEntries,newEntries,timeStamp})
 }
 	//res.send(transactions);
 });
@@ -178,20 +176,20 @@ console.log(req.body);
 		var searchPhoneNumber=khata.friendPhoneNumber;
 		if(userPhoneNumber===searchPhoneNumber){searchPhoneNumber=khata.userPhoneNumber}
 		const user = await User.findOne({phoneNumber: searchPhoneNumber}).select("fcmToken")
-		console.log(user);
-
+		console.log(transaction);
+		console.log(user.fcmToken)
 		if(user && user.fcmToken) { 
 			console.log("success notifcation")
 			var message;
 			if(transaction.amountGiveBool){
 				message="CREDIT: I gave you Rs "+transaction.amount+".";
 				console.log(user.fcmToken,userName,message)
-				const result = sendnotification(user.fcmToken,userName,message,searchPhoneNumber);
+				const result = sendnotification(user.fcmToken,userName,message,userPhoneNumber);
 			}
 			else{
 				message="DEBIT: You gave me Rs "+transaction.amount+".";
 				console.log(user.fcmToken,userName,message)
-				const res = sendnotification(user.fcmToken,userName,message,searchPhoneNumber);
+				const res = sendnotification(user.fcmToken,userName,message,userPhoneNumber);
 
 			}
 			//const result=sendnotification(user.fcmToken,"title","body","1");
@@ -248,6 +246,7 @@ update and return
 */
 //check before save khata id proper validation
 //check here seen feature allowe dor not currenlty skip
+/*
 router.put('/',auth,validateInput(validateUpdateTransaction),async(req,res)=>{
 		const deviceId = req.header('deviceId');;
 
@@ -267,6 +266,7 @@ router.put('/',auth,validateInput(validateUpdateTransaction),async(req,res)=>{
 	res.send(mresult);
 	}
 });
+*/
 //
 router.put('/updateSeenStatus', auth, validateInput(validateUpdateSeenStatus), async (req, res) => {
 		const deviceId = req.header('deviceId');;
@@ -335,7 +335,7 @@ router.put('/delete', auth, validateInput(validateUpdateSeenStatus), async (req,
             user.fcmToken,
             userName,
            	message,
-           	searchPhoneNumber
+           	myPhoneNumber
           );
         }
     }

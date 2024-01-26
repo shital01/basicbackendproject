@@ -31,7 +31,8 @@ const KhataSchema = new mongoose.Schema({
   } 
   },
   localId:{type:String},
-  settledFlag:{type:Boolean,default:false}
+  settledFlag:{type:Boolean,default:false},
+  interest:{type:Number,default:0}
 });
 
 const Khata = mongoose.model('Khata',KhataSchema);
@@ -93,12 +94,17 @@ function validateUpdateKhata(khata){
 	return schema.validate(khata);
 }
 
-function validateUpdateSettle(ids) {
-   const schema = Joi.object({
-    khataIds: Joi.array().items(Joi.objectId().required())
-  });
-  return schema.validate(ids);
+function validateUpdateSettle(khataObjects) {
+    const schema = Joi.object({
+        khataObjects: Joi.array().items(Joi.object({
+            id: Joi.objectId().required(),
+            interest: Joi.number().required() // Add validation for the interest field
+        })).required()
+    });
+
+    return schema.validate(khataObjects );
 }
+
 exports.validateKhataArray = validateKhataArray;
 exports.validateUpdateSettle = validateUpdateSettle;
 
