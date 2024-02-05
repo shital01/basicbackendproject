@@ -93,7 +93,12 @@ function validateUpdateKhata(khata){
 	});
 	return schema.validate(khata);
 }
-
+function validateUnSettle(ids) {
+   const schema = Joi.object({
+    khataIds: Joi.array().items(Joi.objectId().required())
+  });
+  return schema.validate(ids);
+}
 function validateUpdateSettle(khataObjects) {
     const schema = Joi.object({
         khataObjects: Joi.array().items(Joi.object({
@@ -107,6 +112,7 @@ function validateUpdateSettle(khataObjects) {
 
 exports.validateKhataArray = validateKhataArray;
 exports.validateUpdateSettle = validateUpdateSettle;
+exports.validateUnSettle = validateUnSettle;
 
 exports.Khata = Khata;
 exports.validateGetKhata = validateGetKhata;

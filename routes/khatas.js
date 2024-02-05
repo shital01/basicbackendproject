@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const dbDebugger = require('debug')('app:db');
-const {Khata,validate,validateGetKhata,validateUpdateKhata,validateKhata,validateUpdateSettle} = require('../models/khata');
+const {Khata,validate,validateGetKhata,validateUpdateKhata,validateKhata,validateUpdateSettle,validateUnSettle} = require('../models/khata');
 const {User} = require('../models/user');
 const auth =require('../middleware/auth');
 //Validation Start
@@ -225,7 +225,7 @@ router.put('/',auth,validateInput(validateUpdateKhata),async(req,res)=>{
 	}
 });
 */
-router.put('/unsettle', auth, validateInput(validateUpdateSettle), async (req, res) => {
+router.put('/unsettle', auth, validateInput(validateUnSettle), async (req, res) => {
     const deviceId = req.header('deviceId');;
     const userName =req.user.name;
     const { khataIds } = req.body;
