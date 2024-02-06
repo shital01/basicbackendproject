@@ -195,7 +195,8 @@ console.log(req.body);
 
 			}
 			if(transaction.sendSms==true){
-				const templateId = config.get('templateIdAdd');
+				const templateId = 1607100000000265753;
+				//config.get('templateIdAdd');
 				var link ="https://bit.ly/settleapp1";
 				var message= userName+"("+userPhoneNumber+") gave you Rs "+transaction.amount+". \nNow Balance is Rs "+transaction.amount+". \nSee all txns: "+link+" \nSettle App";
 				const SendSMS = await sendmessage("91"+searchPhoneNumber,message,templateId);
