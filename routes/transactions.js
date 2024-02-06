@@ -182,11 +182,18 @@ console.log(req.body);
 		const user = await User.findOne({phoneNumber: searchPhoneNumber}).select("fcmToken")
 		console.log(transaction);
 		console.log(user.fcmToken)
+		var smsMessage;
+			var link ="https://bit.ly/settleapp1";
+			if(transaction.amountGiveBool){
+				smsMessage= userName+"("+userPhoneNumber+") gave you Rs "+transaction.amount+". \nNow Balance is Rs "+transaction.amount+". \nSee all txns: "+link+" \nSettle App";
+			}
+			else{
+				smsMessage = "You gave "+userName+"("+userPhoneNumber+") Rs "+transaction.amount+". \nNow Balance is Rs "+trannsaction.amount+". \nSee all txns: "+link+" \nSettle App";
+			}
 		if(user && user.fcmToken) { 
 			console.log("success notifcation")
 			var message;
-			var smsMessage;
-			var link ="https://bit.ly/settleapp1";
+			
 
 			if(transaction.amountGiveBool){
 				message="CREDIT: I gave you Rs "+transaction.amount+".";
@@ -202,14 +209,15 @@ console.log(req.body);
 				const res = sendnotification(user.fcmToken,userName,message,userPhoneNumber);
 
 			}
-			if(entry.sendSms==true){
+			
+			//const result=sendnotification(user.fcmToken,"title","body","1");
+		}
+		if(entry.sendSms==true){
 				const templateId = 1607100000000265753;
 				//config.get('templateIdAdd');
 				const SendSMS = await sendmessage("91"+searchPhoneNumber,smsMessage,templateId);
 				console.log(SendSMS)
 			}
-			//const result=sendnotification(user.fcmToken,"title","body","1");
-		}
 		//end of notification	
 
 
