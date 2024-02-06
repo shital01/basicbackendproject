@@ -212,7 +212,7 @@ console.log(req.body);
 			
 			//const result=sendnotification(user.fcmToken,"title","body","1");
 		}
-		if(entry.sendSms==true){
+		if(sendSms==true){
 				const templateId = 1607100000000265753;
 				//config.get('templateIdAdd');
 				const SendSMS = await sendmessage("91"+searchPhoneNumber,smsMessage,templateId);
