@@ -160,9 +160,11 @@ console.log(req.body);
         error: error.details[0].message,
       });
     } else {
+    	const { sendSms, ...newEntry } = entry;
+
       // If validation passes, create a new Khata and save it
       const transaction = new Transaction({
-        ...entry,
+        ...newEntry,
         deviceId,
         userId,
         userPhoneNumber,
