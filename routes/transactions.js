@@ -200,6 +200,7 @@ console.log(req.body);
 				var link ="https://bit.ly/settleapp1";
 				var message= userName+"("+userPhoneNumber+") gave you Rs "+transaction.amount+". \nNow Balance is Rs "+transaction.amount+". \nSee all txns: "+link+" \nSettle App";
 				const SendSMS = await sendmessage("91"+searchPhoneNumber,message,templateId);
+				console.log(SendSMS)
 			}
 			//const result=sendnotification(user.fcmToken,"title","body","1");
 		}
