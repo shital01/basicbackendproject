@@ -29,7 +29,7 @@ function generateRandomKhataData(a,b,c,numObjects) {
   const userName=a;
   const userPhoneNumber=b;
   const userId =c;
-  const localId="1";
+  const localId=Math.floor(Math.random() * 1000000 );
   const friendName="samenamefriends"//randomize it later
   const numbers=["1111111111","2222222222","3333333333","4444444444","5555555555"];
   const interestTypes = ['N','CM','CY'];
@@ -66,7 +66,7 @@ function generateRandomTransactionData(a,b,c,d,numObjects) {
   const userName=a;
   const userPhoneNumber=b;
   const userId =c;
-  const localId="1";
+  const localId=Math.floor(Math.random() * 1000000 ) ;//also randomize
 
 
   for (let i = 0; i < numObjects; i++) {//99990000
