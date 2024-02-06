@@ -180,8 +180,8 @@ console.log(req.body);
 		var searchPhoneNumber=khata.friendPhoneNumber;
 		if(userPhoneNumber===searchPhoneNumber){searchPhoneNumber=khata.userPhoneNumber}
 		const user = await User.findOne({phoneNumber: searchPhoneNumber}).select("fcmToken")
-		console.log(transaction);
-		console.log(user.fcmToken)
+		//console.log(transaction);
+		//console.log(user.fcmToken)
 		var smsMessage;
 			var link ="https://bit.ly/settleapp1";
 			if(transaction.amountGiveBool){
