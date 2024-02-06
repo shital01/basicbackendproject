@@ -11,6 +11,8 @@ const logger = require('../startup/logging');
 
 //Notification firing test
 const sendnotification =require('../middleware/notification');
+const sendmessage =require('../middleware/sendmessage');
+const config = require('config');
 
 //testnotifiation
 /*
@@ -191,6 +193,12 @@ console.log(req.body);
 				console.log(user.fcmToken,userName,message)
 				const res = sendnotification(user.fcmToken,userName,message,userPhoneNumber);
 
+			}
+			if(transaction.sendSMS==true){
+				const templateId = config.get('templateIdAdd');
+				var link ="https://bit.ly/settleapp1";
+				var message= userName+"("+userPhoneNumber+") gave you Rs "+transaction.amount+". \nNow Balance is Rs "+transaction.amount+". \nSee all txns: "+link+" \nSettle App";
+				const SendSMS = await sendmessage("91"+searchPhoneNumber,message,templateId);
 			}
 			//const result=sendnotification(user.fcmToken,"title","body","1");
 		}

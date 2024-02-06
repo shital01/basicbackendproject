@@ -95,7 +95,8 @@ function validateTransaction2(transaction){
 	khataId:Joi.objectId().required(),
 	description:Joi.string().allow(null, '').max(500),
 	attachmentsPath:Joi.array().items(Joi.string()).max(4),
-	localId:Joi.string().required()
+	localId:Joi.string().required(),
+	sendSms:Joi.boolean()
 
 	});
 	return schema.validate(transaction);
