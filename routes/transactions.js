@@ -194,7 +194,7 @@ console.log(req.body);
 				const res = sendnotification(user.fcmToken,userName,message,userPhoneNumber);
 
 			}
-			if(transaction.sendSMS==true){
+			if(transaction.sendSms==true){
 				const templateId = config.get('templateIdAdd');
 				var link ="https://bit.ly/settleapp1";
 				var message= userName+"("+userPhoneNumber+") gave you Rs "+transaction.amount+". \nNow Balance is Rs "+transaction.amount+". \nSee all txns: "+link+" \nSettle App";
