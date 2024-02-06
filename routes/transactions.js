@@ -186,6 +186,8 @@ console.log(req.body);
 			console.log("success notifcation")
 			var message;
 			var smsMessage;
+			var link ="https://bit.ly/settleapp1";
+
 			if(transaction.amountGiveBool){
 				message="CREDIT: I gave you Rs "+transaction.amount+".";
 				smsMessage= userName+"("+userPhoneNumber+") gave you Rs "+transaction.amount+". \nNow Balance is Rs "+transaction.amount+". \nSee all txns: "+link+" \nSettle App";
@@ -203,7 +205,6 @@ console.log(req.body);
 			if(entry.sendSms==true){
 				const templateId = 1607100000000265753;
 				//config.get('templateIdAdd');
-				var link ="https://bit.ly/settleapp1";
 				const SendSMS = await sendmessage("91"+searchPhoneNumber,smsMessage,templateId);
 				console.log(SendSMS)
 			}
@@ -352,10 +353,10 @@ router.put('/delete', auth, validateInput(validateUpdateSeenStatus), async (req,
            	message,
            	myPhoneNumber
           );
-          
 
 
-          
+
+
         }
     }
       res.send({ message: 'delete status updated successfully for specified transactions' });
