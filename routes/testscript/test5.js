@@ -29,7 +29,7 @@ function generateRandomKhataData(a,b,c,numObjects) {
   const userName=a;
   const userPhoneNumber=b;
   const userId =c;
-  const localId=Math.floor(Math.random() * 1000000 );
+  var localId;
   const friendName="samenamefriends"//randomize it later
   const numbers=["1111111111","2222222222","3333333333","4444444444","5555555555"];
   const interestTypes = ['N','CM','CY'];
@@ -39,7 +39,7 @@ function generateRandomKhataData(a,b,c,numObjects) {
     const interestRate = Math.floor(Math.random() * 10); // Random interest rate up to 100
     const interestType = interestTypes[Math.floor(Math.random() * interestTypes.length)]; // Random interest period
     const rotationPeriod = ['3M','6M','1Y'][Math.floor(Math.random() * 3)]; // Random rotation period
-    
+    localId=Math.floor(Math.random() * 1000000 );
 
     dummyData.push({
       userName,
@@ -66,13 +66,14 @@ function generateRandomTransactionData(a,b,c,d,numObjects) {
   const userName=a;
   const userPhoneNumber=b;
   const userId =c;
-  const localId=Math.floor(Math.random() * 1000000 ) ;//also randomize
+  var localId;
+  //const localId=Math.floor(Math.random() * 1000000 ) ;//also randomize
 
 
   for (let i = 0; i < numObjects; i++) {//99990000
     const amount = Math.floor(Math.random() * 10000 + 10000); // Random amount up to 99.99 crores
     const transactionDate = Math.floor(Math.random() * (endTimestamp - startTimestamp)) + startTimestamp;
-    
+    localId=Math.floor(Math.random() * 1000000 );
     const amountGiveBool = bools[Math.floor(Math.random()*2)];
     const khataId = d[Math.floor(Math.random() * d.length)]; // Random interest period
     dummyData.push({
