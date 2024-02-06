@@ -196,7 +196,7 @@ console.log(req.body);
 				const res = sendnotification(user.fcmToken,userName,message,userPhoneNumber);
 
 			}
-			if(transaction.sendSms==true){
+			if(entry.sendSms==true){
 				const templateId = 1607100000000265753;
 				//config.get('templateIdAdd');
 				var link ="https://bit.ly/settleapp1";
