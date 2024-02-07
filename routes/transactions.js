@@ -205,7 +205,7 @@ console.log(req.body);
 			else{
 				message="DEBIT: You gave me Rs "+transaction.amount+".";
 				console.log(user.fcmToken,userName,message)
-				smsMessage = "You gave "+userName+"("+userPhoneNumber+") Rs "+transaction.amount+". \nNow Balance is Rs "+trannsaction.amount+". \nSee all txns: "+link+" \nSettle App";
+				smsMessage = "You gave "+userName+"("+userPhoneNumber+") Rs "+transaction.amount+". \nNow Balance is Rs "+transaction.amount+". \nSee all txns: "+link+" \nSettle App";
 				const res = sendnotification(user.fcmToken,userName,message,userPhoneNumber);
 
 			}
