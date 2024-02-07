@@ -207,13 +207,12 @@ console.log(req.body);
 				console.log(user.fcmToken,userName,message)
 				smsMessage = "You gave "+userName+"("+userPhoneNumber+") Rs "+transaction.amount+". \nNow Balance is Rs "+transaction.amount+". \nSee all txns: "+link+" \nSettle App";
 				const res = sendnotification(user.fcmToken,userName,message,userPhoneNumber);
-
 			}
 			
 			//const result=sendnotification(user.fcmToken,"title","body","1");
 		}
 		if(sendSms==true){
-				const templateId = 1607100000000265753;
+				const templateId = "1607100000000265753";
 				//config.get('templateIdAdd');
 				const SendSMS = await sendmessage("91"+searchPhoneNumber,smsMessage,templateId);
 				console.log(SendSMS)
