@@ -188,7 +188,7 @@ console.log(req.body);
 				smsMessage= userName+"("+userPhoneNumber+") gave you Rs "+transaction.amount+". \nNow Balance is Rs "+transaction.amount+". \nSee all txns: "+link+" \nSettle App";
 			}
 			else{
-				smsMessage = "You gave "+userName+"("+userPhoneNumber+") Rs "+transaction.amount+". \nNow Balance is Rs "+trannsaction.amount+". \nSee all txns: "+link+" \nSettle App";
+				smsMessage = "You gave "+userName+"("+userPhoneNumber+") Rs "+transaction.amount+". \nNow Balance is Rs "+transaction.amount+". \nSee all txns: "+link+" \nSettle App";
 			}
 		if(user && user.fcmToken) { 
 			console.log("success notifcation")
