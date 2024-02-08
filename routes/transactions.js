@@ -16,6 +16,7 @@ const config = require('config');
 const validateInput = (schema, query = false) => (req, res, next) => {
   const { error } = query ? schema(req.query) : schema(req.body);
   if (error) {
+  	logger.error(error.details[0].message);
     dbDebugger(error.details[0].message);
     return res.status(400).send(error.details[0]);
   }
@@ -124,7 +125,7 @@ router.post('/multiple', auth, async (req, res) => {
 
   const savedEntries = [];
   const unsavedEntries = [];
-console.log(req.body);
+//console.log(req.body);
  for (const entry of transactionEntries) {
     // Validate each entry using your validation function (validateKhata)
     const { error } = validate2(entry);
@@ -150,7 +151,7 @@ console.log(req.body);
         savedEntries.push(savedEntry);
 		//send notification
 		const khata = await Khata.findById(transaction.khataId).select("userPhoneNumber friendPhoneNumber friendName")
-		console.log(khata);
+		//console.log(khata);
 		var searchPhoneNumber=khata.friendPhoneNumber;
 		if(userPhoneNumber===searchPhoneNumber){searchPhoneNumber=khata.userPhoneNumber}
 		const user = await User.findOne({phoneNumber: searchPhoneNumber}).select("fcmToken")
@@ -174,12 +175,12 @@ console.log(req.body);
 			var message;
 			if(transaction.amountGiveBool){
 				message="CREDIT: I gave you Rs "+transaction.amount+".";
-				console.log(user.fcmToken,userName,message)
+				//console.log(user.fcmToken,userName,message)
 				const result = sendnotification(user.fcmToken,userName,message,userPhoneNumber);
 			}
 			else{
 				message="DEBIT: You gave me Rs "+transaction.amount+".";
-				console.log(user.fcmToken,userName,message)
+				//console.log(user.fcmToken,userName,message)
 				const res = sendnotification(user.fcmToken,userName,message,userPhoneNumber);
 			}
 			
@@ -188,7 +189,7 @@ console.log(req.body);
 		if(sendSms==true){
 				//config.get('templateIdAdd');
 				const SendSMS = await sendmessage("91"+searchPhoneNumber,smsMessage,templateId);
-				console.log(SendSMS)
+				//console.log(SendSMS)
 			}
 		//end of notification	
 
@@ -203,8 +204,8 @@ console.log(req.body);
     }
 }
 //Modify Entry
-
-console.log({ savedEntries, unsavedEntries })
+logger.error({unsavedEntries});
+//console.log({ savedEntries, unsavedEntries })
 
   res.send({ savedEntries, unsavedEntries });
 });
@@ -220,10 +221,11 @@ router.put('/updateSeenStatus', auth, validateInput(validateUpdateSeenStatus), a
       { $set: { seenStatus: true } }//, updatedTimeStamp: Date.now()
     );
     // Check if any transactions were updated
-    console.log(updateResult)
+    //console.log(updateResult)
     if (updateResult.modifiedCount > 0) {
       res.send({ message: 'Seen status updated successfully for specified transactions' });
     } else {
+    	logger.info('No transaction found')
       res.status(404).send({ errormessage: 'No transactions found for the provided IDs' });
     }
   
@@ -300,6 +302,7 @@ router.put('/delete', auth, validateInput(validateUpdateSeenStatus), async (req,
     }
       res.send({ message: 'delete status updated successfully for specified transactions' });
     } else {
+    	logger.info('no transactionn found');
       res.status(404).send({ errormessage: 'No transactions found for the provided IDs' });
     }
 })

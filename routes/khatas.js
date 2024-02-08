@@ -17,6 +17,7 @@ const sendNotification =require('../middleware/notification');
 const validateInput = (schema, query = false) => (req, res, next) => {
   const { error } = query ? schema(req.query) : schema(req.body);
   if (error) {
+    logger.error(error.details[0].message);
     dbDebugger(error.details[0].message);
     return res.status(400).send(error.details[0]);
   }
@@ -35,7 +36,7 @@ router.get('/',auth,validateInput(validateGetKhata,true),async(req,res)=>{
   var timeStamp=Date.now();
   if(req.query.lastUpdatedTimeStamp){
    lastUpdatedTimeStamp = req.query.lastUpdatedTimeStamp;
-   console.log(lastUpdatedTimeStamp)
+  // console.log(lastUpdatedTimeStamp)
   khatas = await Khata
   .find({$and:[{$or:[{userPhoneNumber:{$eq: PhoneNumber}},{friendPhoneNumber:{$eq: PhoneNumber}}]},{updatedTimeStamp:{$gt:lastUpdatedTimeStamp}}]})
   .sort({updatedTimeStamp:1})
@@ -81,12 +82,12 @@ const { settledEntries, updatedEntries, newEntries } = categorizedEntries;
 
 router.post('/multiple', auth, async (req, res) => {
     const deviceId = req.header('deviceId');
-console.log(deviceId)
+//console.log(deviceId)
   const userId = req.user._id;
   const userPhoneNumber = req.user.phoneNumber;
   const userName = req.user.name;
   const khataEntries = req.body;
-  logger.info(khataEntries)
+ // logger.info(khataEntries)
   const savedEntries = [];
   const unsavedEntries = [];
 
@@ -116,7 +117,7 @@ console.log(deviceId)
         const user = await User.findOne({ phoneNumber: savedEntry.friendPhoneNumber });
 
         if (user && user.fcmToken) {
-          console.log("came here")
+          //console.log("came here")
           // Assuming sendNotification takes fcmToken as a parameter
           await sendNotification(user.fcmToken, savedEntry.userName,"Added you to their ByajKhata",userPhoneNumber);
         }
@@ -132,7 +133,8 @@ console.log(deviceId)
       }
     }
   }
-console.log({ savedEntries, unsavedEntries });
+  logger.error({unsavedEntries});
+//console.log({ savedEntries, unsavedEntries });
   res.send({ savedEntries, unsavedEntries });
 });
 
@@ -166,6 +168,7 @@ router.put('/unsettle', auth, validateInput(validateUnSettle), async (req, res) 
     if (updateResult.modifiedCount > 0) {
       res.send({ message: 'settled status updated successfully for specified transactions' });
     } else {
+      logger.info('No Khata found for given ID')
       res.status(404).send({ errormessage: 'No khata found for the provided IDs' });
     }
 })
@@ -215,12 +218,13 @@ router.put('/settle', auth, validateInput(validateUpdateSettle), async (req, res
         if(sendSms==true){
         const templateId = config.get('templateIdSettle');;
         const SendSMS = await sendmessage("91"+searchPhoneNumber,smsMessage,templateId);
-        console.log(SendSMS)
+       // console.log(SendSMS)
             }
         }
 
         res.send({ message: 'Settled status updated successfully for specified transactions' });
     } else {
+      logger.info('No khata found for provided IDs');
         res.status(404).send({ errorMessage: 'No khata found for the provided IDs' });
     }
 });

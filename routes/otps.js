@@ -15,6 +15,7 @@ const sendmessage =require('../middleware/sendmessage');
 const validateInput = (schema) => (req, res, next) => {
   const { error } = schema(req.body);
   if (error) {
+  	logger.error(error.details[0].message)
     dbDebugger(error.details[0].message)
     return res.status(400).send(error.details[0]);
   }
@@ -33,12 +34,11 @@ const testLoginApi = () => async (req, res, next) => {
 
 		user.fcmToken=req.body.fcmToken;
 		const user2 = await user.save();
-		logger.info(user2);
-		logger.info(req.body);
 		const token = user2.generateAuthToken();
 		return res.header('x-auth-token',token).send(user2);
   }
   catch(error){
+  	logger.error('Internal Server error')
       return res.status(500).send({ error: 'Internal Server Error' });
 
   }
@@ -55,7 +55,7 @@ function generateOTP() {
     for (let i = 0; i < 4; i++ ) {
         OTP += digits[Math.floor(Math.random() * 10)];
     }
-   logger.info(OTP)
+   //logger.info(OTP)
     //console.log(OTP)
     //dbDebugger(OTP)
     return OTP;
@@ -78,7 +78,10 @@ router.post('/generate',testGenApi(),validateInput(validateNumber),async(req,res
 router.post('/verify',testLoginApi(),validateInput(validatelogin),async(req,res)=>{
 	//id is same order as date hence
 	const otps = await Otp.find({phoneNumber:req.body.phoneNumber,otp:req.body.otp})  //.sort({_id:-1})
-	if(otps.length === 0) return res.status(404).send({message:'Invalid OTP'});
+	if(otps.length === 0) {
+		logger.info(req.body.phoneNumber+" Invalid OTP "+req.body.otp)
+		return res.status(404).send({message:'Invalid OTP'});
+	}
 	//const validotp =await bcrypt.compare(req.body.otp,otps[0].otp)
 	//if(!validotp) return res.status(404).send({message:'Invalid OTP'});
 	else{

@@ -7,7 +7,7 @@ const Joi = require('joi');
 const uuid = require('uuid');
 const auth =require('../middleware/auth');
 const config = require('config');
-
+const logger = require('../startup/logging');
 const s3 = new AWS.S3({
 	signatureVersion:'v4',
 	region: 'ap-south-1'
@@ -17,6 +17,7 @@ const validateInput = (schema) => (req, res, next) => {
   const { error } = schema(req.body);
   if (error) {
     dbDebugger(error.details[0].message)
+    logger.error(error.details[0].message)
     return res.status(400).send(error.details[0]);
   }
   next();
@@ -61,7 +62,7 @@ router.get('/multiple', auth, validateInput(validateUploadUrlRequest),async (req
         }
       } else {
         // Handle the error appropriately
-        console.error(err);
+        logger.error(err);
         res.status(500).send('Failed to generate presigned URL');
       }
     });

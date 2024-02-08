@@ -15,6 +15,7 @@ router.post('/addcontacts',auth,async(req,res,next)=>{
 	const result = validateContacts(req.body);
 	if(result.error){
 		dbDebugger(result.error.details[0].message)
+		logger.info(result.error.details[0].message)
 		res.status(400).send(result.error.details[0]);
  	}
  	else{
