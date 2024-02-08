@@ -215,11 +215,10 @@ router.put('/settle', auth, validateInput(validateUpdateSettle), async (req, res
             }
             var link ="https://bit.ly/settleapp1";
             var smsMessage="Account Settled with "+userName+". Updated Balance is Zero.Noted in ByajKhata: "+link;            
-        if(sendSms==true){
         const templateId = config.get('templateIdSettle');;
         const SendSMS = await sendmessage("91"+searchPhoneNumber,smsMessage,templateId);
        // console.log(SendSMS)
-            }
+            
         }
 
         res.send({ message: 'Settled status updated successfully for specified transactions' });
