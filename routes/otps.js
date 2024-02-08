@@ -2,6 +2,7 @@ const express = require('express');
 //const _ = require('lodash');
 const jwt = require('jsonwebtoken');
 //const bcrypt = require('bcrypt');
+const config = require('config');
 
 const router = express.Router();
 const {Otp,validatelogin,validateNumber} = require('../models/otp');
@@ -70,7 +71,8 @@ router.post('/generate',testGenApi(),validateInput(validateNumber),async(req,res
 	const otp = new Otp({phoneNumber:req.body.phoneNumber,otp:smsotp});
 	await otp.save();
 	//Change SMS Settle APP wording-from provider
-	var finalmessage ="Here is OTP for login to ByajKhata : "+smsotp+". Please do not share it with anyone."
+	
+	var finalmessage ="Here is OTP for login to ByajKhata :"+smsotp+". Please do not share it with anyone."
 	const SendSMS = await sendmessage("91"+req.body.phoneNumber,finalmessage,config.get('templateIdOtp'));
 	res.send({SendSMS});
 });
