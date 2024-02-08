@@ -61,16 +61,7 @@ function generateOTP() {
     return OTP;
 }
 //return in eahc res.send but will stop other middelware so use if else blokcs system
-/*
-GenerateOTP
-Input->PhoneNumber(10 digit String)
-Output->true(boolean)
-Procedure->validateInput using Joi
-generate 4 digit random OTP
-save entry in Otp Table with Phone ,OTP as field with Otp as encrypted
-send SMS to user Phone Number
-Return boolean true,if number not 10 digit 400 request send ,if something else fail like database saving then 500 request
-*/
+
 router.post('/generate',testGenApi(),validateInput(validateNumber),async(req,res,next)=>{	
 //dummy account direct send true no sms and otp create	
 	//const salt = await bcrypt.genSalt(10);
@@ -79,26 +70,11 @@ router.post('/generate',testGenApi(),validateInput(validateNumber),async(req,res
 	const otp = new Otp({phoneNumber:req.body.phoneNumber,otp:smsotp});
 	await otp.save();
 	//Change SMS Settle APP wording-from provider
-	var finalmessage ="OTP for login is: "+smsotp+" Settle App"
-	const SendSMS = await sendmessage("91"+req.body.phoneNumber,finalmessage,'1607100000000267487');
+	var finalmessage ="Here is OTP for login to ByajKhata : "+smsotp+". Please do not share it with anyone."
+	const SendSMS = await sendmessage("91"+req.body.phoneNumber,finalmessage,config.get('templateIdOtp'));
 	res.send({SendSMS});
 });
-/*
-	Input->PhoneNumber(10 digit String),OTP(4 digit String)
-	Output->User Object with Field as _id,PhoneNumber ,Name (optional if user is login not new)
-	and header x-auth-token as token which has to be send with sensitive api request from client side which contain user info 
-	Procedure->
-	Validate Input
-	Check if user Exists or Not(to decide login or signup)
-	Check if OTP match or Not
-	Save user if new user
-	Generate authentication token
-	Return ->
-	If successful then user object along with x-auth-header
-	If validation fail then code 400 and error message
-	If OTP failed either not requested or OTP mismatch send response with 404 code and error message
-	If something else fail like database saving then Response send with code 500 and error message
-*/
+
 router.post('/verify',testLoginApi(),validateInput(validatelogin),async(req,res)=>{
 	//id is same order as date hence
 	const otps = await Otp.find({phoneNumber:req.body.phoneNumber,otp:req.body.otp})  //.sort({_id:-1})

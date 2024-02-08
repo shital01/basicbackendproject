@@ -29,8 +29,6 @@ function validateUploadUrlRequest(transaction){
   });
   return schema.validate(transaction);
 }
-
-
 //what if failed one of 4 fail shoudl be answer
 //otherwise keep tryignwht if reaosn nto resolved infinte loop hce max 4 try is reason -not while loop
 //either send all or max 3 send
@@ -70,16 +68,3 @@ router.get('/multiple', auth, validateInput(validateUploadUrlRequest),async (req
   }
 });
 module.exports =router;
-/*
-
-router.get('/',auth,async(req,res)=>{
-    const key = `${req.user._id}/${uuid.v1()}.jpeg`;
-    s3.getSignedUrl('putObject',{
-      Bucket:config.get('bucketName'),//make it secret also additional security
-      ContentType:'image/jpeg',
-      Key:key
-    },(err,url)=>{
-      res.send({key,url});
-    })
-  })
-  */

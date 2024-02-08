@@ -16,22 +16,6 @@ const validateInput = (schema) => (req, res, next) => {
   next();
 };
 
-/*
-Input->
-Name-String
-Output->
-Procedure->
-Validate Header
-Validate Input
-Find user by id
-Update user Name
-Return ->
-If Successful then Return UserObject
-If token invalid then 400 and 401 if not provided
-If validation fail then code 400 and error message
-If user does not exist then 400 with error message
-If something else fail like database saving then Response send with code 500 and error message
-*/
 router.put('/updateprofile', auth, validateInput(validateUpdateUser), async (req, res) => {
     const user = await User.findById(req.user._id);
 
@@ -53,18 +37,7 @@ router.put('/updateprofile', auth, validateInput(validateUpdateUser), async (req
         res.header('x-auth-token', token).send(updatedUser);
     }
 });
-/*
-router.put('/updatetoken',auth,validateInput(validateUpdatetoken),async(req,res)=>{
-	let user = await User.findById(req.user._id);//for token regeneration hence not one lien do
-	if(!user){res.status(400).send({message:'No User exits'})}
-		else{
-	user.FcmToken =req.body.FcmToken;
-	const user2 = await user.save();
-	const token = user2.generateAuthToken()
-	res.header('x-auth-token',token).send(user2);
-	}
-});
-*/
+
 //friendsprofile pic
 router.post('/friendsprofile',auth,validateInput(validateNumbers),async(req,res)=>{
 	//add limit on size of array to handle unexpected long requests-also decided by server as not size but query return time also a factor
@@ -73,12 +46,6 @@ router.post('/friendsprofile',auth,validateInput(validateNumbers),async(req,res)
 	else{res.send(users);}
 })
 
-function validateUpdatetoken(user){
-	const schema=Joi.object({
-	FcmToken:Joi.string().allow(null, ''),
-	});
-	return schema.validate(user);
-}
 function validateUpdateUser(user){
 	const schema=Joi.object({
 	name:Joi.string().allow(null, '').max(64),

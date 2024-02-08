@@ -1,15 +1,10 @@
 const Joi = require('joi');
 Joi.objectId = require('joi-objectid')(Joi)
-
 const mongoose = require('mongoose');
-
-
-
 const isValidUnixTimestamp = (value) => {
   const timestamp = new Date(value * 1000); // Convert seconds to milliseconds
   return !isNaN(timestamp.getTime());
 };
-
 
 const TransactionSchema = new mongoose.Schema({
 	deviceId:{type:String},
@@ -143,7 +138,5 @@ exports.validate2 = validateTransaction2;
 
 
 exports.validateUpdateSeenStatus =validateUpdateSeenStatus;
-
 exports.validateRequestTransaction =validateRequestTransaction;
-
 exports.validateUpdateTransaction =validateUpdateTransaction;

@@ -6,7 +6,9 @@
 	"password":"BK_password",
 	"AWSSecretKey":"BK_AWSSecretKey",
 	"AWSAccessKey":"BK_AWSAccessKey",
-	"templateIdAdd":"BK_templateIdAdd",
+	"templateIdDebit":"BK_templateIdDebit",
+	"templateIdCredit":"BK_templateIdCredit",
 	"templateIdDelete":"BK_templateIdDelete",
-	"templateIdRemind":"BK_templateIdRemind"
+	"templateIdSettle":"BK_templateIdSettle",
+	"templateIdOtp":"BK_templateIdOtp"
 }

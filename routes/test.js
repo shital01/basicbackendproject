@@ -10,10 +10,10 @@ function generateRandomData(numObjects) {
   const endTimestamp = Date.now(); // Current timestamp or your desired end date
   const interestPeriods = [30, 365]; // Available interest periods
 
-  for (let i = 0; i < numObjects; i++) {
-    const principalAmount = Math.floor(Math.random() * 99990000 + 10000); // Random amount up to 99.99 crores
+  for (let i = 0; i < numObjects; i++) {//99990000
+    const principalAmount = Math.floor(Math.random() * 100 + 10000); // Random amount up to 99.99 crores
     const giveDate = Math.floor(Math.random() * (endTimestamp - startTimestamp)) + startTimestamp;
-    const interestRate = Math.floor(Math.random() * 100); // Random interest rate up to 100
+    const interestRate = Math.floor(Math.random() * 10); // Random interest rate up to 100//100
     const interestPeriod = interestPeriods[Math.floor(Math.random() * interestPeriods.length)]; // Random interest period
     const rotationPeriod = [90, 180, 365][Math.floor(Math.random() * 3)]; // Random rotation period
 

@@ -41,6 +41,10 @@ const response = await axios(options);
       //console.log('Message sent successfully');
       return true;
     } 
+    else {
+      logger.error(response);
+      return false;
+    }
 }
 
 module.exports = sendmessage;

@@ -1,4 +1,5 @@
 const admin = require('firebase-admin');
+const logger = require('../startup/logging');
 
 // Initialize Firebase Admin SDK
 const serviceAccount = require('../../fcmkey.json'); // replace with your own service account key
@@ -20,10 +21,10 @@ async function sendFCMNotification(token, title, body,phoneNumber) {
     };
 
     const response = await admin.messaging().send(message);
-    console.log('Successfully sent message:', response);
+    //console.log('Successfully sent message:', response);
     return response;
   } catch (error) {
-    console.error('Error sending message:', error);
+    logger.error('Error sending notification:', error);
     //throw error;
     return error
   }
