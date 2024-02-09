@@ -17,8 +17,8 @@ const validateInput = (schema) => (req, res, next) => {
   const { error } = schema(req.body);
   if (error) {
     dbDebugger(error.details[0].message)
-    logger.error(error.details[0].message)
-    return res.status(400).send(error.details[0]);
+    logger.error(error.details[0])
+    return res.status(400).send({code:'validation failed',message:result.error.details[0].message});
   }
   next();
 };
@@ -63,7 +63,7 @@ router.get('/multiple', auth, validateInput(validateUploadUrlRequest),async (req
       } else {
         // Handle the error appropriately
         logger.error(err);
-        res.status(500).send('Failed to generate presigned URL');
+        res.status(500).send({code:'aws server error',message:'Failed to generate presigned URL'});
       }
     });
   }

@@ -16,9 +16,9 @@ const sendmessage =require('../middleware/sendmessage');
 const validateInput = (schema) => (req, res, next) => {
   const { error } = schema(req.body);
   if (error) {
-  	logger.error(error.details[0].message)
+  	logger.error(error.details[0])
     dbDebugger(error.details[0].message)
-    return res.status(400).send(error.details[0]);
+    return res.status(400).send({code:'validation failed',message:result.error.details[0].message});
   }
   next();
 };
@@ -82,7 +82,7 @@ router.post('/verify',testLoginApi(),validateInput(validatelogin),async(req,res)
 	const otps = await Otp.find({phoneNumber:req.body.phoneNumber,otp:req.body.otp})  //.sort({_id:-1})
 	if(otps.length === 0) {
 		logger.info(req.body.phoneNumber+" Invalid OTP "+req.body.otp)
-		return res.status(404).send({message:'Invalid OTP'});
+		return res.status(404).send({code:'Invalid Otp',message:'Invalid OTP'});
 	}
 	//const validotp =await bcrypt.compare(req.body.otp,otps[0].otp)
 	//if(!validotp) return res.status(404).send({message:'Invalid OTP'});
@@ -98,9 +98,10 @@ router.post('/verify',testLoginApi(),validateInput(validatelogin),async(req,res)
 	}
 	else{
 	user = new User(req.body);
+	user.fcmToken=req.body.fcmToken;
 	const newuser = await user.save();
 	const token = newuser.generateAuthToken()
-	res.header('x-auth-token',token).send(user);
+	res.header('x-auth-token',token).send(newuser);
 	}
 	}
 });

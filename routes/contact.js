@@ -15,8 +15,8 @@ router.post('/addcontacts',auth,async(req,res,next)=>{
 	const result = validateContacts(req.body);
 	if(result.error){
 		dbDebugger(result.error.details[0].message)
-		logger.info(result.error.details[0].message)
-		res.status(400).send(result.error.details[0]);
+		logger.info(result.error.details[0])
+		res.status(400).send({code:'validation failed',message:result.error.details[0].message});
  	}
  	else{
 		req.body.CN = req.user.name;
@@ -33,7 +33,7 @@ console.log('CN:', req.body.CN);
 	var results = await Contact.insertMany(documents);
 
 	let user = await User.findById(req.user._id);//for token regeneration hence not one lien do
-	if(!user) {res.status(404).send({message:'No User exits'})}
+	if(!user) {res.status(404).send({code:'No User found',message:'No User exits'})}
 	else{
 		user.contactsSent = true;
 	const user2 = await user.save();

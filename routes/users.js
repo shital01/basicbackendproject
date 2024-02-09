@@ -5,6 +5,8 @@ const Joi = require('joi');
 const config = require('config');
 const {User} = require('../models/user');
 const auth =require('../middleware/auth');
+const device =require('../middleware/device');
+
 const dbDebugger = require('debug')('app:db');
 const logger = require('../startup/logging');
 
@@ -12,18 +14,18 @@ const validateInput = (schema) => (req, res, next) => {
   const { error } = schema(req.body);
   if (error) {
     dbDebugger(error.details[0].message)
-    logger.error(error.details[0].message)
-    return res.status(400).send(error.details[0]);
+    logger.error(error.details[0])
+    return res.status(400).send({code:'validation failed',message:result.error.details[0].message});
   }
   next();
 };
 
-router.put('/updateprofile', auth, validateInput(validateUpdateUser), async (req, res) => {
+router.put('/updateprofile', auth,device, validateInput(validateUpdateUser), async (req, res) => {
     const user = await User.findById(req.user._id);
 
     if (!user) {
         logger.error(req.user._id+" No such User exits");
-        res.status(400).send({ message: 'No User exists' });
+        res.status(400).send({ code:'No User found',message: 'No User exists' });
     } else {
         // Define the fields you want to update
         const fieldsToUpdate = ['name', 'profilePictureUrl', 'fcmToken','contactsSent']; // Add other fields as needed

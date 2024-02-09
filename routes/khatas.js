@@ -5,6 +5,8 @@ const dbDebugger = require('debug')('app:db');
 const {Khata,validate,validateGetKhata,validateUpdateKhata,validateKhata,validateUpdateSettle,validateUnSettle} = require('../models/khata');
 const {User} = require('../models/user');
 const auth =require('../middleware/auth');
+const device =require('../middleware/device');
+
 //Validation Start
 const logger = require('../startup/logging');
 const config = require('config');
@@ -17,16 +19,16 @@ const sendNotification =require('../middleware/notification');
 const validateInput = (schema, query = false) => (req, res, next) => {
   const { error } = query ? schema(req.query) : schema(req.body);
   if (error) {
-    logger.error(error.details[0].message);
+    logger.error(error.details[0]);
     dbDebugger(error.details[0].message);
-    return res.status(400).send(error.details[0]);
+    return res.status(400).send({code:'validation failed',message:result.error.details[0].message});
   }
   next();
 };
 
 //,validateInput(validateGetKhata)
 //PageSize and Page Number to be included in get function
-router.get('/',auth,validateInput(validateGetKhata,true),async(req,res)=>{
+router.get('/',auth,device,validateInput(validateGetKhata,true),async(req,res)=>{
       const deviceId = req.header('deviceId');;
 
 	const PhoneNumber = req.user.phoneNumber;
@@ -80,7 +82,7 @@ const { settledEntries, updatedEntries, newEntries } = categorizedEntries;
 });
 
 
-router.post('/multiple', auth, async (req, res) => {
+router.post('/multiple', auth,device, async (req, res) => {
     const deviceId = req.header('deviceId');
 //console.log(deviceId)
   const userId = req.user._id;
@@ -156,7 +158,7 @@ router.post('/multiple', auth, async (req, res) => {
 
 
 
-router.put('/unsettle', auth, validateInput(validateUnSettle), async (req, res) => {
+router.put('/unsettle', auth,device, validateInput(validateUnSettle), async (req, res) => {
     const deviceId = req.header('deviceId');;
     const userName =req.user.name;
     const { khataIds } = req.body;
@@ -171,13 +173,13 @@ router.put('/unsettle', auth, validateInput(validateUnSettle), async (req, res) 
       res.send({ message: 'settled status updated successfully for specified transactions' });
     } else {
       logger.info('No Khata found for given ID')
-      res.status(404).send({ errormessage: 'No khata found for the provided IDs' });
+      res.status(404).send({ code:'No Khata',message: 'No khata found for the provided IDs' });
     }
 })
 
 //not authenticte checkig -only 2 user can do it
 
-router.put('/settle', auth, validateInput(validateUpdateSettle), async (req, res) => {
+router.put('/settle', auth,device, validateInput(validateUpdateSettle), async (req, res) => {
     const deviceId = req.header('deviceId');
     const userName = req.user.name;
     const phoneNumber = req.user.phoneNumber;

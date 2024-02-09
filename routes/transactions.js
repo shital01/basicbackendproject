@@ -7,6 +7,8 @@ const {User} = require('../models/user');
 const {Khata} = require('../models/khata');
 
 const auth =require('../middleware/auth');
+const device =require('../middleware/device');
+
 const logger = require('../startup/logging');
 //Notification firing test
 const sendnotification =require('../middleware/notification');
@@ -17,9 +19,9 @@ const validateInput = (schema, query = false) => (req, res, next) => {
   const { error } = query ? schema(req.query) : schema(req.body);
   if (error) {
     //later full print error for db details
-  	logger.error(error.details[0].message);
+  	logger.error(error.details[0]);
     dbDebugger(error.details[0].message);
-    return res.status(400).send(error.details[0]);
+    return res.status(400).send({code:'validation failed',message:result.error.details[0].message});
   }
   next();
 };
@@ -30,7 +32,7 @@ Output->Objects of Transactions in sorted order
 Procedure->Query Using Phone Number and date to get info of transaction which are related to particular user and 
 */
 //,
-router.get('/',auth,validateInput(validateRequestTransaction,true),async(req,res)=>{
+router.get('/',auth,device,validateInput(validateRequestTransaction,true),async(req,res)=>{
 
 			const deviceId = req.header('deviceId');;
   	var timeStamp=Date.now();
@@ -116,7 +118,7 @@ const { deletedEntries, newEntries } = categorizedEntries;
 //muliptle psot 
 //must limit size of this qeury frontend and backedn
 //test for mulitple and khata scripts
-router.post('/multiple', auth, async (req, res) => {
+router.post('/multiple', auth,device, async (req, res) => {
 	const userId = req.user._id;
 	const deviceId = req.header('deviceId');;
 
@@ -214,7 +216,7 @@ logger.error({unsavedEntries});
 });
 
 //
-router.put('/updateSeenStatus', auth, validateInput(validateUpdateSeenStatus), async (req, res) => {
+router.put('/updateSeenStatus', auth,device, validateInput(validateUpdateSeenStatus), async (req, res) => {
 		const deviceId = req.header('deviceId');;
 
     const { transactionIds } = req.body;
@@ -229,13 +231,13 @@ router.put('/updateSeenStatus', auth, validateInput(validateUpdateSeenStatus), a
       res.send({ message: 'Seen status updated successfully for specified transactions' });
     } else {
     	logger.info('No transaction found')
-      res.status(404).send({ errormessage: 'No transactions found for the provided IDs' });
+      res.status(404).send({ code:'No Transaction',message: 'No transactions found for the provided IDs' });
     }
   
 });
 
 
-router.put('/delete', auth, validateInput(validateUpdateSeenStatus), async (req, res) => {
+router.put('/delete', auth,device, validateInput(validateUpdateSeenStatus), async (req, res) => {
 		const deviceId = req.header('deviceId');;
 		const userName =req.user.name;
 		const myPhoneNumber = req.user.phoneNumber;
@@ -306,7 +308,7 @@ router.put('/delete', auth, validateInput(validateUpdateSeenStatus), async (req,
       res.send({ message: 'delete status updated successfully for specified transactions' });
     } else {
     	logger.info('no transaction found');
-      res.status(404).send({ errormessage: 'No transactions found for the provided IDs' });
+      res.status(404).send({ code:'No Transaction',message: 'No transactions found for the provided IDs' });
     }
 })
 module.exports =router;
