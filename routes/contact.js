@@ -23,7 +23,7 @@ router.post('/addcontacts',auth,async(req,res,next)=>{
 		req.body.CP = req.user.phoneNumber;
 		documents = req.body.C;//Contacts
 		console.log('CP:', req.body.CP);
-console.log('CN:', req.body.CN);
+		console.log('CN:', req.body.CN);
 
 	// Add a new field to all documents with the same value
 	documents.forEach((document) => {
@@ -31,15 +31,8 @@ console.log('CN:', req.body.CN);
 	  document.contactProviderName = req.body.CN;//ContactProviderName
 	});
 	var results = await Contact.insertMany(documents);
+	res.send({success:true});
 
-	let user = await User.findById(req.user._id);//for token regeneration hence not one lien do
-	if(!user) {res.status(404).send({code:'No User found',message:'No User exits'})}
-	else{
-		user.contactsSent = true;
-	const user2 = await user.save();
-	const token = user2.generateAuthToken()
-	res.header('x-auth-token',token).send(user2);
-}
 }
 });
 
