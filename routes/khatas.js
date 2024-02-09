@@ -217,7 +217,7 @@ router.put('/settle', auth,device, validateInput(validateUpdateSettle), async (r
                 // Assuming sendNotification takes userName and fcmToken as parameters
                 await sendNotification(user.fcmToken, userName, "Account Settled. Updated Balance is Zero", phoneNumber);
             }
-            var link ="https://bit.ly/ByajKhata";
+            var link ="https://byaj.in/app";
             var smsMessage="Account Settled with "+userName+". Updated Balance is Zero.Noted in ByajKhata: "+link;            
         const templateId = config.get('templateIdSettle');;
         const SendSMS = await sendmessage("91"+searchPhoneNumber,smsMessage,templateId);
@@ -228,7 +228,7 @@ router.put('/settle', auth,device, validateInput(validateUpdateSettle), async (r
         res.send({ message: 'Settled status updated successfully for specified transactions' });
     } else {
       logger.info('No khata found for provided IDs');
-        res.status(404).send({ errorMessage: 'No khata found for the provided IDs' });
+        res.status(404).send({ code:'No Khata',message: 'No khata found for the provided IDs' });
     }
 });
 

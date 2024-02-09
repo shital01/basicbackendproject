@@ -163,7 +163,7 @@ router.post('/multiple', auth,device, async (req, res) => {
 		var smsMessage;
 		var templateId ;
 
-			var link ="https://bit.ly/ByajKhata";
+			var link ="https://byaj.in/app";
 
 			if(transaction.amountGiveBool){
 				templateId=config.get('templateIdCredit')
