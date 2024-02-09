@@ -14,6 +14,7 @@ async function sendmessage(send_to, message,TemplateId) {
         msg: urlencodedmessage,
         msg_type: 'TEXT',
         v:'1.1',
+        mask:"BYAJ",
         userid: config.get('userid'),
         auth_scheme: 'PLAIN',
         password: config.get('password'),
