@@ -26,7 +26,7 @@ router.put('/updateprofile', auth, validateInput(validateUpdateUser), async (req
         res.status(400).send({ message: 'No User exists' });
     } else {
         // Define the fields you want to update
-        const fieldsToUpdate = ['name', 'profilePictureUrl', 'fcmToken']; // Add other fields as needed
+        const fieldsToUpdate = ['name', 'profilePictureUrl', 'fcmToken','contactsSent']; // Add other fields as needed
 
         // Update user fields dynamically
         fieldsToUpdate.forEach(field => {
@@ -53,7 +53,8 @@ function validateUpdateUser(user){
 	const schema=Joi.object({
 	name:Joi.string().allow(null, '').max(64),
 	profilePictureUrl:Joi.string().allow(null, ''),
-	fcmToken:Joi.string().allow(null,'')
+	fcmToken:Joi.string().allow(null,''),
+    contactsSent:Joi.boolean()
 	});
 	return schema.validate(user);
 }

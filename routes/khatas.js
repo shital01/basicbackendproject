@@ -133,7 +133,9 @@ router.post('/multiple', auth, async (req, res) => {
       }
     }
   }
+  if(unsavedEntries.length>0){
   logger.error({unsavedEntries});
+}
 //console.log({ savedEntries, unsavedEntries });
   res.send({ savedEntries, unsavedEntries });
 });

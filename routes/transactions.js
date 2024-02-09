@@ -171,7 +171,7 @@ router.post('/multiple', auth, async (req, res) => {
 				smsMessage = "You gave "+userName+"("+userPhoneNumber+") Rs "+ transaction.amount+".Noted in ByajKhata: "+link
 			}
 		if(user && user.fcmToken) { 
-			console.log("success notifcation")
+			//console.log("success notifcation")
 			var message;
 			if(transaction.amountGiveBool){
 				message="CREDIT: I gave you Rs "+transaction.amount+".";
@@ -204,7 +204,9 @@ router.post('/multiple', auth, async (req, res) => {
     }
 }
 //Modify Entry
+if(unsavedEntries.length>0){
 logger.error({unsavedEntries});
+}
 //console.log({ savedEntries, unsavedEntries })
 
   res.send({ savedEntries, unsavedEntries });
@@ -302,7 +304,7 @@ router.put('/delete', auth, validateInput(validateUpdateSeenStatus), async (req,
     }
       res.send({ message: 'delete status updated successfully for specified transactions' });
     } else {
-    	logger.info('no transactionn found');
+    	logger.info('no transaction found');
       res.status(404).send({ errormessage: 'No transactions found for the provided IDs' });
     }
 })

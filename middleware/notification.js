@@ -21,12 +21,13 @@ async function sendFCMNotification(token, title, body,phoneNumber) {
     };
 
     const response = await admin.messaging().send(message);
-    //console.log('Successfully sent message:', response);
-    return response;
+    //this one time to see it
+    console.log('Successfully sent message:', response);
+    return true;
   } catch (error) {
     logger.error('Error sending notification:', error);
     //throw error;
-    return error
+    return false
   }
 }
 //addchanel Id extra input
