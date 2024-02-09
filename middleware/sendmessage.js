@@ -42,7 +42,8 @@ const response = await axios(options);
       return true;
     } 
     else {
-      logger.error("Sending SMS error occured "+response);
+      logger.error("Sending SMS error occured ");
+      logger.error(response);
       return false;
     }
 }

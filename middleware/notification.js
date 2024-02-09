@@ -22,7 +22,7 @@ async function sendFCMNotification(token, title, body,phoneNumber) {
 
     const response = await admin.messaging().send(message);
     //this one time to see it
-    console.log('Successfully sent message:', response);
+    //console.log('Successfully sent message:', response);
     return true;
   } catch (error) {
     logger.error('Error sending notification:', error);

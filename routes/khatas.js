@@ -215,7 +215,7 @@ router.put('/settle', auth, validateInput(validateUpdateSettle), async (req, res
                 // Assuming sendNotification takes userName and fcmToken as parameters
                 await sendNotification(user.fcmToken, userName, "Account Settled. Updated Balance is Zero", phoneNumber);
             }
-            var link ="https://bit.ly/settleapp1";
+            var link ="https://bit.ly/ByajKhata";
             var smsMessage="Account Settled with "+userName+". Updated Balance is Zero.Noted in ByajKhata: "+link;            
         const templateId = config.get('templateIdSettle');;
         const SendSMS = await sendmessage("91"+searchPhoneNumber,smsMessage,templateId);

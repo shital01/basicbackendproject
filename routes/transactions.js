@@ -16,6 +16,7 @@ const config = require('config');
 const validateInput = (schema, query = false) => (req, res, next) => {
   const { error } = query ? schema(req.query) : schema(req.body);
   if (error) {
+    //later full print error for db details
   	logger.error(error.details[0].message);
     dbDebugger(error.details[0].message);
     return res.status(400).send(error.details[0]);
@@ -160,7 +161,7 @@ router.post('/multiple', auth, async (req, res) => {
 		var smsMessage;
 		var templateId ;
 
-			var link ="https://bit.ly/settleapp1";
+			var link ="https://bit.ly/ByajKhata";
 
 			if(transaction.amountGiveBool){
 				templateId=config.get('templateIdCredit')
