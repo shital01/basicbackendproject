@@ -4,7 +4,7 @@ const Joi = require('joi');
 
 const ContactSchema = new mongoose.Schema({
 	P:{
-		type:String,
+		type:String,unique:true,
 		required:true
 	},
 	N:{

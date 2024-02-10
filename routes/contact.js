@@ -12,7 +12,7 @@ const dbDebugger = require('debug')('app:db');
 //use C,P,N to reduce size
 //check size of array for limitation
 router.post('/addcontacts',auth,async(req,res,next)=>{
-	const result = validateContacts(req.body);
+		const result = validateContacts(req.body);
 	if(result.error){
 		dbDebugger(result.error.details[0].message)
 		logger.info(result.error.details[0])
@@ -22,18 +22,32 @@ router.post('/addcontacts',auth,async(req,res,next)=>{
 		req.body.CN = req.user.name;
 		req.body.CP = req.user.phoneNumber;
 		documents = req.body.C;//Contacts
-		console.log('CP:', req.body.CP);
-		console.log('CN:', req.body.CN);
+		//console.log('CP:', req.body.CP);
+		//console.log('CN:', req.body.CN);
 
 	// Add a new field to all documents with the same value
 	documents.forEach((document) => {
 	  document.contactProviderNumber = req.body.CP;//ContactProviderNumber
 	  document.contactProviderName = req.body.CN;//ContactProviderName
 	});
-	var results = await Contact.insertMany(documents);
-	res.send({success:true});
+	try{
+	var results = await Contact.insertMany(documents,{ordered:false});
+			res.send({success:true});
+
+	}
+catch(error){
+if (error.code === 11000) {
+		res.send({success:true});
+      // Log the duplicate error silently
+      //logger.debug("Ignoring duplicate entry error:", error.message);
+      // Continue execution without calling next(error)
+    } 
+}
+
+	//console.log(results)
 
 }
+
 });
 
 module.exports =router;
