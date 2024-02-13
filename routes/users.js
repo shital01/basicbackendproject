@@ -22,6 +22,7 @@ const validateInput = (schema) => (req, res, next) => {
 
 router.put('/updateprofile', auth,device, validateInput(validateUpdateUser), async (req, res) => {
     const user = await User.findById(req.user._id);
+    console.log(req.body)
 
     if (!user) {
         logger.error(req.user._id+" No such User exits");
@@ -36,8 +37,10 @@ router.put('/updateprofile', auth,device, validateInput(validateUpdateUser), asy
                 user[field] = req.body[field];
             }
         });
+        console.log(user);
 
         const updatedUser = await user.save();
+        console.log(updateUser);
         const token = updatedUser.generateAuthToken();
         res.header('x-auth-token', token).send(updatedUser);
     }
