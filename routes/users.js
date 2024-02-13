@@ -34,6 +34,7 @@ router.put('/updateprofile', auth,device, validateInput(validateUpdateUser), asy
         // Update user fields dynamically
         fieldsToUpdate.forEach(field => {
             if (req.body[field]) {
+                if(req.body[field]=='null'){req.body[field]=""}
                 user[field] = req.body[field];
             }
         });
