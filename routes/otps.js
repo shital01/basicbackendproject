@@ -79,6 +79,7 @@ router.post('/generate',testGenApi(),validateInput(validateNumber),async(req,res
 
 router.post('/verify',testLoginApi(),validateInput(validatelogin),async(req,res)=>{
 	//id is same order as date hence
+	console.log(req.body)
 	const otps = await Otp.find({phoneNumber:req.body.phoneNumber,otp:req.body.otp})  //.sort({_id:-1})
 	if(otps.length === 0) {
 		logger.info(req.body.phoneNumber+" Invalid OTP "+req.body.otp)
