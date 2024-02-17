@@ -15,7 +15,7 @@ const validateInput = (schema) => (req, res, next) => {
   if (error) {
     dbDebugger(error.details[0].message)
     logger.error(error.details[0])
-    return res.status(400).send({code:'validation failed',message:result.error.details[0].message});
+    return res.status(400).send({code:'validation failed',message:error.details[0].message});
   }
   next();
 };
