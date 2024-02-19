@@ -72,7 +72,7 @@ router.post('/generate',testGenApi(),validateInput(validateNumber),async(req,res
 	await otp.save();
 	//Change SMS Settle APP wording-from provider
 	
-	var finalmessage ="Here is OTP for login to ByajKhata : "+smsotp+". Please do not share it with anyone."
+	var finalmessage ="Here is OTP for login to ByajKhata : "+smsotp+" sMAt1pGMvv0"+". Please do not share it with anyone."
 	const SendSMS = await sendmessage("91"+req.body.phoneNumber,finalmessage,config.get('templateIdOtp'));
 	res.send({SendSMS});
 });
