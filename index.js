@@ -7,7 +7,7 @@ const winston = require('winston');
 require('./startup/config')();
 const logger = require('./startup/logging');
 //optional for staging if later feel need
-if (app.get('env') === 'production' || app.get('env') === 'staging' || app.get('env') === 'loadtest') {
+if (app.get('env') === 'production' || app.get('env') === 'staging' || app.get('env') === 'loadtest' || app.get('env') === 'development') {
 require('./startup/prod')(app);
 app.use((req, res, next) => {
   const start = Date.now();
@@ -15,6 +15,13 @@ app.use((req, res, next) => {
     const responseTime = Date.now() - start;
     const userAgent = req.headers['user-agent'] || 'Unknown';
     const authToken = req.headers['x-auth-token'] || 'N/A';//maybe avoid and do this for erroror to seelog of unwanted request whomaking
+    
+
+//reqq,header->deviceID,appversion,response
+
+    logger.info(`${JSON.stringify(req.body)} - ${JSON.stringify(req.headers)}`)
+    
+
     logger.info(`${req.ip} - ${userAgent} - Auth Token: ${authToken} - ${req.method} ${req.originalUrl} - ${res.statusCode} - ${responseTime}ms`);
     //console.log(`${req.ip} - ${req.method} ${req.originalUrl} - ${res.statusCode} - ${responseTime}ms`);
   });
