@@ -305,7 +305,7 @@ router.post('/showcalculations3/', auth, async (req, res) => {
 
     let khataTotal = 0;
 
-    const currentDate = moment(); // Current date/time
+    const currentDate = moment(req.body.time)||moment(); // Current date/time
 var interestarr=[];
 var totalarr=[];
 var times=[];
@@ -369,7 +369,8 @@ router.post('/showcalculations4/', auth, async (req, res) => {
 
     let khataTotal = 0;
 
-    const currentDate = moment(); // Current date/time
+    const currentDate = moment(req.body.time)||moment(); // Current date/time
+    console.log(currentDate)
 var interestarr=[];
 var totalarr=[];
 var times=[];
