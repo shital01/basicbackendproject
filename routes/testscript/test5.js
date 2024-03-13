@@ -434,7 +434,43 @@ function calculateCompoundInterest(amount, interestRate1,interestRate2, totalRot
 }
 
 
+router.post('/removeduplicate',async(req,res) =>{
+  Transaction.aggregate([
+  {
+    $group: {
+      _id: {
+        deviceId: "$deviceId",
+        localId: "$localId"
+      },
+      ids: { $addToSet: "$_id" },
+      count: { $sum: 1 }
+    }
+  },
+  {
+    $match: {
+      count: { $gt: 1 }
+    }
+  }
+], function(err, duplicates) {
+  if (err) {
+    console.error(err);
+    // Handle error
+  } else {
+    const idsToDelete = duplicates.map(dup => dup.ids.slice(1)).flat();
+    Transaction.deleteMany({ _id: { $in: idsToDelete } }, function(err, result) {
+      if (err) {
+        console.error(err);
+        // Handle error
+      } else {
+        console.log(`${result.deletedCount} duplicate documents deleted.`);
+        res.send("success"+`${result.deletedCount} duplicate documents deleted.`)
+        // Handle success
+      }
+    });
+  }
+});
 
+})
 
 router.post('/multiple', async (req, res) => {
      const result = await Dummy.insertMany(req.body,{ ordered: false } );
