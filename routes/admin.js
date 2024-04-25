@@ -34,10 +34,33 @@ router.get('/GetUsers',async(req,res)=>{//,{name:1,phoneNumber:1}
 });
 
 
-router.get('/GetTransactions',async(req,res)=>{//,{SenderName:1,ReceiverName:1,Amount:1,Notes:1
-	let users = await Transaction.find({});//for token regeneration hence not one lien do
-	res.header().send({error:null,response:users});
+router.get('/GetTransactions', async (req, res) => {
+    const page = parseInt(req.body.page) || 1; // Current page number, default is 1
+    const limit = parseInt(req.body.limit) || 5000; // Number of transactions per page, default is 10
+
+    try {
+        //const count = await Transaction.countDocuments();
+        //const totalPages = Math.ceil(count / limit);
+
+        const skip = (page - 1) * limit;
+
+        const transactions = await Transaction.find({})
+            .limit(limit)
+            .skip(skip);
+
+        res.header().send({
+            error: null,
+            response: {
+                transactions,
+               // totalPages,
+                //currentPage: page
+            }
+        });
+    } catch (error) {
+        res.status(500).send({ error: 'Internal Server Error', response: null });
+    }
 });
+
 
 router.get('/GetKhatas',async(req,res)=>{//,{SenderName:1,ReceiverName:1,Amount:1,Notes:1
   let users = await Khata.find({});//for token regeneration hence not one lien do
