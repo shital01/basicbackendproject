@@ -25,18 +25,5 @@ const ContactSchema = new mongoose.Schema({
 });
 const Contact = mongoose.model('Contact', ContactSchema);
 //skip validation in validate contacts
-function validateContacts(contacts) {
-	const schema = Joi.object({
-		C: Joi.array().items(
-			Joi.object({
-				P: Joi.string(),
-				N: Joi.string(),
-			}),
-		),
-	});
-
-	return schema.validate(contacts);
-}
 
 exports.Contact = Contact;
-exports.validateContacts = validateContacts;
