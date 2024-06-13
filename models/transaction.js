@@ -1,6 +1,7 @@
 const Joi = require('joi');
 Joi.objectId = require('joi-objectid')(Joi);
 const mongoose = require('mongoose');
+const { transactionSchema, transactionSchema2 } = require('../utils/validations/transactionValidations');
 const isValidUnixTimestamp = (value) => {
 	const timestamp = new Date(value * 1000); // Convert seconds to milliseconds
 	return !isNaN(timestamp.getTime());
@@ -71,35 +72,11 @@ const TransactionSchema = new mongoose.Schema({
 const Transaction = mongoose.model('Transaction', TransactionSchema);
 
 function validateTransaction(transaction) {
-	const schema = Joi.object({
-		transactionDate: Joi.date().timestamp('unix').required(),
-		amount: Joi.number()
-			.required()
-			.min(-1000000000)
-			.max(1000000000)
-			.required(),
-		amountGiveBool: Joi.boolean(),
-		khataId: Joi.objectId().required(),
-		description: Joi.string().allow(null, '').max(500),
-		attachmentsPath: Joi.array().items(Joi.string()).max(4),
-	});
+	const schema = transactionSchema;
 	return schema.validate(transaction);
 }
 function validateTransaction2(transaction) {
-	const schema = Joi.object({
-		transactionDate: Joi.date().timestamp('unix').required(),
-		amount: Joi.number()
-			.required()
-			.min(-1000000000)
-			.max(1000000000)
-			.required(),
-		amountGiveBool: Joi.boolean(),
-		khataId: Joi.objectId().required(),
-		description: Joi.string().allow(null, '').max(500),
-		attachmentsPath: Joi.array().items(Joi.string()).max(4),
-		localId: Joi.string().required(),
-		sendSms: Joi.boolean(),
-	});
+	const schema = transactionSchema2;
 	return schema.validate(transaction);
 }
 //can be more sttrict one of them is must and only allowed value is true
