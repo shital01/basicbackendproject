@@ -104,38 +104,13 @@ function validateTransaction2(transaction) {
 }
 //can be more sttrict one of them is must and only allowed value is true
 //valid workes allow doesnt
-function validateUpdateTransaction(transaction) {
-	const schema = Joi.object({
-		transactionId: Joi.objectId().required(),
-		deleteFlag: Joi.boolean().valid(true),
-		seenStatus: Joi.boolean().valid(true),
-	});
-	return schema.validate(transaction);
-}
 
 //not much point pass all values
 //check if iso or without it works
 //date proper check now
 //max limit 10000 all are optional
-function validateRequestTransaction(transaction) {
-	const schema = Joi.object({
-		lastUpdatedTimeStamp: Joi.date().timestamp('unix'),
-		pageSize: Joi.number().integer().max(10000),
-		pageNumber: Joi.number().integer(),
-	});
-	return schema.validate(transaction);
-}
 
-function validateUpdateSeenStatus(ids) {
-	const schema = Joi.object({
-		transactionIds: Joi.array().items(Joi.objectId().required()),
-	});
-	return schema.validate(ids);
-}
 exports.Transaction = Transaction;
 exports.validate = validateTransaction;
 exports.validate2 = validateTransaction2;
 
-exports.validateUpdateSeenStatus = validateUpdateSeenStatus;
-exports.validateRequestTransaction = validateRequestTransaction;
-exports.validateUpdateTransaction = validateUpdateTransaction;
