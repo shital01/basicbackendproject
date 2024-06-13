@@ -20,7 +20,7 @@ const KhataSchema = new mongoose.Schema({
 	friendPhoneNumber:{type:String,required:true,match: /^[0-9]{10}$/},
 	userPhoneNumber:{type:String,required:true,match: /^[0-9]{10}$/},
 	interestRate:{type:Number,min:0,max:100,default:0},//same
-	interestType:{type:String,required:true,enum:['N',,'CW','CM','CY']},//0,7,30,365
+	interestType:{type:String,required:true,enum:['N','CW','CM','CY']},//0,7,30,365
 	rotationPeriod:{type:String,enum:['0M','3M','6M','18M','1Y','2Y']},//30,60,90,180,365,730
 	updatedTimeStamp: {
     type: Number,
