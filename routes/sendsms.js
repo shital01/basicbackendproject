@@ -1,61 +1,122 @@
 const express = require('express');
 const router = express.Router();
-const {validateMessage,validateRemindMessage,validateDeleteMessage} = require('../models/sms');
+const {
+	validateMessage,
+	validateRemindMessage,
+	validateDeleteMessage,
+} = require('../models/sms');
 const logger = require('../startup/logging');
 const dbDebugger = require('debug')('app:db');
-const sendmessage =require('../middleware/sendmessage');
-const auth =require('../middleware/auth');
+const sendmessage = require('../middleware/sendmessage');
+const auth = require('../middleware/auth');
 const config = require('config');
 
 /*
 Add comment
 */
-//has to be multiple validation 
-//then erorr handlign also 
-router.post('/',auth,async(req,res,next)=>{
-	const messageType = req.body.messageType ;
+//has to be multiple validation
+//then erorr handlign also
+router.post('/', auth, async (req, res, next) => {
+	const messageType = req.body.messageType;
 	req.body.SenderName = req.user.Name;
 	req.body.SenderPhoneNumber = req.user.PhoneNumber;
 	var result;
 	var templateId;
-	var link ="https://bit.ly/settleapp1";
-	var message="";
+	var link = 'https://bit.ly/settleapp1';
+	var message = '';
 
-	if(messageType == "add"){
+	if (messageType == 'add') {
 		result = validateMessage(req.body);
 		templateId = config.get('templateIdAdd');
 		//'1607100000000265753';
 		config.get('templateIdAdd');
-		if(req.body.Isloan){message = req.body.SenderName+"("+req.body.SenderPhoneNumber+") gave you Rs "+req.body.Amount+". \nNow Balance is Rs "+req.body.TotalAmount+". \nSee all txns: "+link+" \nSettle App";}
-		else{message = "You gave "+req.body.SenderName+"("+req.body.SenderPhoneNumber+") Rs "+req.body.Amount+". \nNow Balance is Rs "+req.body.TotalAmount+". \nSee all txns: "+link+" \nSettle App";}
-	} 
-	else if(messageType == "delete"){
+		if (req.body.Isloan) {
+			message =
+				req.body.SenderName +
+				'(' +
+				req.body.SenderPhoneNumber +
+				') gave you Rs ' +
+				req.body.Amount +
+				'. \nNow Balance is Rs ' +
+				req.body.TotalAmount +
+				'. \nSee all txns: ' +
+				link +
+				' \nSettle App';
+		} else {
+			message =
+				'You gave ' +
+				req.body.SenderName +
+				'(' +
+				req.body.SenderPhoneNumber +
+				') Rs ' +
+				req.body.Amount +
+				'. \nNow Balance is Rs ' +
+				req.body.TotalAmount +
+				'. \nSee all txns: ' +
+				link +
+				' \nSettle App';
+		}
+	} else if (messageType == 'delete') {
 		result = validateDeleteMessage(req.body);
-		templateId=config.get('templateIdDelete');
+		templateId = config.get('templateIdDelete');
 		//'1607100000000265754';
-		if(req.body.Isloan){message = req.body.SenderName+"("+req.body.SenderPhoneNumber+") gave you Rs "+req.body.Amount+". \nNow Balance is Rs "+req.body.TotalAmount+". \nSee all txns: "+link+" \nSettle App";}
-		else{ message = "You gave "+req.body.SenderName+"("+req.body.SenderPhoneNumber+") Rs "+req.body.Amount+". \nNow Balance is Rs "+req.body.TotalAmount+". \nSee all txns: "+link+" \nSettle App";}
-		message = "Deleted: \n"+message;
-	} 
-	else if(messageType == "remind"){
+		if (req.body.Isloan) {
+			message =
+				req.body.SenderName +
+				'(' +
+				req.body.SenderPhoneNumber +
+				') gave you Rs ' +
+				req.body.Amount +
+				'. \nNow Balance is Rs ' +
+				req.body.TotalAmount +
+				'. \nSee all txns: ' +
+				link +
+				' \nSettle App';
+		} else {
+			message =
+				'You gave ' +
+				req.body.SenderName +
+				'(' +
+				req.body.SenderPhoneNumber +
+				') Rs ' +
+				req.body.Amount +
+				'. \nNow Balance is Rs ' +
+				req.body.TotalAmount +
+				'. \nSee all txns: ' +
+				link +
+				' \nSettle App';
+		}
+		message = 'Deleted: \n' + message;
+	} else if (messageType == 'remind') {
 		result = validateRemindMessage(req.body);
-		templateId=config.get('templateIdRemind');
+		templateId = config.get('templateIdRemind');
 		//'1607100000000265755';
-		message = "Your balance with "+req.body.SenderName+"("+req.body.SenderPhoneNumber+") is Rs "+req.body.TotalAmount+". \nSee all txns: "+link+" \nSettle App";
-	} 
-	if(result.error){
-		dbDebugger(result.error.details[0].message)
+		message =
+			'Your balance with ' +
+			req.body.SenderName +
+			'(' +
+			req.body.SenderPhoneNumber +
+			') is Rs ' +
+			req.body.TotalAmount +
+			'. \nSee all txns: ' +
+			link +
+			' \nSettle App';
+	}
+	if (result.error) {
+		dbDebugger(result.error.details[0].message);
 		res.status(400).send(result.error.details[0]);
 		//res.status(400).send(result.error.details[0].message);
 		return;
 	}
-	const SendSMS = await sendmessage("91"+req.body.ReceiverPhoneNumber,message,templateId);
-	res.send({SendSMS})	
-	
+	const SendSMS = await sendmessage(
+		'91' + req.body.ReceiverPhoneNumber,
+		message,
+		templateId,
+	);
+	res.send({ SendSMS });
 });
 
-
-module.exports =router;
+module.exports = router;
 
 /*
 

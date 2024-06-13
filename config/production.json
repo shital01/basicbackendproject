@@ -1,7 +1,6 @@
 {
-	"name":"Settle -production",
-	"file1":"productioncombined.log",
-	"file2":"productionexception.log",
-	"file3":"productionrejections.log"
-
+	"name": "Settle -production",
+	"file1": "productioncombined.log",
+	"file2": "productionexception.log",
+	"file3": "productionrejections.log"
 }

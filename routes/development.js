@@ -3,59 +3,57 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const dbDebugger = require('debug')('app:db');
-const {Khata} = require('../models/khata');
-const {Transaction} = require('../models/transaction');
-const {User} = require('../models/user');
-const auth =require('../middleware/auth');
-
+const { Khata } = require('../models/khata');
+const { Transaction } = require('../models/transaction');
+const { User } = require('../models/user');
+const auth = require('../middleware/auth');
 
 //Development Only
 router.delete('/deleteAllKhatas', auth, async (req, res) => {
-        // Assuming userId is passed as a parameter in the URL
-        const userId = req.user._id||req.body.id;
-        // Delete all khatas associated with the given userId
-        const deletionResult = await Khata.deleteMany({ userId: userId });
-        res.send(deletionResult); // Sending deletion result as response
-        // Handle any errors that might occur during deletion
-      
+	// Assuming userId is passed as a parameter in the URL
+	const userId = req.user._id || req.body.id;
+	// Delete all khatas associated with the given userId
+	const deletionResult = await Khata.deleteMany({ userId: userId });
+	res.send(deletionResult); // Sending deletion result as response
+	// Handle any errors that might occur during deletion
 });
 
 router.delete('/deleteAllTransactions', auth, async (req, res) => {
-        const userId = req.user._id||req.body.id;
-        const deletionResult = await Transaction.deleteMany({ userId: userId });
-        res.send("done deleted"); 
+	const userId = req.user._id || req.body.id;
+	const deletionResult = await Transaction.deleteMany({ userId: userId });
+	res.send('done deleted');
 });
 
-router.post('/fakelogin',async(req,res)=>{
+router.post('/fakelogin', async (req, res) => {
 	const user = new User(req.body);
 	const output = await user.save();
-	const token = output.generateAuthToken()
-	res.header('x-auth-token',token).send(output);
+	const token = output.generateAuthToken();
+	res.header('x-auth-token', token).send(output);
 });
 
-router.post('/fakedelete',async(req,res)=>{
-  await Khata.deleteMany({ userPhoneNumber: req.body.phoneNumber });
-    await Khata.deleteMany({ friendPhoneNumber: req.body.phoneNumber });
-	let user = await User.remove({phoneNumber:req.body.phoneNumber});//for token regeneration hence not one lien do
+router.post('/fakedelete', async (req, res) => {
+	await Khata.deleteMany({ userPhoneNumber: req.body.phoneNumber });
+	await Khata.deleteMany({ friendPhoneNumber: req.body.phoneNumber });
+	let user = await User.remove({ phoneNumber: req.body.phoneNumber }); //for token regeneration hence not one lien do
 	res.send(user);
 });
 
-router.put('/removenameandprofile',auth,async(req,res)=>{
-	let user = await User.findById(req.user._id);//for token regeneration hence not one lien do
-	if(!user){res.status(400).send({message:'No User exits'})}
-		else{
-  // Update the document
-	user.name=undefined;
-	user.profilePictureUrl=undefined;
+router.put('/removenameandprofile', auth, async (req, res) => {
+	let user = await User.findById(req.user._id); //for token regeneration hence not one lien do
+	if (!user) {
+		res.status(400).send({ message: 'No User exits' });
+	} else {
+		// Update the document
+		user.name = undefined;
+		user.profilePictureUrl = undefined;
 
-	const user2 = await user.save();
-	const token = user2.generateAuthToken()
-	res.header('x-auth-token',token).send(user2);
+		const user2 = await user.save();
+		const token = user2.generateAuthToken();
+		res.header('x-auth-token', token).send(user2);
 	}
 });
 
-module.exports =router;
-
+module.exports = router;
 
 /*
 validation all before insert optimized ->validEntries and invalidEntries with errormessgae
