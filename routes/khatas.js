@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { validateRequest } = require('../middleware/validateRequest');
 const { getKhataSchema, unsettleKhataSchema, updateSettleKhataSchema } = require('../utils/validations/khataValidations');
-const dbDebugger = require('debug')('app:db');
 const {
 	Khata,
 	validate,
@@ -17,28 +16,6 @@ const config = require('config');
 const sendmessage = require('../middleware/sendmessage');
 const sendNotification = require('../middleware/notification');
 
-//Seperate the middel ware of validation
-//validateGetKhata
-// Create separate validation functions
-const validateInput =
-	(schema, query = false) =>
-	(req, res, next) => {
-		const { error } = query ? schema(req.query) : schema(req.body);
-		if (error) {
-			logger.error(error.details[0]);
-			dbDebugger(error.details[0].message);
-			return res
-				.status(400)
-				.send({
-					code: 'validation failed',
-					message: error.details[0].message,
-				});
-		}
-		next();
-	};
-
-//,validateInput(validateGetKhata)
-//PageSize and Page Number to be included in get function
 router.get(
 	'/',
 	auth,

@@ -1,21 +1,26 @@
 const express = require('express');
 const router = express.Router();
-const {
-	validateMessage,
-	validateRemindMessage,
-	validateDeleteMessage,
-} = require('../models/sms');
-const logger = require('../startup/logging');
+const { messageSchema, remindMessageSchema, deleteMessageSchema } = require('../utils/validations/smsValidations');
 const dbDebugger = require('debug')('app:db');
 const sendmessage = require('../middleware/sendmessage');
 const auth = require('../middleware/auth');
 const config = require('config');
 
-/*
-Add comment
-*/
-//has to be multiple validation
-//then erorr handlign also
+const validateMessage = (req) => {
+	const schema = messageSchema;
+	return schema.validate(req);
+};
+
+const validateRemindMessage = (req) => {
+	const schema = remindMessageSchema;
+	return schema.validate(req);
+};
+
+const validateDeleteMessage = (req) => {
+	const schema = deleteMessageSchema;
+	return schema.validate(req);
+};
+
 router.post('/', auth, async (req, res, next) => {
 	const messageType = req.body.messageType;
 	req.body.SenderName = req.user.Name;

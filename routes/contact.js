@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Contact } = require('../models/contact');
-const { contactSchema } = require('../utils/validations/contactValidation');
+const { contactSchema } = require('../utils/validations/contactValidations');
 const { validateRequest } = require('../middleware/validateRequest');
 
 const auth = require('../middleware/auth');
