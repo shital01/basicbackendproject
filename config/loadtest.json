@@ -1,7 +1,6 @@
 {
-	"name":"Settle -loadtest",
-	"file1":"loadtestcombined.log",
-	"file2":"loadtestexception.log",
-	"file3":"loadtestrejections.log"
-
+	"name": "Settle -loadtest",
+	"file1": "loadtestcombined.log",
+	"file2": "loadtestexception.log",
+	"file3": "loadtestrejections.log"
 }

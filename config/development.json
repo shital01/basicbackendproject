@@ -1,7 +1,7 @@
 {
-	"name":"Settle - development",
-	"db":"mongodb://localhost/playground2",
-	"file1":"combined.log",
-	"file2":"exception.log",
-	"file3":"rejections.log"
+	"name": "Settle - development",
+	"db": "mongodb://localhost/playground2",
+	"file1": "combined.log",
+	"file2": "exception.log",
+	"file3": "rejections.log"
 }

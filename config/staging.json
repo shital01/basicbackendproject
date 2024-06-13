@@ -1,7 +1,6 @@
 {
-	"name":"Settle -staging",
-	"file1":"stagingcombined.log",
-	"file2":"stagingexception.log",
-	"file3":"stagingrejections.log"
-
+	"name": "Settle -staging",
+	"file1": "stagingcombined.log",
+	"file2": "stagingexception.log",
+	"file3": "stagingrejections.log"
 }

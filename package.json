@@ -1,58 +1,58 @@
 {
-  "name": "settle",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "start": "export NODE_ENV=production&&node index.js",
-    "loadtest": "export NODE_ENV=loadtest&&export PORT=2500&&node index.js",
-    "staging": "export NODE_ENV=staging&&export PORT=2000&&node index.js",
-    "dev": "export DEBUG=app:*&&export NODE_ENV=development&& nodemon index.js",
-    "test": "export NODE_ENV=test&&export  PORT=0&&  jest --watchAll --verbose --coverage ",
-    "format:check": "prettier --check .",
-    "format:write": "prettier --write .",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint --fix ."
-  },
-  "engines": {
-    "node": "21.5.0"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "aws-sdk": "^2.1302.0",
-    "axios": "^1.4.0",
-    "compression": "^1.7.4",
-    "config": "^3.3.8",
-    "express": "^4.18.2",
-    "express-async-errors": "^3.1.1",
-    "firebase-admin": "^12.0.0",
-    "helmet": "^6.0.1",
-    "joi": "^17.7.0",
-    "joi-objectid": "^4.0.2",
-    "jsonwebtoken": "^9.0.0",
-    "lodash": "^4.17.21",
-    "moment": "^2.29.4",
-    "mongoose": "^6.8.3",
-    "path": "^0.12.7",
-    "uuid": "^9.0.0",
-    "winston": "^3.8.2",
-    "winston-mongodb": "^5.1.1"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.4.0",
-    "debug": "^4.3.4",
-    "eslint": "^9.4.0",
-    "eslint-config-prettier": "^9.1.0",
-    "globals": "^15.4.0",
-    "jest": "^29.4.1",
-    "morgan": "^1.10.0",
-    "nodemon": "^3.0.1",
-    "prettier": "3.3.2",
-    "supertest": "^6.3.3"
-  },
-  "directories": {
-    "test": "tests"
-  },
-  "description": ""
+	"name": "settle",
+	"version": "1.0.0",
+	"main": "index.js",
+	"scripts": {
+		"start": "export NODE_ENV=production&&node index.js",
+		"loadtest": "export NODE_ENV=loadtest&&export PORT=2500&&node index.js",
+		"staging": "export NODE_ENV=staging&&export PORT=2000&&node index.js",
+		"dev": "export DEBUG=app:*&&export NODE_ENV=development&& nodemon index.js",
+		"test": "export NODE_ENV=test&&export  PORT=0&&  jest --watchAll --verbose --coverage ",
+		"format:check": "prettier --check .",
+		"format:write": "prettier --write .",
+		"lint:check": "eslint .",
+		"lint:fix": "eslint --fix ."
+	},
+	"engines": {
+		"node": "21.5.0"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"aws-sdk": "^2.1302.0",
+		"axios": "^1.4.0",
+		"compression": "^1.7.4",
+		"config": "^3.3.8",
+		"express": "^4.18.2",
+		"express-async-errors": "^3.1.1",
+		"firebase-admin": "^12.0.0",
+		"helmet": "^6.0.1",
+		"joi": "^17.7.0",
+		"joi-objectid": "^4.0.2",
+		"jsonwebtoken": "^9.0.0",
+		"lodash": "^4.17.21",
+		"moment": "^2.29.4",
+		"mongoose": "^6.8.3",
+		"path": "^0.12.7",
+		"uuid": "^9.0.0",
+		"winston": "^3.8.2",
+		"winston-mongodb": "^5.1.1"
+	},
+	"devDependencies": {
+		"@eslint/js": "^9.4.0",
+		"debug": "^4.3.4",
+		"eslint": "^9.4.0",
+		"eslint-config-prettier": "^9.1.0",
+		"globals": "^15.4.0",
+		"jest": "^29.4.1",
+		"morgan": "^1.10.0",
+		"nodemon": "^3.0.1",
+		"prettier": "3.3.2",
+		"supertest": "^6.3.3"
+	},
+	"directories": {
+		"test": "tests"
+	},
+	"description": ""
 }
