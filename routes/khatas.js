@@ -1,15 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
+const { validateRequest } = require('../middleware/validateRequest');
+const { getKhataSchema, unsettleKhataSchema, updateSettleKhataSchema } = require('../utils/validations/khataValidations');
 const dbDebugger = require('debug')('app:db');
 const {
 	Khata,
 	validate,
-	validateGetKhata,
-	validateUpdateKhata,
-	validateKhata,
-	validateUpdateSettle,
-	validateUnSettle,
 } = require('../models/khata');
 const { User } = require('../models/user');
 const auth = require('../middleware/auth');
@@ -47,7 +43,8 @@ router.get(
 	'/',
 	auth,
 	device,
-	validateInput(validateGetKhata, true),
+	validateRequest({ query: getKhataSchema }),
+	
 	async (req, res) => {
 		const deviceId = req.header('deviceId');
 
@@ -191,10 +188,9 @@ router.put(
 	'/unsettle',
 	auth,
 	device,
-	validateInput(validateUnSettle),
+	validateRequest({ body: unsettleKhataSchema }),
 	async (req, res) => {
 		const deviceId = req.header('deviceId');
-		const userName = req.user.name;
 		const { khataIds } = req.body;
 		// Update seenStatus to true for the provided transactionIds
 		const updateResult = await Khata.updateMany(
@@ -230,7 +226,7 @@ router.put(
 	'/settle',
 	auth,
 	device,
-	validateInput(validateUpdateSettle),
+	validateRequest({ body: updateSettleKhataSchema }),
 	async (req, res) => {
 		const deviceId = req.header('deviceId');
 		const userName = req.user.name;
