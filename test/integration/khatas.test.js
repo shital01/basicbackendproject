@@ -2,6 +2,7 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const { User } = require('../../models/user');
 const { Khata } = require('../../models/khata');
+const { describe, it, beforeEach, afterEach, expect } = require('@jest/globals');
 
 let server;
 
@@ -147,45 +148,45 @@ expect(Object.keys(res.body)).toEqual(
 			);
 		});
 		/*
-    it('should return all khatas with Date and pageNumber',async() =>{
-      
-      const khatas = await Khata.collection.insertMany([khata1,khata2])
-      payload = {lastUpdatedTimeStamp:1211231231230,pageNumber:1}
-      const res = await exec(payload);
-      expect(res.status).toBe(200);
-      console.log(res.body);
-      console.log(res.body.results[0]);
+	it('should return all khatas with Date and pageNumber',async() =>{
+	  
+	  const khatas = await Khata.collection.insertMany([khata1,khata2])
+	  payload = {lastUpdatedTimeStamp:1211231231230,pageNumber:1}
+	  const res = await exec(payload);
+	  expect(res.status).toBe(200);
+	  console.log(res.body);
+	  console.log(res.body.results[0]);
 
-      expect(res.body.results.length).toBe(1);
-      expect(Object.keys(res.body.results[0])).toEqual(
-        expect.arrayContaining(['settledFlag','friendName','_id','friendPhoneNumber','userPhoneNumber','userId','interestRate','localId','interestType','rotationPeriod','updatedTimeStamp']))
-        });
+	  expect(res.body.results.length).toBe(1);
+	  expect(Object.keys(res.body.results[0])).toEqual(
+		expect.arrayContaining(['settledFlag','friendName','_id','friendPhoneNumber','userPhoneNumber','userId','interestRate','localId','interestType','rotationPeriod','updatedTimeStamp']))
+		});
 
-    it('should return all khatas with Date and PageSize',async() =>{
-      
-      const khatas = await Khata.collection.insertMany([khata1,khata2])
-      payload = {lastUpdatedTimeStamp:1211231231230,pageSize:2}
-      const res = await exec(payload);
-      expect(res.status).toBe(200);
-      console.log(res.body);
-      console.log(res.body.results[0]);
+	it('should return all khatas with Date and PageSize',async() =>{
+	  
+	  const khatas = await Khata.collection.insertMany([khata1,khata2])
+	  payload = {lastUpdatedTimeStamp:1211231231230,pageSize:2}
+	  const res = await exec(payload);
+	  expect(res.status).toBe(200);
+	  console.log(res.body);
+	  console.log(res.body.results[0]);
 
-      expect(res.body.results.length).toBe(1);
-      expect(Object.keys(res.body.results[0])).toEqual(
-        expect.arrayContaining(['settledFlag','friendName','_id','friendPhoneNumber','userPhoneNumber','userId','interestRate','localId','interestType','rotationPeriod','updatedTimeStamp']))
-        });
+	  expect(res.body.results.length).toBe(1);
+	  expect(Object.keys(res.body.results[0])).toEqual(
+		expect.arrayContaining(['settledFlag','friendName','_id','friendPhoneNumber','userPhoneNumber','userId','interestRate','localId','interestType','rotationPeriod','updatedTimeStamp']))
+		});
 
-    it('should return all khatas with Date and page size and pageNumber',async() =>{
-      
-      const khatas = await Khata.collection.insertMany([khata1,khata2])
-      payload = {lastUpdatedTimeStamp:1211231231230,pageSize:1,pageNumber:1}
-      const res = await exec(payload);
-      expect(res.status).toBe(200);
-      expect(res.body.results.length).toBe(1);
-      expect(Object.keys(res.body.results[0])).toEqual(
-        expect.arrayContaining(['settledFlag','friendName','_id','friendPhoneNumber','userPhoneNumber','userId','interestRate','localId','interestType','rotationPeriod','updatedTimeStamp']))
-        });
-        */
+	it('should return all khatas with Date and page size and pageNumber',async() =>{
+	  
+	  const khatas = await Khata.collection.insertMany([khata1,khata2])
+	  payload = {lastUpdatedTimeStamp:1211231231230,pageSize:1,pageNumber:1}
+	  const res = await exec(payload);
+	  expect(res.status).toBe(200);
+	  expect(res.body.results.length).toBe(1);
+	  expect(Object.keys(res.body.results[0])).toEqual(
+		expect.arrayContaining(['settledFlag','friendName','_id','friendPhoneNumber','userPhoneNumber','userId','interestRate','localId','interestType','rotationPeriod','updatedTimeStamp']))
+		});
+		*/
 		it('should return all khatas without Date', async () => {
 			const khatas = await Khata.collection.insertMany([khata1, khata2]);
 			const res = await exec();
@@ -263,37 +264,37 @@ expect(Object.keys(res.body)).toEqual(
 			);
 		});
 		/*
-    it('should return all khatas without Date and pagesize',async() =>{
-      
-      const khatas = await Khata.collection.insertMany([khata1,khata2])
-      const res = await exec({pageSize:1});
-      expect(res.status).toBe(200);
-      expect(res.body.results.length).toBe(1);
-      expect(Object.keys(res.body.results[0])).toEqual(
-        expect.arrayContaining(['settledFlag','friendName','_id','friendPhoneNumber','userPhoneNumber','userId','interestRate','localId','interestType','rotationPeriod','updatedTimeStamp']))
-      
-      });
-    it('should return all khatas without Date and page number',async() =>{
-      
-      const khatas = await Khata.collection.insertMany([khata1,khata2])
-      const transactions= await Transaction.collection.insertMany([transaction1,transaction2,transaction3,transaction4])
-      const res = await exec({pageNumber:1});
-      expect(res.status).toBe(200);
-      expect(res.body.results.length).toBe(2);
-      expect(Object.keys(res.body.results[0])).toEqual(
-        expect.arrayContaining(['settledFlag','friendName','_id','friendPhoneNumber','userPhoneNumber','userId','interestRate','localId','interestType','rotationPeriod','updatedTimeStamp']))
-      });
-    it('should return all khatas without Date and page size and pagenumber',async() =>{
-      
-      const khatas = await Khata.collection.insertMany([khata1,khata2])
-      const res = await exec({pageNumber:1,pageSize:1});
-      expect(res.status).toBe(200);
-      expect(res.body.results.length).toBe(1);
-      expect(Object.keys(res.body.results[0])).toEqual(
-        expect.arrayContaining(['deleteFlag','seenStatus','_id','khataId','amount','userId','amountGiveBool','localId','transactionDate','updatedTimeStamp']))        
-      
-      });
-      */
+	it('should return all khatas without Date and pagesize',async() =>{
+	  
+	  const khatas = await Khata.collection.insertMany([khata1,khata2])
+	  const res = await exec({pageSize:1});
+	  expect(res.status).toBe(200);
+	  expect(res.body.results.length).toBe(1);
+	  expect(Object.keys(res.body.results[0])).toEqual(
+		expect.arrayContaining(['settledFlag','friendName','_id','friendPhoneNumber','userPhoneNumber','userId','interestRate','localId','interestType','rotationPeriod','updatedTimeStamp']))
+	  
+	  });
+	it('should return all khatas without Date and page number',async() =>{
+	  
+	  const khatas = await Khata.collection.insertMany([khata1,khata2])
+	  const transactions= await Transaction.collection.insertMany([transaction1,transaction2,transaction3,transaction4])
+	  const res = await exec({pageNumber:1});
+	  expect(res.status).toBe(200);
+	  expect(res.body.results.length).toBe(2);
+	  expect(Object.keys(res.body.results[0])).toEqual(
+		expect.arrayContaining(['settledFlag','friendName','_id','friendPhoneNumber','userPhoneNumber','userId','interestRate','localId','interestType','rotationPeriod','updatedTimeStamp']))
+	  });
+	it('should return all khatas without Date and page size and pagenumber',async() =>{
+	  
+	  const khatas = await Khata.collection.insertMany([khata1,khata2])
+	  const res = await exec({pageNumber:1,pageSize:1});
+	  expect(res.status).toBe(200);
+	  expect(res.body.results.length).toBe(1);
+	  expect(Object.keys(res.body.results[0])).toEqual(
+		expect.arrayContaining(['deleteFlag','seenStatus','_id','khataId','amount','userId','amountGiveBool','localId','transactionDate','updatedTimeStamp']))        
+	  
+	  });
+	  */
 	});
 	/*********POST************/
 	//Get Request Paths Testing
@@ -426,15 +427,15 @@ expect(Object.keys(res.body)).toEqual(
 		//Path-08
 		//NEED to somehow create this error
 		/*
-    it('should return 200 if  transaction khata failed due to mongodb issues',async()=>{
-      //k1.localId = null;
-      const res = await exec();
-      expect(res.status).toBe(200);
-      expect(res.body.savedEntries.length).toBe(1);
-      expect(res.body.unsavedEntries.length).toBe(1);
-      expect(res.body.unsavedEntries[0].error).toBe('"localId" must be a string');
-    })
-    */
+	it('should return 200 if  transaction khata failed due to mongodb issues',async()=>{
+	  //k1.localId = null;
+	  const res = await exec();
+	  expect(res.status).toBe(200);
+	  expect(res.body.savedEntries.length).toBe(1);
+	  expect(res.body.unsavedEntries.length).toBe(1);
+	  expect(res.body.unsavedEntries[0].error).toBe('"localId" must be a string');
+	})
+	*/
 		//handle optinal field too,succesful bare miniumum thenoptional too
 		//Path-08
 		it('should save and return khatas if valid khata with no input parameter ', async () => {
@@ -473,11 +474,14 @@ expect(Object.keys(res.body)).toEqual(
 
 	/*************PUT*********/
 
-	describe('PUT/SEttle', () => {
+	describe('PUT /settle', () => {
 		let token, token2;
 		let khataId, khataIds;
+		let payload = {
+			khataIds: ['123']
+		}
 		//async await remove as direct return
-		const exec = () => {
+		const exec = (payload) => {
 			return request(server)
 				.put('/api/khatas/settle')
 				.set('x-auth-token', token)
@@ -517,20 +521,20 @@ expect(Object.keys(res.body)).toEqual(
 		//Path-01
 		it('should return 401 if not logged in', async () => {
 			token = '';
-			const res = await exec();
+			const res = await exec(payload);
 			expect(res.status).toBe(401);
 		});
 		//Path-02
 		it('should return 400 if invalid token ', async () => {
 			token = '123';
-			const res = await exec();
+			const res = await exec(payload);
 			expect(res.status).toBe(400);
 		});
 
 		//Path-04
 		it('should return 400 if validation khata failed due to innvalid input type', async () => {
 			payload = { khataId };
-			const res = await exec();
+			const res = await exec(payload);
 			expect(res.status).toBe(400);
 		});
 		//Path-05
@@ -545,38 +549,55 @@ expect(Object.keys(res.body)).toEqual(
 		//Path-09
 		it('should return 404  if khata not found with given ID/if Already delete ', async () => {
 			khataId = userid;
-			payload = { khataIds: [khataId] };
-			const res = await exec();
+			payload = {
+				khataObjects: [{
+					id: khataId,
+					interest: 10
+				}]
+			};
+			const res = await exec(payload);
 			expect(res.status).toBe(404);
 		});
 		//Path-10//hold this test case due to condition of seen not jsut delete feature
 
 		/*it('should return 403  if user forbidden to do this ',async()=>{
-      token=token2;
-      payload={khataIds:[khata1id]}
-      const res = await exec();
-      //expect(res.status).toBe(403);
-      expect(res.status).toBe(403);
-    })
-    */
+	  token=token2;
+	  payload={khataIds:[khata1id]}
+	  const res = await exec();
+	  //expect(res.status).toBe(403);
+	  expect(res.status).toBe(403);
+	})
+	*/
 		//Path-11
 		/*
-    it('should delete khata if valid khata ',async()=>{
-      payload={deleteFlag:true,khataId}
-      const res = await exec(payload);
-      expect(res.status).toBe(200);
-    })
-    */
+	it('should delete khata if valid khata ',async()=>{
+	  payload={deleteFlag:true,khataId}
+	  const res = await exec(payload);
+	  expect(res.status).toBe(200);
+	})
+	*/
 		//Path-12
 		it('should update the khata and return valid response if valid khata ', async () => {
-			const res = await exec(khataIds);
+			payload = {
+				khataObjects: [{
+					id: khataId,
+					interest: 10
+				}]
+			};
+			const res = await exec(payload);
 			expect(res.status).toBe(200);
 			const transactions = await Khata.find();
 			expect(transactions[0].settledFlag).toBe(true);
 		});
 		it('should update the khata and return valid response if valid khata but from other user', async () => {
 			token = token2;
-			const res = await exec(khataIds);
+			payload = {
+				khataObjects: [{
+					id: khataId,
+					interest: 10
+				}]
+			};
+			const res = await exec(payload);
 			expect(res.status).toBe(200);
 			const transactions = await Khata.find();
 			expect(transactions[0].settledFlag).toBe(true);
@@ -647,22 +668,22 @@ expect(Object.keys(res.body)).toEqual(
 		});
 		//Path-10//hold this test case due to condition of seen not jsut delete feature
 		/*
-    it('should return 403  if user forbidden to do this ',async()=>{
-      token=token2;
-      payload={khataIds:[khata1id]}
-      const res = await exec();
-      //expect(res.status).toBe(403);
-      expect(res.status).toBe(403);
-    })
-    */
+	it('should return 403  if user forbidden to do this ',async()=>{
+	  token=token2;
+	  payload={khataIds:[khata1id]}
+	  const res = await exec();
+	  //expect(res.status).toBe(403);
+	  expect(res.status).toBe(403);
+	})
+	*/
 		//Path-11
 		/*
-    it('should delete khata if valid khata ',async()=>{
-      payload={deleteFlag:true,khataId}
-      const res = await exec(payload);
-      expect(res.status).toBe(200);
-    })
-    */
+	it('should delete khata if valid khata ',async()=>{
+	  payload={deleteFlag:true,khataId}
+	  const res = await exec(payload);
+	  expect(res.status).toBe(200);
+	})
+	*/
 		//Path-12
 		it('should update the khata and return valid response if valid khata ', async () => {
 			const res = await exec(khataIds);

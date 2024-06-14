@@ -1,5 +1,5 @@
 const request = require('supertest');
-const mongoose = require('mongoose');
+const { describe, it, beforeEach, afterEach, expect } = require('@jest/globals');
 
 const { Contact } = require('../../models/contact');
 const { User } = require('../../models/user');
@@ -59,7 +59,7 @@ describe('/api/contact', () => {
 			expect(res.body.message).toBe('"C" must be an array');
 		});
 		//Path-04
-		it('should return 400 if validation inpute failed due to-not a string in phone number', async () => {
+		it('should return 400 if validation input failed due to - not a string in phone number', async () => {
 			payload = {
 				C: [
 					{ P: 1231231231, N: 'name1' },
@@ -71,7 +71,7 @@ describe('/api/contact', () => {
 			expect(res.body.message).toBe('"C[0].P" must be a string');
 		});
 		//Path-05
-		it('should return 400 if validation inpute failed due to-not astring in name ', async () => {
+		it('should return 400 if validation inpute failed due to - not a string in name ', async () => {
 			payload = {
 				C: [
 					{ P: '1231231231', N: true },
@@ -84,6 +84,7 @@ describe('/api/contact', () => {
 		});
 		//Path-06
 		it('should save and but cant return as no user found    ', async () => {
+			payload = {}
 			const res = await exec();
 			//response code 200 and empty error body and non empty response
 			expect(res.status).toBe(404);

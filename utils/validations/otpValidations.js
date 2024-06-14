@@ -25,6 +25,6 @@ const numberSchema = Joi.object({
 });
 
 module.exports = {
-    loginSchema: loginSchema,
-    otpSchema: numberSchema
+    loginSchema,
+    numberSchema: numberSchema
 };

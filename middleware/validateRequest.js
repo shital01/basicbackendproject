@@ -18,13 +18,13 @@ const validateRequest = (schemas) => (req, res, next) => {
     }).filter(validation => validation !== null);
 
     if (validations.length > 0) {
-        logger.error(error.details[0]);
-        dbDebugger(error.details[0].message);
+        logger.error(validations[0].error.details[0]);
+        dbDebugger(validations[0].error.details[0].message);
         return res
             .status(400)
             .send({
                 code: 'validation failed',
-                message: error.details[0].message,
+                message: validations[0].error.details[0].message,
             });
     }
     next();

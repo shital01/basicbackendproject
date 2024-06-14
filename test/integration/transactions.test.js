@@ -1,5 +1,6 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
+const { describe, it, beforeEach, afterEach, expect } = require('@jest/globals');
 
 const { Transaction } = require('../../models/transaction');
 const { User } = require('../../models/user');
@@ -546,7 +547,7 @@ expect(Object.keys(res.body)).toEqual(
 	describe('POST/', () => {
 		let token, toke2, userid;
 		let Isloan, Amount, TransactionDate, Notes;
-		const exec = () => {
+		const execRequest = (t1, t2) => {
 			return request(server)
 				.post('/api/transactions/multiple')
 				.set('x-auth-token', token)
@@ -605,13 +606,13 @@ expect(Object.keys(res.body)).toEqual(
 		//Path-01
 		it('should return 401 if not logged in', async () => {
 			token = '';
-			const res = await exec();
+			const res = await execRequest(t1, t2);
 			expect(res.status).toBe(401);
 		});
 		//Path-02
 		it('should return 400 if invalid token ', async () => {
 			token = '123';
-			const res = await exec();
+			const res = await execRequest(t1, t2);
 			expect(res.status).toBe(400);
 		});
 		//now even if all fail wont get 400 due to muliptle instead unsaved and erorr response check
@@ -620,7 +621,7 @@ expect(Object.keys(res.body)).toEqual(
 		it('should return 400 if validation transaction failed due to date', async () => {
 			t1.transactionDate = 'a';
 			console.log(t1, t2);
-			const res = await exec();
+			const res = await execRequest(t1, t2);
 			//console.log("**************************")
 			console.log(res.body);
 			//console.log("**************************")
@@ -636,7 +637,7 @@ expect(Object.keys(res.body)).toEqual(
 		//Path-04
 		it('should return 400 if validation transaction failed due to amount', async () => {
 			t1.amount = '12da';
-			const res = await exec();
+			const res = await execRequest(t1, t2);
 			expect(res.status).toBe(200);
 			expect(res.body.savedEntries.length).toBe(1);
 			expect(res.body.unsavedEntries.length).toBe(1);
@@ -647,7 +648,7 @@ expect(Object.keys(res.body)).toEqual(
 		//Path-05
 		it('should return 400 if validation transaction failed due to Give/Got Boolean ', async () => {
 			t1.amountGiveBool = '12';
-			const res = await exec();
+			const res = await execRequest(t1, t2);
 			expect(res.status).toBe(200);
 			expect(res.body.savedEntries.length).toBe(1);
 			expect(res.body.unsavedEntries.length).toBe(1);
@@ -659,7 +660,7 @@ expect(Object.keys(res.body)).toEqual(
 		//Path-06
 		it('should return 400 if validation transaction failed due to KhataId ', async () => {
 			t1.khataId = 'asd';
-			const res = await exec();
+			const res = await execRequest(t1, t2);
 			expect(res.status).toBe(200);
 			expect(res.body.savedEntries.length).toBe(1);
 			expect(res.body.unsavedEntries.length).toBe(1);
@@ -670,7 +671,7 @@ expect(Object.keys(res.body)).toEqual(
 		//Path-07
 		it('should return 400 if validation transaction failed due to localId', async () => {
 			t1.localId = null;
-			const res = await exec();
+			const res = await execRequest(t1, t2);
 			expect(res.status).toBe(200);
 			expect(res.body.savedEntries.length).toBe(1);
 			expect(res.body.unsavedEntries.length).toBe(1);
@@ -695,7 +696,7 @@ expect(Object.keys(res.body)).toEqual(
 
 		it('should save and return transaction if valid transaction with no input parameter ', async () => {
 			t1.description = 'just a note'; //make optional first
-			const res = await exec();
+			const res = await execRequest(t1, t2);
 			expect(res.status).toBe(200);
 			//check the save part also
 			//const transaction = await Transaction.find({SenderName:"name1"});
@@ -721,7 +722,7 @@ expect(Object.keys(res.body)).toEqual(
 		it('should save and return transaction if valid transaction with no input parameter but diif nptify ', async () => {
 			t1.description = 'just a note'; //make optional first
 			token = token2;
-			const res = await exec();
+			const res = await execRequest(t1, t2);
 			expect(res.status).toBe(200);
 			//check the save part also
 			//const transaction = await Transaction.find({SenderName:"name1"});
@@ -742,7 +743,7 @@ expect(Object.keys(res.body)).toEqual(
 			t2.amountGiveBool = false; //make optional first
 
 			token = token2;
-			const res = await exec();
+			const res = await execRequest(t1, t2);
 			expect(res.status).toBe(200);
 			//check the save part also
 			//const transaction = await Transaction.find({SenderName:"name1"});
