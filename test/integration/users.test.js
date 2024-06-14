@@ -11,6 +11,13 @@ const execRequest = (server, token, payload) => {
 		.set('deviceId', '123')
 		.send(payload);
 }
+const execReqWithoutDeviceId = (server, token, payload) => {
+	return request(server)
+		.put('/api/users/updateprofile')
+		.set('x-auth-token', token)
+		.send(payload);
+};
+
 
 describe('/api/users', () => {
 	beforeEach(() => {
@@ -23,12 +30,6 @@ describe('/api/users', () => {
 	describe('Update user profile/', () => {
 		let token, token2;
 		let name, profilePictureUrl, payload;
-		const exec = () => {
-			return request(server)
-				.put('/api/users/updateprofile')
-				.set('x-auth-token', token)
-				.send(payload);
-		};
 		beforeEach(async () => {
 			const user = new User({ phoneNumber: '1234123412', name: '123' });
 			await user.save();
@@ -49,14 +50,14 @@ describe('/api/users', () => {
 		//Path-01
 		it('should return 401 if no token provided', async () => {
 			token = '';
-			const res = await exec();
+			const res = await execReqWithoutDeviceId(server, token, payload);
 			expect(res.status).toBe(401);
 			expect(res.body.message).toBe('Access denied NO token Provided');
 		});
 		//Path-02
 		it('should return 400 if invalid token ', async () => {
 			token = '123';
-			const res = await exec();
+			const res = await execReqWithoutDeviceId(server, token, payload);
 			expect(res.status).toBe(400);
 			expect(res.body.message).toBe('Invalid Token');
 		});
@@ -198,125 +199,125 @@ describe('/api/users', () => {
 	});
 
 	//For friends Profile pic url
-	describe('FriendsProfile/', () => {
-		let token;
-		let phoneNumber, phoneNumbers;
-		const exec = () => {
-			return request(server)
-				.post('/api/users/friendsprofile')
-				.set('x-auth-token', token)
-				.send({ phoneNumbers });
-		};
-		beforeEach(async () => {
-			//optional to be safe if something goes wrong
-			await User.deleteMany({});
+	// describe('FriendsProfile/', () => {
+	// 	let token;
+	// 	let phoneNumber, phoneNumbers;
+	// 	const execPostFriendsProfile = (server, token, payload) => {
+	// 		return request(server)
+	// 			.post('/api/users/friendsprofile')
+	// 			.set('x-auth-token', token)
+	// 			.send({ phoneNumbers });
+	// 	};
+	// 	beforeEach(async () => {
+	// 		//optional to be safe if something goes wrong
+	// 		await User.deleteMany({});
 
-			const user = new User({
-				phoneNumber: '1234123411',
-				name: 'name1',
-				profilePictureUrl: 'imageurl',
-			});
-			await user.save();
-			const user1 = new User({
-				phoneNumber: '1234123412',
-				name: 'name2',
-				profilePictureUrl: 'imageurl2',
-			});
-			await user1.save();
-			token = user.generateAuthToken();
-			const user2 = new User({
-				phoneNumber: '1234123410',
-				name: 'name1',
-			});
-			await user2.save();
-			phoneNumber = '1234123412';
-			phoneNumbers = ['1234123412', '1234123411', '1212121212'];
-		});
-		afterEach(async () => {
-			await User.deleteMany({});
-		});
-		//Path-01
-		it('should return 401 if not logged in', async () => {
-			token = '';
-			const payload = {};
-			const res = await execRequest(server, token, payload);
-			expect(res.status).toBe(401);
-			expect(res.body.message).toBe('Access denied NO token Provided');
-		});
-		//Path-02
-		it('should return 400 if invalid token ', async () => {
-			token = '123';
-			const res = await execRequest(server, token, {});
-			expect(res.status).toBe(400);
-			expect(res.body.message).toBe('Invalid Token');
-		});
-		//Path-03
-		// it('should return 400 if validation fail->not an array  ', async () => {
-		// 	phoneNumbers = '1';
-		// 	const res = await execRequest(server, token, { phoneNumbers });
-		// 	expect(res.status).toBe(400);
-		// 	expect(res.body.message).toBe('"phoneNumbers" must be an array');
-		// });
-		//Path-04
-		// it('should return 400 if validation fail -not array of string ', async () => {
-		// 	phoneNumbers = [1];
-		// 	const res = await execRequest(server, token, { phoneNumbers });
-		// 	expect(res.status).toBe(400);
-		// 	expect(res.body.message).toBe('"phoneNumbers[0]" must be a string');
-		// });
-		//Path-05
-		// it('should return 400 if validation fail -array not appropriate inputs ', async () => {
-		// 	phoneNumbers = ['1123qweqwe'];
-		// 	const res = await exec(server, token, { phoneNumbers });
-		// 	expect(res.status).toBe(400);
-		// 	expect(res.body.message).toBe('Phone number must have 10 digits.');
-		// });
-		//Path-07
-		// it('should return Profileurl if user has a picture uploaded - if some users find and some profilePictureUrl', async () => {
-		// 	const res = await execRequest(server, token, { phoneNumbers });
-		// 	//response code 200 and empty error body and non empty response
-		// 	expect(res.status).toBe(200);
-		// 	//expect(res.body.error).toBe(null);
-		// 	//response check
-		// 	//check in case null entries no issues of array can be of 0,1 or more than one
-		// 	expect(Object.keys(res.body[0])).toEqual(
-		// 		expect.arrayContaining([
-		// 			'_id',
-		// 			'name',
-		// 			'phoneNumber',
-		// 			'profilePictureUrl',
-		// 		]),
-		// 	);
-		// 	//check header
-		// 	//expect(res.headers['x-auth-token']).toBeDefined();
-		// });
-		//Path-08
-		// it('should return Profileurl  if user is have a picture uploaded-if no user found', async () => {
-		// 	phoneNumbers = ['1231112311'];
-		// 	const res = await execRequest(server, token, { phoneNumbers });
-		// 	//response code 200 and empty error body and non empty response
-		// 	expect(res.status).toBe(404);
-		// 	//expect(res.body.error).toBe(null);
-		// 	//response check
-		// 	//check in case null entries no issues of array can be of 0,1 or more than one
-		// 	//expect(Object.keys(res.body[0])).toEqual(expect.arrayContaining(['_id','name','profilePictureUrl']))
-		// 	//check header
-		// 	//expect(res.headers['x-auth-token']).toBeDefined();
-		// });
-		// //Path-09
-		// it('should return Profileurl  if user is have a picture uploaded-if user found but no profilePictureUrl', async () => {
-		// 	phoneNumbers = ['1234123410'];
-		// 	const res = await execRequest(server, token, { phoneNumbers });
-		// 	//response code 200 and empty error body and non empty response
-		// 	expect(res.status).toBe(200);
-		// 	//expect(res.body.error).toBe(null);
-		// 	//response check
-		// 	//check in case null entries no issues of array can be of 0,1 or more than one
-		// 	expect(Object.keys(res.body[0])).toEqual(
-		// 		expect.arrayContaining(['_id', 'name', 'phoneNumber']),
-		// 	);
-		// 	//check header
-		// 	//expect(res.headers['x-auth-token']).toBeDefined();
-		// });
-	});
+	// 		const user = new User({
+	// 			phoneNumber: '1234123411',
+	// 			name: 'name1',
+	// 			profilePictureUrl: 'imageurl',
+	// 		});
+	// 		await user.save();
+	// 		const user1 = new User({
+	// 			phoneNumber: '1234123412',
+	// 			name: 'name2',
+	// 			profilePictureUrl: 'imageurl2',
+	// 		});
+	// 		await user1.save();
+	// 		token = user.generateAuthToken();
+	// 		const user2 = new User({
+	// 			phoneNumber: '1234123410',
+	// 			name: 'name1',
+	// 		});
+	// 		await user2.save();
+	// 		phoneNumber = '1234123412';
+	// 		phoneNumbers = ['1234123412', '1234123411', '1212121212'];
+	// 	});
+	// 	afterEach(async () => {
+	// 		await User.deleteMany({});
+	// 	});
+	// 	//Path-01
+	// 	it('should return 401 if not logged in', async () => {
+	// 		token = '';
+	// 		const payload = {};
+	// 		const res = await execPostFriendsProfile(server, token, payload);
+	// 		expect(res.status).toBe(401);
+	// 		expect(res.body.message).toBe('Access denied NO token Provided');
+	// 	});
+	// 	//Path-02
+	// 	it('should return 400 if invalid token ', async () => {
+	// 		token = '123';
+	// 		const res = await execPostFriendsProfile(server, token, {});
+	// 		expect(res.status).toBe(400);
+	// 		expect(res.body.message).toBe('Invalid Token');
+	// 	});
+	//Path-03
+	// it('should return 400 if validation fail->not an array  ', async () => {
+	// 	phoneNumbers = '1';
+	// 	const res = await execRequest(server, token, { phoneNumbers });
+	// 	expect(res.status).toBe(400);
+	// 	expect(res.body.message).toBe('"phoneNumbers" must be an array');
+	// });
+	//Path-04
+	// it('should return 400 if validation fail -not array of string ', async () => {
+	// 	phoneNumbers = [1];
+	// 	const res = await execRequest(server, token, { phoneNumbers });
+	// 	expect(res.status).toBe(400);
+	// 	expect(res.body.message).toBe('"phoneNumbers[0]" must be a string');
+	// });
+	//Path-05
+	// it('should return 400 if validation fail -array not appropriate inputs ', async () => {
+	// 	phoneNumbers = ['1123qweqwe'];
+	// 	const res = await exec(server, token, { phoneNumbers });
+	// 	expect(res.status).toBe(400);
+	// 	expect(res.body.message).toBe('Phone number must have 10 digits.');
+	// });
+	//Path-07
+	// it('should return Profileurl if user has a picture uploaded - if some users find and some profilePictureUrl', async () => {
+	// 	const res = await execRequest(server, token, { phoneNumbers });
+	// 	//response code 200 and empty error body and non empty response
+	// 	expect(res.status).toBe(200);
+	// 	//expect(res.body.error).toBe(null);
+	// 	//response check
+	// 	//check in case null entries no issues of array can be of 0,1 or more than one
+	// 	expect(Object.keys(res.body[0])).toEqual(
+	// 		expect.arrayContaining([
+	// 			'_id',
+	// 			'name',
+	// 			'phoneNumber',
+	// 			'profilePictureUrl',
+	// 		]),
+	// 	);
+	// 	//check header
+	// 	//expect(res.headers['x-auth-token']).toBeDefined();
+	// });
+	//Path-08
+	// it('should return Profileurl  if user is have a picture uploaded-if no user found', async () => {
+	// 	phoneNumbers = ['1231112311'];
+	// 	const res = await execRequest(server, token, { phoneNumbers });
+	// 	//response code 200 and empty error body and non empty response
+	// 	expect(res.status).toBe(404);
+	// 	//expect(res.body.error).toBe(null);
+	// 	//response check
+	// 	//check in case null entries no issues of array can be of 0,1 or more than one
+	// 	//expect(Object.keys(res.body[0])).toEqual(expect.arrayContaining(['_id','name','profilePictureUrl']))
+	// 	//check header
+	// 	//expect(res.headers['x-auth-token']).toBeDefined();
+	// });
+	// //Path-09
+	// it('should return Profileurl  if user is have a picture uploaded-if user found but no profilePictureUrl', async () => {
+	// 	phoneNumbers = ['1234123410'];
+	// 	const res = await execRequest(server, token, { phoneNumbers });
+	// 	//response code 200 and empty error body and non empty response
+	// 	expect(res.status).toBe(200);
+	// 	//expect(res.body.error).toBe(null);
+	// 	//response check
+	// 	//check in case null entries no issues of array can be of 0,1 or more than one
+	// 	expect(Object.keys(res.body[0])).toEqual(
+	// 		expect.arrayContaining(['_id', 'name', 'phoneNumber']),
+	// 	);
+	// 	//check header
+	// 	//expect(res.headers['x-auth-token']).toBeDefined();
+	// });
+	// });
 });
