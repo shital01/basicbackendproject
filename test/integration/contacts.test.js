@@ -1,5 +1,6 @@
 const request = require('supertest');
 const { describe, it, beforeEach, afterEach, expect } = require('@jest/globals');
+const mockingoose = require('mockingoose');
 
 const { Contact } = require('../../models/contact');
 const { User } = require('../../models/user');
@@ -7,6 +8,7 @@ const { User } = require('../../models/user');
 let server;
 describe('/api/contact', () => {
 	beforeEach(() => {
+		mockingoose.resetAll()
 		server = require('../../index');
 	});
 	afterEach(async () => {
@@ -29,11 +31,12 @@ describe('/api/contact', () => {
 			//userid= mongoose.Types.ObjectId();
 			user = new User({ phoneNumber: '1234123412', name: 'name1' });
 			token = user.generateAuthToken();
+			mockingoose(User).toReturn(user, 'findOne');
 
 			payload = {
 				C: [
 					{ P: '1231231231', N: 'name1' },
-					{ P: '1231231232', N: 'name2 ' },
+					{ P: '1231231232', N: 'name2' },
 				],
 			};
 		});
@@ -63,7 +66,7 @@ describe('/api/contact', () => {
 			payload = {
 				C: [
 					{ P: 1231231231, N: 'name1' },
-					{ P: '1231231232', N: 'name2 ' },
+					{ P: '1231231232', N: 'name2' },
 				],
 			};
 			const res = await exec();
@@ -78,6 +81,8 @@ describe('/api/contact', () => {
 					{ P: '1231231232', N: 'name2 ' },
 				],
 			};
+			mockingoose(Contact).toReturn(null, 'insertMany');
+
 			const res = await exec();
 			expect(res.status).toBe(400);
 			expect(res.body.message).toBe('"C[0].N" must be a string');
@@ -104,28 +109,42 @@ describe('/api/contact', () => {
 		// 	//check user flag of contact sedn and size depedn on input and delte after each
 		// });
 		// //Path-07
-		// it('should save and return ContactsSend flag if valid  ', async () => {
-		// 	await user.save();
-
-		// 	const res = await exec();
-		// 	//response code 200 and empty error body and non empty response
-		// 	expect(res.status).toBe(200);
-		// 	//console.log(res)
-		// 	//expect(res.body.error).toBe(null);
-		// 	//response check
-		// 	//expect(res.body).toHaveProperty('contactsSent', true);
-		// 	//check header
-		// 	expect(res.headers['x-auth-token']).toBeDefined();
-		// 	// Check if the user is saved in the database
-		// 	const savedContacts = await Contact.find({}); //from before each picked
-		// 	expect(savedContacts).toBeTruthy(); // Check if the user exists
-		// 	//expect(savedContacts.length).toBe(2);
-		// 	// Add more specific checks
-		// 	//check user flag of contact sedn and size depedn on input and delte after each
-		// 	const savedUser = await User.find({}); //from before each picked
-		// 	console.log(savedUser);
-		// 	expect(savedUser).toBeTruthy();
-		// 	expect(savedUser[0].contactsSent).toBe(true);
-		// });
+		it('should save and return ContactsSend flag if valid  ', async () => {
+			await user.save();
+			mockingoose(Contact).toReturn(null, 'insertMany');
+			const res = await exec();
+			//response code 200 and empty error body and non empty response
+			expect(res.status).toBe(200);
+			//console.log(res)
+			//expect(res.body.error).toBe(null);
+			//response check
+			//expect(res.body).toHaveProperty('contactsSent', true);
+			//check header
+			// expect(res.headers['x-auth-token']).toBeDefined();
+			// Check if the user is saved in the database
+			mockingoose(Contact).toReturn({
+				"P": "{{number1}}",
+				"N": "{{name1}}",
+				"contactProviderNumber": "8879426649",
+				"contactProviderName": "shyam",
+			}, 'find');
+			const savedContacts = await Contact.find({}); //from before each picked
+			expect(savedContacts).toBeTruthy(); // Check if the user exists
+			//expect(savedContacts.length).toBe(2);
+			// Add more specific checks
+			//check user flag of contact sedn and size depedn on input and delte after each
+			mockingoose(User).toReturn([{
+				"_id": {
+					"$oid": "666a9d2c6663c45359edaa9f"
+				},
+				"phoneNumber": "5555511111",
+				"contactsSent": true,
+				"fcmToken": "2",
+				"name": "abc"
+			}], 'find');
+			const savedUser = await User.find({}); //from before each picked
+			expect(savedUser).toBeTruthy();
+			expect(savedUser[0].contactsSent).toBe(true);
+		});
 	});
 });
