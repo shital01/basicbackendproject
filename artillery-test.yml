@@ -1,0 +1,23 @@
+config:
+  target: 'http://localhost:3000'  # The base URL for the test
+  phases:
+    - name: 'warmup'
+      duration: 60              # Test duration in seconds
+      arrivalRate: 50           # Number of new virtual users starting per second
+    - name: 'medium load'
+      duration: 60
+      arrivalRate: 200
+    - name: 'heavy load'
+      duration: 60
+      arrivalRate: 1000
+      
+  defaults:
+    headers:
+      # Define any headers your requests require
+      Content-Type: 'application/json'
+
+scenarios:
+  - flow:
+      - get:
+          url: '/health'              # Relative URL to the target
+          # Optional: You can add more request details here
