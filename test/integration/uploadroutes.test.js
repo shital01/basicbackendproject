@@ -30,10 +30,7 @@ describe('/api/uploadurlrequest', () => {
     let payload;
     beforeEach(async () => {
       payload = {
-        name: '123',
-        profilePictureUrl: '123',
-        fcmToken: '123',
-        contactsSent: true
+        count: 1
       }
     })
     it('should upload successfully', async () => {

@@ -1,12 +1,8 @@
 const Joi = require('joi');
 
 const uploadUrlRequestSchema = Joi.object({
-    name: Joi.string().allow(null, '').max(64),
-    profilePictureUrl: Joi.string().allow(null, ''),
-    fcmToken: Joi.string().allow(null, ''),
-    contactsSent: Joi.boolean(),
+    count: Joi.number().integer().max(4).min(1),
 });
-
 
 module.exports = {
     uploadUrlRequestSchema: uploadUrlRequestSchema
