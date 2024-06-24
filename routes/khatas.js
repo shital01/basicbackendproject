@@ -1,15 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
-const dbDebugger = require('debug')('app:db');
+const { validateRequest } = require('../middleware/validateRequest');
+const { getKhataSchema, unsettleKhataSchema, updateSettleKhataSchema } = require('../utils/validations/khataValidations');
 const {
 	Khata,
 	validate,
-	validateGetKhata,
-	validateUpdateKhata,
-	validateKhata,
-	validateUpdateSettle,
-	validateUnSettle,
 } = require('../models/khata');
 const { User } = require('../models/user');
 const auth = require('../middleware/auth');
@@ -21,33 +16,12 @@ const config = require('config');
 const sendmessage = require('../middleware/sendmessage');
 const sendNotification = require('../middleware/notification');
 
-//Seperate the middel ware of validation
-//validateGetKhata
-// Create separate validation functions
-const validateInput =
-	(schema, query = false) =>
-	(req, res, next) => {
-		const { error } = query ? schema(req.query) : schema(req.body);
-		if (error) {
-			logger.error(error.details[0]);
-			dbDebugger(error.details[0].message);
-			return res
-				.status(400)
-				.send({
-					code: 'validation failed',
-					message: error.details[0].message,
-				});
-		}
-		next();
-	};
-
-//,validateInput(validateGetKhata)
-//PageSize and Page Number to be included in get function
 router.get(
 	'/',
 	auth,
 	device,
-	validateInput(validateGetKhata, true),
+	validateRequest({ query: getKhataSchema }),
+	
 	async (req, res) => {
 		const deviceId = req.header('deviceId');
 
@@ -191,10 +165,9 @@ router.put(
 	'/unsettle',
 	auth,
 	device,
-	validateInput(validateUnSettle),
+	validateRequest({ body: unsettleKhataSchema }),
 	async (req, res) => {
 		const deviceId = req.header('deviceId');
-		const userName = req.user.name;
 		const { khataIds } = req.body;
 		// Update seenStatus to true for the provided transactionIds
 		const updateResult = await Khata.updateMany(
@@ -230,7 +203,7 @@ router.put(
 	'/settle',
 	auth,
 	device,
-	validateInput(validateUpdateSettle),
+	validateRequest({ body: updateSettleKhataSchema }),
 	async (req, res) => {
 		const deviceId = req.header('deviceId');
 		const userName = req.user.name;

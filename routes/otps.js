@@ -1,34 +1,15 @@
 const express = require('express');
-//const _ = require('lodash');
-const jwt = require('jsonwebtoken');
-//const bcrypt = require('bcrypt');
 const config = require('config');
+const { validateRequest } = require('../middleware/validateRequest');
+const { numberSchema, loginSchema } = require('../utils/validations/otpValidations');
 
 const router = express.Router();
-const { Otp, validatelogin, validateNumber } = require('../models/otp');
+const { Otp } = require('../models/otp');
 const { User } = require('../models/user');
 
 const logger = require('../startup/logging');
-const dbDebugger = require('debug')('app:db');
 
 const sendmessage = require('../middleware/sendmessage');
-
-const validateInput = (schema) => (req, res, next) => {
-	const { error } = schema(req.body);
-	if (error) {
-		logger.error(error.details[0]);
-		dbDebugger(error.details[0].message);
-		return res
-			.status(400)
-			.send({
-				code: 'validation failed',
-				message: error.details[0].message,
-			});
-	}
-	next();
-};
-//benefit easy to change code for production
-//also sep numbers for further addig new numbers for testing
 
 const testGenApi = () => (req, res, next) => {
 	if (
@@ -89,7 +70,7 @@ function generateOTP() {
 router.post(
 	'/generate',
 	testGenApi(),
-	validateInput(validateNumber),
+	validateRequest({ body: numberSchema }),
 	async (req, res, next) => {
 		//dummy account direct send true no sms and otp create
 		//const salt = await bcrypt.genSalt(10);
@@ -116,7 +97,7 @@ router.post(
 router.post(
 	'/verify',
 	testLoginApi(),
-	validateInput(validatelogin),
+	validateRequest({ body: loginSchema }),
 	async (req, res) => {
 		//id is same order as date hence
 		console.log(req.body);

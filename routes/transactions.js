@@ -1,14 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
-const dbDebugger = require('debug')('app:db');
 const {
 	Transaction,
-	validate,
 	validate2,
-	validateUpdateTransaction,
-	validateUpdateSeenStatus,
-	validateRequestTransaction,
 } = require('../models/transaction');
 const { User } = require('../models/user');
 const { Khata } = require('../models/khata');
@@ -21,25 +15,9 @@ const logger = require('../startup/logging');
 const sendnotification = require('../middleware/notification');
 const sendmessage = require('../middleware/sendmessage');
 const config = require('config');
+const { validateRequest } = require('../middleware/validateRequest');
+const { getTransactionsSchema, updateSeenStatusSchema } = require('../utils/validations/transactionValidations');
 // Create separate validation functions
-const validateInput =
-	(schema, query = false) =>
-	(req, res, next) => {
-		const { error } = query ? schema(req.query) : schema(req.body);
-		if (error) {
-			//later full print error for db details
-			logger.error(error.details[0]);
-			dbDebugger(error.details[0].message);
-			return res
-				.status(400)
-				.send({
-					code: 'validation failed',
-					message: error.details[0].message,
-				});
-		}
-		next();
-	};
-
 /*
 Input->Auth token
 Output->Objects of Transactions in sorted order
@@ -50,7 +28,7 @@ router.get(
 	'/',
 	auth,
 	device,
-	validateInput(validateRequestTransaction, true),
+	validateRequest({ query: getTransactionsSchema }),
 	async (req, res) => {
 		const deviceId = req.header('deviceId');
 		var timeStamp = Date.now();
@@ -287,7 +265,7 @@ router.put(
 	'/updateSeenStatus',
 	auth,
 	device,
-	validateInput(validateUpdateSeenStatus),
+	validateRequest({ body: updateSeenStatusSchema }),
 	async (req, res) => {
 		const deviceId = req.header('deviceId');
 
@@ -318,7 +296,7 @@ router.put(
 	'/delete',
 	auth,
 	device,
-	validateInput(validateUpdateSeenStatus),
+	validateRequest({ body: updateSeenStatusSchema }),
 	async (req, res) => {
 		const deviceId = req.header('deviceId');
 		const userName = req.user.name;

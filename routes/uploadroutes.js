@@ -2,38 +2,17 @@ const express = require('express');
 const router = express.Router();
 const AWS = require('aws-sdk');
 require('aws-sdk/lib/maintenance_mode_message').suppress = true;
-const Joi = require('joi');
 
 const uuid = require('uuid');
 const auth = require('../middleware/auth');
+const { validateRequest } = require('../middleware/validateRequest');
+const { uploadUrlRequestSchema } = require('../utils/validations/uploadUrlRequestValidations');
 const config = require('config');
 const logger = require('../startup/logging');
 const s3 = new AWS.S3({
 	signatureVersion: 'v4',
 	region: 'ap-south-1',
 });
-// Create separate validation functions
-const validateInput = (schema) => (req, res, next) => {
-	const { error } = schema(req.body);
-	if (error) {
-		dbDebugger(error.details[0].message);
-		logger.error(error.details[0]);
-		return res
-			.status(400)
-			.send({
-				code: 'validation failed',
-				message: error.details[0].message,
-			});
-	}
-	next();
-};
-
-function validateUploadUrlRequest(transaction) {
-	const schema = Joi.object({
-		count: Joi.number().integer().max(4).min(1),
-	});
-	return schema.validate(transaction);
-}
 //what if failed one of 4 fail shoudl be answer
 //otherwise keep tryignwht if reaosn nto resolved infinte loop hce max 4 try is reason -not while loop
 //either send all or max 3 send
@@ -45,7 +24,7 @@ function validateUploadUrlRequest(transaction) {
 router.get(
 	'/multiple',
 	auth,
-	validateInput(validateUploadUrlRequest),
+	validateRequest({ body: uploadUrlRequestSchema }),
 	async (req, res) => {
 		//add validation as notmore than 4
 		const numberOfPresignedURLs = req.body.count || 1; // Get the number of URLs from the query parameter (default to 1 if not provided)

@@ -3,5 +3,12 @@
 	"db": "mongodb://localhost/playground_tests",
 	"file1": "combined.log",
 	"file2": "exception.log",
-	"file3": "rejections.log"
+	"file3": "rejections.log",
+	"userid": "BK_userid",
+	"password": "BK_password",
+	"templateIdDebit": "BK_templateIdDebit",
+	"templateIdCredit": "BK_templateIdCredit",
+	"templateIdDelete": "BK_templateIdDelete",
+	"templateIdSettle": "BK_templateIdSettle",
+	"templateIdOtp": "BK_templateIdOtp"
 }

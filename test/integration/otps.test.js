@@ -1,9 +1,9 @@
 const request = require('supertest');
 const { Otp } = require('../../models/otp');
-const bcrypt = require('bcrypt');
 const { User } = require('../../models/user');
-const mongoose = require('mongoose');
+const { describe, it, beforeEach, afterEach, expect } = require('@jest/globals');
 let server;
+
 /*
 validation paths ->all variable and all constrain
 less field or more fields
@@ -25,7 +25,7 @@ describe('/api/otps', () => {
 	});
 	describe('GET /', () => {
 		let phoneNumber;
-		const exec = () => {
+		const execRequest = (server, phoneNumber) => {
 			return request(server)
 				.post('/api/otps/generate')
 				.send({ phoneNumber });
@@ -37,35 +37,35 @@ describe('/api/otps', () => {
 		//Path-01
 		it('should return 400 if validation OTP failed due to short number', async () => {
 			phoneNumber = '1'; //all phonemnumebein one for loop
-			const res = await exec();
+			const res = await execRequest(server, phoneNumber);
 			expect(res.status).toBe(400);
 			expect(res.body.message).toBe('Phone number must have 10 digits.');
 		});
 		//Path-02
 		it('should return 400 if validation OTP failed due to long number', async () => {
 			phoneNumber = '12345678901';
-			const res = await exec();
+			const res = await execRequest(server, phoneNumber);
 			expect(res.status).toBe(400);
 			expect(res.body.message).toBe('Phone number must have 10 digits.');
 		});
 		//Path-03//Non String Path
 		it('should return 400 if validation OTP failed due to invalid type as digit', async () => {
 			phoneNumber = 1;
-			const res = await exec();
+			const res = await execRequest(server, phoneNumber);
 			expect(res.status).toBe(400);
 			expect(res.body.message).toBe('"phoneNumber" must be a string');
 		});
 		//Path-04//RegEx Paths
 		it('should return 400 if validation OTP failed due to invalid number as string', async () => {
 			phoneNumber = '12345qwert';
-			const res = await exec();
+			const res = await execRequest(server, phoneNumber);
 			expect(res.status).toBe(400);
 			expect(res.body.message).toBe('Phone number must have 10 digits.');
 		});
 		//Path-05//Required Path?
 		it('should return 400 if validation OTP failed due to null', async () => {
 			phoneNumber = null;
-			const res = await exec();
+			const res = await execRequest(server, phoneNumber);
 			expect(res.status).toBe(400);
 			expect(res.body.message).toBe('"phoneNumber" must be a string');
 		});
@@ -73,7 +73,8 @@ describe('/api/otps', () => {
 		//Add path for testing numbers
 		//Add export varible to avoid sms send error
 		it('should save otp if valid otp', async () => {
-			const res = await exec();
+			phoneNumber = '1234567890';
+			const res = await execRequest(server, phoneNumber);
 			console.log(phoneNumber);
 			console.log(res.body);
 			expect(res.status).toBe(200);
@@ -93,7 +94,7 @@ describe('/api/otps', () => {
 		let phoneNumber;
 		let OTPhashed;
 		let phoneNumber1, phoneNumber2, phoneNumber3;
-		const exec = () => {
+		const execRequest = (server, otp, phoneNumber) => {
 			return request(server)
 				.post('/api/otps/verify')
 				.send({ otp, phoneNumber });
@@ -117,21 +118,21 @@ describe('/api/otps', () => {
 		//Path-01
 		it('should return 400 if validation OTP failed due to in valid phoneNumber length', async () => {
 			phoneNumber = '1';
-			const res = await exec();
+			const res = await execRequest(server, otp, phoneNumber);
 			expect(res.status).toBe(400);
 			expect(res.body.message).toBe('Phone number must have 10 digits.');
 		});
 		//Path-02
 		it('should return 400 if validation OTP failed due to in valid phoneNumber RegEx', async () => {
 			phoneNumber = '12345qwert';
-			const res = await exec();
+			const res = await execRequest(server, otp, phoneNumber);
 			expect(res.status).toBe(400);
 			expect(res.body.message).toBe('Phone number must have 10 digits.');
 		});
 		//Path-03
 		it('should return 400 if validation OTP failed due to in valid phoneNumber not as string', async () => {
 			phoneNumber = 1234567890;
-			const res = await exec();
+			const res = await execRequest(server, otp, phoneNumber);
 			expect(res.status).toBe(400);
 			expect(res.body.message).toBe('"phoneNumber" must be a string');
 		});
@@ -139,7 +140,7 @@ describe('/api/otps', () => {
 		it('should return 400 if validation OTP failed due to OTP digits', async () => {
 			otp = '1';
 			phoneNumber = phoneNumber1;
-			const res = await exec();
+			const res = await execRequest(server, otp, phoneNumber);
 			expect(res.status).toBe(400);
 			expect(res.body.message).toBe('OTP  must have 4 digits.');
 		});
@@ -147,7 +148,7 @@ describe('/api/otps', () => {
 		it('should return 400 if validation OTP failed due to OTP as string', async () => {
 			otp = '1as3';
 			phoneNumber = phoneNumber1;
-			const res = await exec();
+			const res = await execRequest(server, otp, phoneNumber);
 			expect(res.status).toBe(400);
 			expect(res.body.message).toBe('OTP  must have 4 digits.');
 		});
@@ -155,7 +156,7 @@ describe('/api/otps', () => {
 		it('should return 400 if validation OTP failed due to OTP invalid format and phonenumber', async () => {
 			otp = '1';
 			phoneNumber = '123';
-			const res = await exec();
+			const res = await execRequest(server, otp, phoneNumber);
 			expect(res.status).toBe(400);
 			expect(res.body.message).toBe('Phone number must have 10 digits.');
 
@@ -169,7 +170,7 @@ describe('/api/otps', () => {
 				{ phoneNumber: phoneNumber2, otp: otp },
 			]);
 			phoneNumber = phoneNumber3;
-			const res = await exec();
+			const res = await execRequest(server, otp, phoneNumber);
 			expect(res.status).toBe(404);
 			expect(res.body.message).toBe('Invalid OTP');
 		});
@@ -181,7 +182,7 @@ describe('/api/otps', () => {
 			]);
 			phoneNumber = phoneNumber1;
 			otp = '1111';
-			const res = await exec();
+			const res = await execRequest(server, otp, phoneNumber);
 			expect(res.status).toBe(404);
 			expect(res.body.message).toBe('Invalid OTP');
 		});
@@ -192,7 +193,7 @@ describe('/api/otps', () => {
 				{ phoneNumber: phoneNumber2, otp: otp },
 			]);
 			phoneNumber = phoneNumber1;
-			const res = await exec();
+			const res = await execRequest(server, otp, phoneNumber);
 			//response code 200 and empty error body and non empty response
 			expect(res.status).toBe(200);
 			//expect(res.body.error).toBe(null);
@@ -219,7 +220,7 @@ describe('/api/otps', () => {
 				{ phoneNumber: phoneNumber3, name: 'name1' },
 			]);
 			phoneNumber = phoneNumber3;
-			const res = await exec();
+			const res = await execRequest(server, otp, phoneNumber);
 			expect(res.status).toBe(404);
 			expect(res.body.message).toBe('Invalid OTP');
 		});
@@ -235,7 +236,7 @@ describe('/api/otps', () => {
 			]);
 			phoneNumber = phoneNumber1;
 			otp = '1111';
-			const res = await exec();
+			const res = await execRequest(server, otp, phoneNumber);
 			expect(res.status).toBe(404);
 			expect(res.body.message).toBe('Invalid OTP');
 		});
@@ -250,7 +251,7 @@ describe('/api/otps', () => {
 				{ phoneNumber: phoneNumber3, name: 'name1' },
 			]);
 			phoneNumber = phoneNumber1;
-			const res = await exec();
+			const res = await execRequest(server, otp, phoneNumber);
 			//response code 200 and empty error body and non empty response
 			expect(res.status).toBe(200);
 			//expect(res.body.error).toBe(null);
