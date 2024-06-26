@@ -10,6 +10,7 @@ const contacts = require('../routes/contact');
 const admin = require('../routes/admin');
 const test5 = require('../routes/testscript/test5');
 const development = require('../routes/development');
+const analytics = require('../routes/analytics');
 
 const helmet = require('helmet');
 const error = require('../middleware/error');
@@ -30,6 +31,7 @@ module.exports = function (app) {
 	app.use('/api/admin', admin);
 	app.use('/api/dev', development);
 	app.use('/api/calculation', test5);
+	app.use('/api/analytics', analytics);
 
 	app.use(error);
 };
