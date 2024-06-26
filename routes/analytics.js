@@ -117,24 +117,31 @@ router.get('/transactionsInLastnDays', async (req, res) => {
 
 router.get('/usersWithAtLeastnTransactions', async (req, res) => {
     try {
-        const usersWithAtLeast0Transactions = User.countDocuments({
-            transactions: {
-                $gt: 0
+        const usersWithAtLeastnTransactions = await Transaction.aggregate([
+            {
+                $group: {
+                    _id: '$userId', transactionCount: { $sum: 1 }
+                },
+            },
+            {
+                $facet: {
+                    usersWithAtLeast0Transactions: [
+                        { $match: { transactionCount: { $gt: 0 } } },
+                        { $count: 'count' }
+                    ],
+                    usersWithAtLeast10Transactions: [
+                        { $match: { transactionCount: { $gt: 10 } } },
+                        { $count: 'count' }
+                    ],
+                    usersWithAtLeast100Transactions: [
+                        { $match: { transactionCount: { $gt: 100 } } },
+                        { $count: 'count' }
+                    ]
+                }
             }
-        });
-        const usersWithAtLeast10Transactions = User.countDocuments({
-            transactions: {
-                $gt: 10
-            }
-        });
-        const usersWithAtLeast100Transactions = User.countDocuments({
-            transactions: {
-                $gt: 100
-            }
-        });
-        const response = await Promise.all([usersWithAtLeast0Transactions, usersWithAtLeast10Transactions, usersWithAtLeast100Transactions]);
+        ]);
 
-        res.status(200).send({ usersWithAtLeast0Transactions: response[0], usersWithAtLeast10Transactions: response[1], usersWithAtLeast100Transactions: response[2] });
+        res.status(200).send(usersWithAtLeastnTransactions);
     } catch (error) {
         res.status(500).send(error);
     }
@@ -142,27 +149,27 @@ router.get('/usersWithAtLeastnTransactions', async (req, res) => {
 
 router.get('/usersWithAtLeastnKhatas', async (req, res) => {
     try {
-        const usersWithMoreThan0Khatas = User.countDocuments({
-            khatas: {
-                $gt: 0
+        const usersWithMoreThan0Khatas = await Khata.aggregate([
+            {
+                $group: {
+                    _id: '$userId', khatasCount: { $sum: 1 }
+                },
+            },
+            {
+                $facet: {
+                    usersWithMoreThan0Khatas: [
+                        { $match: { khatasCount: { $gt: 0 } } },
+                        { $count: 'count' }
+                    ],
+                    usersWithMoreThan5Khatas: [
+                        { $match: { khatasCount: { $gt: 5 } } },
+                        { $count: 'count' }
+                    ],
+                }
             }
-        });
+        ]);
 
-        const usersWithAtLeast10Khatas = User.countDocuments({
-            khatas: {
-                $gt: 10
-            }
-        });
-
-        const usersWithAtLeast100Khatas = User.countDocuments({
-            khatas: {
-                $gt: 100
-            }
-        });
-
-        const usersWithAtLeastnKhatas = await Promise.all([usersWithMoreThan0Khatas, usersWithAtLeast10Khatas, usersWithAtLeast100Khatas]);
-
-        res.status(200).send({ usersWithMoreThan0Khatas: usersWithAtLeastnKhatas[0], usersWithAtLeast10Khatas: usersWithAtLeastnKhatas[1], usersWithAtLeast100Khatas: usersWithAtLeastnKhatas[2] });
+        res.status(200).send(usersWithMoreThan0Khatas);
     } catch (error) {
         res.status(500).send(error);
     }
@@ -196,7 +203,7 @@ router.get('/averageKhatasPerUser', async (req, res) => {
 
 router.get('/usersActiveInLast30Days', async (req, res) => {
     try {
-        const usersActiveInLast30Days = await User.countDocuments({
+        const usersActiveInLast30Days = await Transaction.countDocuments({
             updatedTimeStamp: {
                 $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
             }
