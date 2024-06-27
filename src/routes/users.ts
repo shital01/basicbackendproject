@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 //instead of app word router is used
 const router = express.Router();
 const { User } = require('../models/user');
@@ -13,7 +13,7 @@ router.put(
 	auth,
 	device,
 	validateRequest({ body: userSchema }),
-	async (req, res) => {
+	async (req: any, res: any) => {
 		const user = await User.findById(req.user._id);
 		//console.log(req.body)
 
@@ -52,7 +52,7 @@ router.put(
 );
 /*
 //friendsprofile pic
-router.post('/friendsprofile',auth,validateInput(validateNumbers),async(req,res)=>{
+router.post('/friendsprofile',auth,validateInput(validateNumbers),async(req: any,res: any)=>{
 	//add limit on size of array to handle unexpected long requests-also decided by server as not size but query return time also a factor
 	const users = await User.find({phoneNumber: { $in: req.body.phoneNumbers}}).select("phoneNumber profilePictureUrl name")
 	if(users.length===0) { res.status(404).send({message:'No User exits'})}

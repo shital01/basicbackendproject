@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 const AWS = require('aws-sdk');
 require('aws-sdk/lib/maintenance_mode_message').suppress = true;
@@ -24,7 +24,7 @@ router.get(
 	'/multiple',
 	auth,
 	validateRequest({ body: uploadUrlRequestSchema }),
-	async (req, res) => {
+	async (req: any, res: any) => {
 		//add validation as notmore than 4
 		const numberOfPresignedURLs = req.body.count || 1; // Get the number of URLs from the query parameter (default to 1 if not provided)
 		const presignedURLs = [];

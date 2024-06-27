@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const config = require('config');
 import logger from '../startup/logging';
-function device(req, res, next) {
+function device(req: any, res, next) {
 	const deviceId = req.header('deviceId');
 	if (!deviceId) {
 		logger.error('Access denied NO deviceId Provided');

@@ -1,5 +1,7 @@
 import Joi from 'joi';
-Joi.objectId = require('joi-objectid')(Joi);
+import JoiObjectId from "joi-objectid";
+const myJoiObjectId = JoiObjectId(Joi);
+
 
 const loginSchema = Joi.object({
     phoneNumber: Joi.string()

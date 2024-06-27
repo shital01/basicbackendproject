@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const config = require('config');
 import logger from '../startup/logging';
-function auth(req, res, next) {
+function auth(req: any, res, next) {
 	const token = req.header('x-auth-token');
 	if (!token) {
 		logger.error('Access denied NO token Provided');

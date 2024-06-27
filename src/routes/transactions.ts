@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 const {
 	Transaction,
@@ -28,7 +28,7 @@ router.get(
 	auth,
 	device,
 	validateRequest({ query: getTransactionsSchema }),
-	async (req, res) => {
+	async (req: any, res: any) => {
 		const deviceId = req.header('deviceId');
 		var timeStamp = Date.now();
 		//adding default pagesize and pagenumber as of now in btoh get api for safety
@@ -38,7 +38,7 @@ router.get(
 		var lastUpdatedTimeStamp;
 		var transactions;
 		if (req.query.pageNumber) {
-			pageNumber = req.query.pageNumber;
+			pageNumber = parseInt(req.query.pageNumber);
 		}
 		if (req.query.pageSize) {
 			pageSize = req.query.pageSize;
@@ -111,7 +111,7 @@ router.get(
 		const { deletedEntries, newEntries } = categorizedEntries;
 
 		if (transactions.length == pageSize) {
-			nextPageNumber = parseInt(pageNumber) + 1;
+			nextPageNumber = pageNumber + 1;
 			res.send({
 				nextPageNumber: nextPageNumber,
 				deletedEntries,
@@ -127,7 +127,7 @@ router.get(
 //muliptle psot
 //must limit size of this qeury frontend and backedn
 //test for mulitple and khata scripts
-router.post('/multiple', auth, device, async (req, res) => {
+router.post('/multiple', auth, device, async (req: any, res: any) => {
 	const userId = req.user._id;
 	const deviceId = req.header('deviceId');
 
@@ -265,7 +265,7 @@ router.put(
 	auth,
 	device,
 	validateRequest({ body: updateSeenStatusSchema }),
-	async (req, res) => {
+	async (req: any, res: any) => {
 		const deviceId = req.header('deviceId');
 
 		const { transactionIds } = req.body;
@@ -296,7 +296,7 @@ router.put(
 	auth,
 	device,
 	validateRequest({ body: updateSeenStatusSchema }),
-	async (req, res) => {
+	async (req: any, res: any) => {
 		const deviceId = req.header('deviceId');
 		const userName = req.user.name;
 		const myPhoneNumber = req.user.phoneNumber;

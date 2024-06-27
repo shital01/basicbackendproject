@@ -1,7 +1,7 @@
 //Only development Apis
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const dbDebugger = require('debug')('app:db');
 const { Khata } = require('../models/khata');
 const { Transaction } = require('../models/transaction');
@@ -9,7 +9,7 @@ const { User } = require('../models/user');
 const auth = require('../middleware/auth');
 
 //Development Only
-router.delete('/deleteAllKhatas', auth, async (req, res) => {
+router.delete('/deleteAllKhatas', auth, async (req: any, res: any) => {
 	// Assuming userId is passed as a parameter in the URL
 	const userId = req.user._id || req.body.id;
 	// Delete all khatas associated with the given userId
@@ -18,27 +18,27 @@ router.delete('/deleteAllKhatas', auth, async (req, res) => {
 	// Handle any errors that might occur during deletion
 });
 
-router.delete('/deleteAllTransactions', auth, async (req, res) => {
+router.delete('/deleteAllTransactions', auth, async (req: any, res: any) => {
 	const userId = req.user._id || req.body.id;
 	const deletionResult = await Transaction.deleteMany({ userId: userId });
 	res.send('done deleted');
 });
 
-router.post('/fakelogin', async (req, res) => {
+router.post('/fakelogin', async (req: any, res: any) => {
 	const user = new User(req.body);
 	const output = await user.save();
 	const token = output.generateAuthToken();
 	res.header('x-auth-token', token).send(output);
 });
 
-router.post('/fakedelete', async (req, res) => {
+router.post('/fakedelete', async (req: any, res: any) => {
 	await Khata.deleteMany({ userPhoneNumber: req.body.phoneNumber });
 	await Khata.deleteMany({ friendPhoneNumber: req.body.phoneNumber });
 	let user = await User.remove({ phoneNumber: req.body.phoneNumber }); //for token regeneration hence not one lien do
 	res.send(user);
 });
 
-router.put('/removenameandprofile', auth, async (req, res) => {
+router.put('/removenameandprofile', auth, async (req: any, res: any) => {
 	let user = await User.findById(req.user._id); //for token regeneration hence not one lien do
 	if (!user) {
 		res.status(400).send({ message: 'No User exits' });
@@ -63,7 +63,7 @@ so depending on how client handle can proceed or skip other wise customized erro
 or alternate good client check and joi validatio and use this for default another api for single for more customize error response in case of invalid+saved<Entries
 */
 /*
-router.post('/multiple2',auth,async(req,res)=>{
+router.post('/multiple2',auth,async(req: any,res: any)=>{
   //const result = validateKhataArray(req.body);
     //get id and Number form user object so to imply safety (allowed Api and same time consistency of id as not from client)
   const userId = req.user._id;

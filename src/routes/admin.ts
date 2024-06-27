@@ -1,7 +1,7 @@
-const express = require('express');
+import express from 'express';
 //instead of app word router is used
 const router = express.Router();
-const Joi = require('joi');
+import Joi from 'joi';
 const config = require('config');
 const { User } = require('../models/user');
 const { Transaction } = require('../models/transaction');
@@ -27,13 +27,13 @@ const dbDebugger = require('debug')('app:db');
 //last x days users-TODO
 //last x days made transactions
 
-router.get('/GetUsers', async (req, res) => {
+router.get('/GetUsers', async (req: any, res: any) => {
 	//,{name:1,phoneNumber:1}
 	let users = await User.find({}); //for token regeneration hence not one lien do
 	res.header().send({ error: null, response: users });
 });
 
-router.get('/GetTransactions', async (req, res) => {
+router.get('/GetTransactions', async (req: any, res: any) => {
 	const page = parseInt(req.body.page) || 1; // Current page number, default is 1
 	const limit = parseInt(req.body.limit) || 5000; // Number of transactions per page, default is 10
 
@@ -61,23 +61,23 @@ router.get('/GetTransactions', async (req, res) => {
 	}
 });
 
-router.get('/GetKhatas', async (req, res) => {
+router.get('/GetKhatas', async (req: any, res: any) => {
 	//,{SenderName:1,ReceiverName:1,Amount:1,Notes:1
 	let users = await Khata.find({}); //for token regeneration hence not one lien do
 	res.header().send({ error: null, response: users });
 });
 
-router.get('/TotalUsers', async (req, res) => {
+router.get('/TotalUsers', async (req: any, res: any) => {
 	let users = await User.count();
 	res.header().send({ error: null, response: users });
 });
 
-router.get('/TotalTransactions', async (req, res) => {
+router.get('/TotalTransactions', async (req: any, res: any) => {
 	let users = await Transaction.count();
 	res.header().send({ error: null, response: users });
 });
 
-router.get('/TenPlusCount', async (req, res) => {
+router.get('/TenPlusCount', async (req: any, res: any) => {
 	let counts = await Transaction.aggregate([
 		{
 			$group: {
@@ -100,7 +100,7 @@ router.get('/TenPlusCount', async (req, res) => {
 	res.header().send({ error: null, response: counts });
 });
 
-router.get('/FivePlusCount', async (req, res) => {
+router.get('/FivePlusCount', async (req: any, res: any) => {
 	let counts = await Transaction.aggregate([
 		{
 			$group: {
@@ -129,7 +129,7 @@ router.get('/FivePlusCount', async (req, res) => {
 	res.header().send({ error: null, response: counts });
 });
 
-router.get('/FivPlusCount', async (req, res) => {
+router.get('/FivPlusCount', async (req: any, res: any) => {
 	let counts = await Transaction.aggregate([
 		{
 			$group: {
@@ -168,7 +168,7 @@ router.get('/FivPlusCount', async (req, res) => {
 //last day,last week,last month transactions
 //Count 1,7,30
 
-router.get('/LastTransactionCount', async (req, res) => {
+router.get('/LastTransactionCount', async (req: any, res: any) => {
 	const days = req.body.Count;
 	const oneWeekAgo = new Date();
 	oneWeekAgo.setDate(oneWeekAgo.getDate() - days);
@@ -196,7 +196,7 @@ router.get('/LastTransactionCount', async (req, res) => {
 });
 //
 
-router.get('/LastUserCount', async (req, res) => {
+router.get('/LastUserCount', async (req: any, res: any) => {
 	const days = req.body.Count;
 
 	const today = new Date();
@@ -227,7 +227,7 @@ router.get('/LastUserCount', async (req, res) => {
 });
 
 //Dummy Active USer
-router.get('/LastActiveCount', async (req, res) => {
+router.get('/LastActiveCount', async (req: any, res: any) => {
 	const days = req.body.Count;
 
 	const today = new Date();

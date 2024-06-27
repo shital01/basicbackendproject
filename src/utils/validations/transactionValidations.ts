@@ -1,6 +1,6 @@
 import Joi from 'joi';
-Joi.objectId = require('joi-objectid')(Joi);
-
+import JoiObjectId from "joi-objectid";
+const myJoiObjectId = JoiObjectId(Joi);
 
 const getTransactionsSchema = Joi.object({
     lastUpdatedTimeStamp: Joi.date().timestamp('unix'),
@@ -9,7 +9,7 @@ const getTransactionsSchema = Joi.object({
 });
 
 const updateSeenStatusSchema = Joi.object({
-    transactionIds: Joi.array().items(Joi.objectId().required()),
+    transactionIds: Joi.array().items(myJoiObjectId().required()),
 });
 
 const transactionSchema = Joi.object({
@@ -20,7 +20,7 @@ const transactionSchema = Joi.object({
         .max(1000000000)
         .required(),
     amountGiveBool: Joi.boolean(),
-    khataId: Joi.objectId().required(),
+    khataId: myJoiObjectId().required(),
     description: Joi.string().allow(null, '').max(500),
     attachmentsPath: Joi.array().items(Joi.string()).max(4),
 });
@@ -33,7 +33,7 @@ const transactionSchema2 = Joi.object({
         .max(1000000000)
         .required(),
     amountGiveBool: Joi.boolean(),
-    khataId: Joi.objectId().required(),
+    khataId: myJoiObjectId().required(),
     description: Joi.string().allow(null, '').max(500),
     attachmentsPath: Joi.array().items(Joi.string()).max(4),
     localId: Joi.string().required(),

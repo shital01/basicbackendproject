@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 const { Contact } = require('../models/contact');
 const { contactSchema } = require('../utils/validations/contactValidations');
@@ -9,10 +9,10 @@ const auth = require('../middleware/auth');
 //keep track so extra not send and also reduce return data,version 2 as not inconsistency occurs
 //use C,P,N to reduce size
 //check size of array for limitation
-router.post('/addcontacts', auth, validateRequest({ body: contactSchema }), async (req, res, next) => {
+router.post('/addcontacts', auth, validateRequest({ body: contactSchema }), async (req: any, res, next) => {
 	req.body.CN = req.user.name;
 	req.body.CP = req.user.phoneNumber;
-	documents = req.body.C; //Contacts
+	const documents = req.body.C; //Contacts
 	//console.log('CP:', req.body.CP);
 	//console.log('CN:', req.body.CN);
 

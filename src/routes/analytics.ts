@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 
 const router = express.Router();
 
@@ -7,25 +7,25 @@ const { Transaction } = require('../models/transaction');
 const { Khata } = require('../models/khata');
 
 
-router.get('/numberOfUsers', async (req, res) => {
+router.get('/numberOfUsers', async (req: any, res: any) => {
     const numberOfUsers = await User.countDocuments();
 
     res.status(200).send({ numberOfUsers });
 });
 
-router.get('/numberOfKhatas', async (req, res) => {
+router.get('/numberOfKhatas', async (req: any, res: any) => {
     const numberOfKhatas = await Khata.countDocuments();
 
     res.status(200).send({ numberOfKhatas });
 });
 
-router.get('/numberOfTransactions', async (req, res) => {
+router.get('/numberOfTransactions', async (req: any, res: any) => {
     const numberOfTransactions = await Transaction.countDocuments();
 
     res.status(200).send({ numberOfTransactions });
 });
 
-router.get('/usersInLastnDays', async (req, res) => {
+router.get('/usersInLastnDays', async (req: any, res: any) => {
     const usersInLast30Days = User.countDocuments({
         createdAt: {
             $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
@@ -47,7 +47,7 @@ router.get('/usersInLastnDays', async (req, res) => {
     res.status(200).send({ usersInLast30Days: response[0], usersInLast60Days: response[1], usersInLast90Days: response[2] });
 });
 
-router.get('/khatasInLastnDays', async (req, res) => {
+router.get('/khatasInLastnDays', async (req: any, res: any) => {
     const khatasInLast30Days = Khata.countDocuments({
         updatedTimeStamp: {
             $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
@@ -69,7 +69,7 @@ router.get('/khatasInLastnDays', async (req, res) => {
     res.status(200).send({ khatasInLast30Days: response[0], khatasInLast60Days: response[1], khatasInLast90Days: response[2] });
 });
 
-router.get('/transactionsInLastnDays', async (req, res) => {
+router.get('/transactionsInLastnDays', async (req: any, res: any) => {
     const transactionsInLast30Days = Transaction.countDocuments({
         updatedTimeStamp: {
             $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
@@ -91,7 +91,7 @@ router.get('/transactionsInLastnDays', async (req, res) => {
     res.status(200).send({ transactionsInLast30Days: response[0], transactionsInLast60Days: response[1], transactionsInLast90Days: response[2] });
 });
 
-router.get('/usersWithAtLeastnTransactions', async (req, res) => {
+router.get('/usersWithAtLeastnTransactions', async (req: any, res: any) => {
     const usersWithAtLeastnTransactions = await Transaction.aggregate([
         {
             $group: {
@@ -119,7 +119,7 @@ router.get('/usersWithAtLeastnTransactions', async (req, res) => {
     res.status(200).send(usersWithAtLeastnTransactions);
 });
 
-router.get('/usersWithAtLeastnKhatas', async (req, res) => {
+router.get('/usersWithAtLeastnKhatas', async (req: any, res: any) => {
     const usersWithMoreThan0Khatas = await Khata.aggregate([
         {
             $group: {
@@ -143,7 +143,7 @@ router.get('/usersWithAtLeastnKhatas', async (req, res) => {
     res.status(200).send(usersWithMoreThan0Khatas);
 });
 
-router.get('/averageTransactionsPerUser', async (req, res) => {
+router.get('/averageTransactionsPerUser', async (req: any, res: any) => {
     const numberOfTransactions = await Transaction.countDocuments();
     const numberOfUsers = await User.countDocuments();
 
@@ -152,7 +152,7 @@ router.get('/averageTransactionsPerUser', async (req, res) => {
     res.status(200).send({ averageTransactionsPerUser });
 });
 
-router.get('/averageKhatasPerUser', async (req, res) => {
+router.get('/averageKhatasPerUser', async (req: any, res: any) => {
     const numberOfKhatas = await Khata.countDocuments();
     const numberOfUsers = await User.countDocuments();
 
@@ -161,7 +161,7 @@ router.get('/averageKhatasPerUser', async (req, res) => {
     res.status(200).send({ averageKhatasPerUser });
 });
 
-router.get('/usersActiveInLast30Days', async (req, res) => {
+router.get('/usersActiveInLast30Days', async (req: any, res: any) => {
     const usersActiveInLast30Days = await Transaction.countDocuments({
         updatedTimeStamp: {
             $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),

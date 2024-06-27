@@ -1,5 +1,5 @@
 const request = require('supertest');
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { User } = require('../../models/user');
 const { Khata } = require('../../models/khata');
 const { describe, it, beforeEach, afterEach, expect } = require('@jest/globals');

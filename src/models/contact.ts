@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const Joi = require('joi');
+import mongoose from 'mongoose';
+import Joi from 'joi';
 //bit of in consistence as Joi crieteria is more strict to mongoose schema required statement
 
 const ContactSchema = new mongoose.Schema({

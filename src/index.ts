@@ -1,6 +1,6 @@
 const startupDebugger = require('debug')('app:startup');
 const dbDebugger = require('debug')('app:db');
-const express = require('express');
+import express from 'express';
 const app = express();
 const winston = require('winston');
 
@@ -14,7 +14,7 @@ if (
 	app.get('env') === 'development'
 ) {
 	require('./startup/prod')(app);
-	app.use((req, res, next) => {
+	app.use((req: any, res, next) => {
 		const start = Date.now();
 		res.on('finish', () => {
 			const responseTime = Date.now() - start;
@@ -36,7 +36,7 @@ if (
 	});
 }
 // Define a health check route
-app.get('/health', (req, res) => {
+app.get('/health', (req: any, res: any) => {
 	// You can perform custom health checks here
 	// For a basic health check, you can just send a success response
 	res.status(200).send('Health check passed');
@@ -62,7 +62,7 @@ require('./startup/validate')();
 
 //not work as already return otherwise move this code it will show authentication
 /*
-app.use(function(req,res,next){
+app.use(function(req: any,res,next){
 	winston.info('authentication ...');
 	next();
 });

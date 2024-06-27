@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 const config = require('config');
 const { validateRequest } = require('../middleware/validateRequest');
 const { numberSchema, loginSchema } = require('../utils/validations/otpValidations');
@@ -10,7 +10,7 @@ const { User } = require('../models/user');
 import logger from '../startup/logging';
 const sendmessage = require('../middleware/sendmessage');
 
-const testGenApi = () => (req, res, next) => {
+const testGenApi = () => (req: any, res, next) => {
 	if (
 		req.body.phoneNumber === '5555543210' ||
 		req.body.phoneNumber === '5555566666' ||
@@ -23,7 +23,7 @@ const testGenApi = () => (req, res, next) => {
 	}
 	next();
 };
-const testLoginApi = () => async (req, res, next) => {
+const testLoginApi = () => async (req: any, res, next) => {
 	if (
 		(req.body.phoneNumber === '5555543210' ||
 			req.body.phoneNumber === '5555566666' ||
@@ -70,7 +70,7 @@ router.post(
 	'/generate',
 	testGenApi(),
 	validateRequest({ body: numberSchema }),
-	async (req, res, next) => {
+	async (req: any, res, next) => {
 		//dummy account direct send true no sms and otp create
 		//const salt = await bcrypt.genSalt(10);
 		const smsotp = generateOTP();
@@ -97,7 +97,7 @@ router.post(
 	'/verify',
 	testLoginApi(),
 	validateRequest({ body: loginSchema }),
-	async (req, res) => {
+	async (req: any, res: any) => {
 		//id is same order as date hence
 		console.log(req.body);
 		const otps = await Otp.find({

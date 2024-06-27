@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 const { validateRequest } = require('../middleware/validateRequest');
 const { getKhataSchema, unsettleKhataSchema, updateSettleKhataSchema } = require('../utils/validations/khataValidations');
@@ -21,7 +21,7 @@ router.get(
 	device,
 	validateRequest({ query: getKhataSchema }),
 	
-	async (req, res) => {
+	async (req: any, res: any) => {
 		const deviceId = req.header('deviceId');
 
 		const PhoneNumber = req.user.phoneNumber;
@@ -84,7 +84,7 @@ router.get(
 	},
 );
 
-router.post('/multiple', auth, device, async (req, res) => {
+router.post('/multiple', auth, device, async (req: any, res: any) => {
 	const deviceId = req.header('deviceId');
 	//console.log(deviceId)
 	const userId = req.user._id;
@@ -165,7 +165,7 @@ router.put(
 	auth,
 	device,
 	validateRequest({ body: unsettleKhataSchema }),
-	async (req, res) => {
+	async (req: any, res: any) => {
 		const deviceId = req.header('deviceId');
 		const { khataIds } = req.body;
 		// Update seenStatus to true for the provided transactionIds
@@ -203,7 +203,7 @@ router.put(
 	auth,
 	device,
 	validateRequest({ body: updateSettleKhataSchema }),
-	async (req, res) => {
+	async (req: any, res: any) => {
 		const deviceId = req.header('deviceId');
 		const userName = req.user.name;
 		const phoneNumber = req.user.phoneNumber;

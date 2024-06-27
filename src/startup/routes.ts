@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 
 const users = require('../routes/users');
 const khatas = require('../routes/khatas');
@@ -30,7 +30,7 @@ module.exports = function (app) {
 
 	app.use('/api/admin', admin);
 	app.use('/api/dev', development);
-	app.use('/api/calculation', test5);
+	// app.use('/api/calculation', test5);
 	app.use('/api/analytics', analytics);
 
 	app.use(error);

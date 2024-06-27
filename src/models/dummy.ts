@@ -1,7 +1,9 @@
-const Joi = require('joi');
-Joi.objectId = require('joi-objectid')(Joi);
+import Joi from 'joi';
+import JoiObjectId from "joi-objectid";
+const myJoiObjectId = JoiObjectId(Joi);
 
-const mongoose = require('mongoose');
+
+import mongoose from 'mongoose';
 
 const DummySchema = new mongoose.Schema({
 	principalAmount: {

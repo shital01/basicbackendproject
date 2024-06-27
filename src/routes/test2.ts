@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const dbDebugger = require('debug')('app:db');
 const { Dummy } = require('../models/dummy');
 //const moment = require('moment');
@@ -40,7 +40,7 @@ async function dummyDump() {
 	console.log(result);
 }
 
-router.post('/multiple', async (req, res) => {
+router.post('/multiple', async (req: any, res: any) => {
 	const result = await Dummy.insertMany(req.body, { ordered: false });
 });
 /***************************************************Modified*******************************/

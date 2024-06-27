@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const config = require('config');
 import logger from '../startup/logging';
 //put [auth,authorization] such as delete apis->wiht isadmin or roles or operations array
-function authorization(req, res, next) {
+function authorization(req: any, res, next) {
 	//401 unauthorized
 	//403 Forbidden
 	if (!req.user.isAdmin) {

@@ -1,6 +1,5 @@
-const Joi = require('joi');
-Joi.objectId = require('joi-objectid')(Joi);
-const mongoose = require('mongoose');
+import Joi from 'joi';
+import mongoose from 'mongoose';
 const { transactionSchema, transactionSchema2 } = require('../utils/validations/transactionValidations');
 const isValidUnixTimestamp = (value) => {
 	const timestamp = new Date(value * 1000); // Convert seconds to milliseconds

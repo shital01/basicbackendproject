@@ -1,5 +1,7 @@
 import Joi from 'joi';
-Joi.objectId = require('joi-objectid')(Joi);
+import JoiObjectId from "joi-objectid";
+const myJoiObjectId = JoiObjectId(Joi);
+
 
 const getKhataSchema = Joi.object({
     lastUpdatedTimeStamp: Joi.date().timestamp('unix'),
@@ -42,7 +44,7 @@ const khataArraySchema = Joi.array().items(
 );
 
 const updateKhataSchema = Joi.object({
-    khataId: Joi.objectId().required(),
+    khataId: myJoiObjectId().required(),
     friendName: Joi.string().min(1),
     friendPhoneNumber: Joi.string()
         .regex(/^[0-9]{10}$/)
@@ -57,7 +59,7 @@ const updateKhataSchema = Joi.object({
 
 
 const unsettleKhataSchema = Joi.object({
-    khataIds: Joi.array().items(Joi.objectId().required()),
+    khataIds: Joi.array().items(myJoiObjectId().required()),
 });
 
 
@@ -65,7 +67,7 @@ const updateSettleKhataSchema = Joi.object({
     khataObjects: Joi.array()
         .items(
             Joi.object({
-                id: Joi.objectId().required(),
+                id: myJoiObjectId().required(),
                 interest: Joi.number().required(), // Add validation for the interest field
             }),
         )

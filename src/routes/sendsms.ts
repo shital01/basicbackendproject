@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 const { messageSchema, remindMessageSchema, deleteMessageSchema } = require('../utils/validations/smsValidations');
 const dbDebugger = require('debug')('app:db');
@@ -21,7 +21,7 @@ const validateDeleteMessage = (req) => {
 	return schema.validate(req);
 };
 
-router.post('/', auth, async (req, res, next) => {
+router.post('/', auth, async (req: any, res, next) => {
 	const messageType = req.body.messageType;
 	req.body.SenderName = req.user.Name;
 	req.body.SenderPhoneNumber = req.user.PhoneNumber;
@@ -136,7 +136,7 @@ send SMS to user Phone Number
 Return boolean true,if number not 10 digit 400 request send ,if something else fail like database saving then 500 request
 */
 /*
-router.post('/transactional',auth,async(req,res,next)=>{
+router.post('/transactional',auth,async(req: any,res,next)=>{
 	req.body.SenderName = req.user.Name;
 	req.body.SenderPhoneNumber = req.user.PhoneNumber;
 	const result = validateMessage(req.body);
@@ -164,7 +164,7 @@ router.post('/transactional',auth,async(req,res,next)=>{
 /*
 //Delete SMS
 //hide ids later along wiht priniciple
-router.post('/delete',auth,async(req,res,next)=>{
+router.post('/delete',auth,async(req: any,res,next)=>{
 	req.body.SenderName = req.user.Name;
 	req.body.SenderPhoneNumber = req.user.PhoneNumber;
 	const result = validateDeleteMessage(req.body);
@@ -190,7 +190,7 @@ router.post('/delete',auth,async(req,res,next)=>{
 });
 //Engagement SMS
 /*
-router.post('/remind',auth,async(req,res,next)=>{
+router.post('/remind',auth,async(req: any,res,next)=>{
 	req.body.SenderName = req.user.Name;
 	req.body.SenderPhoneNumber = req.user.PhoneNumber;
 	const result = validateRemindMessage(req.body);

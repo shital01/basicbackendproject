@@ -1,5 +1,5 @@
 const request = require('supertest');
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const { describe, it, beforeEach, afterEach, expect } = require('@jest/globals');
 
 const { Transaction } = require('../../models/transaction');
@@ -976,7 +976,7 @@ expect(Object.keys(res.body)).toEqual(
 		//Path-12
 		it('should update the transaction and return valid response if valid transaction ', async () => {
 			const res = await exec();
-			//console.log(res)
+			//console.log(res: any)
 			expect(res.status).toBe(200);
 			const transactions = await Transaction.find();
 			expect(transactions[0].seenStatus).toBe(true);

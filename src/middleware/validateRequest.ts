@@ -1,6 +1,6 @@
 import logger from '../startup/logging';const dbDebugger = require('debug')('app:db');
 
-const validateRequest = (schemas) => (req, res, next) => {
+const validateRequest = (schemas) => (req: any, res, next) => {
     const validations = ['params', 'query', 'body'].map((field) => {
         const schema = schemas[field];
         const value = req[field];
