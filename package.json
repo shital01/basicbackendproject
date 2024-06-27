@@ -1,13 +1,13 @@
 {
 	"name": "settle",
 	"version": "1.0.0",
-	"main": "index.js",
+	"main": "index.ts",
 	"scripts": {
-		"start": "export NODE_ENV=production&&node index.js",
-		"loadtest": "export NODE_ENV=loadtest&&export PORT=2500&&node index.js",
-		"staging": "export NODE_ENV=staging&&export PORT=2000&&node index.js",
-		"dev": "export DEBUG=app:*&&export NODE_ENV=development&& nodemon index.js",
-		"test": "export NODE_ENV=test&&export  PORT=0&&  jest --watchAll --verbose --coverage ",
+		"start": "set NODE_ENV=production&&ts-node src/index.ts",
+		"loadtest": "set NODE_ENV=loadtest&&set PORT=2500&&ts-node src/index.ts",
+		"staging": "set NODE_ENV=staging&&set PORT=2000&&ts-node src/index.ts",
+		"dev": "set DEBUG=app:*&&set NODE_ENV=development&& nodemon src/index.ts",
+		"test": "set NODE_ENV=test&&set  PORT=0&&  jest --watchAll --verbose --coverage ",
 		"format:check": "prettier --check .",
 		"format:write": "prettier --write .",
 		"lint:check": "eslint .",
@@ -56,7 +56,9 @@
 		"morgan": "^1.10.0",
 		"nodemon": "^3.0.1",
 		"prettier": "3.3.2",
-		"supertest": "^6.3.3"
+		"supertest": "^6.3.3",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.5.2"
 	},
 	"directories": {
 		"test": "tests"
