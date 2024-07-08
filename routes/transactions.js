@@ -33,20 +33,10 @@ router.get(
 		const deviceId = req.header('deviceId');
 		var timeStamp = Date.now();
 		//adding default pagesize and pagenumber as of now in btoh get api for safety
-		var pageSize = 500;
-		var pageNumber = 1;
-		var nextPageNumber;
-		var lastUpdatedTimeStamp;
+		var pageSize = req.query.pageSize ?? 500;
+		var cursorTimeStamp = req.query.lastUpdatedTimeStamp ?? 0;
+		var nextPageCursorTimeStamp;
 		var transactions;
-		if (req.query.pageNumber) {
-			pageNumber = req.query.pageNumber;
-		}
-		if (req.query.pageSize) {
-			pageSize = req.query.pageSize;
-		}
-		if (req.query.lastUpdatedTimeStamp) {
-			lastUpdatedTimeStamp = req.query.lastUpdatedTimeStamp;
-		}
 		const PhoneNumber = req.user.phoneNumber;
 
 		const khatas = await Khata.find({
@@ -56,32 +46,30 @@ router.get(
 			],
 		}).select('_id');
 		//watch performance of this ,use limit feature and sort for extra large queries
-		if (req.query.lastUpdatedTimeStamp) {
+		if (cursorTimeStamp) {
 			transactions = await Transaction.find({
 				$and: [
 					{ khataId: { $in: khatas } },
-					{ updatedTimeStamp: { $gt: lastUpdatedTimeStamp } },
+					{ updatedTimeStamp: { $gt: cursorTimeStamp } },
 				],
 			})
 				.sort('updatedTimeStamp')
-				.skip(pageSize * (pageNumber - 1))
 				.limit(pageSize); //watch performance of this
 		} else {
 			transactions = await Transaction.find({ khataId: { $in: khatas } })
 				.sort({ updatedTimeStamp: 1 })
-				.skip(pageSize * (pageNumber - 1))
 				.limit(pageSize);
 		}
 		//.sort({Date:1})
 		//dbDebugger(transactions);
 		//console.log(transactions)
 		if (transactions.length > 0) {
-			timeStamp = transactions[transactions.length - 1].updatedTimeStamp;
+			nextPageCursorTimeStamp = transactions[transactions.length - 1].updatedTimeStamp;
 		}
 
 		var categorizedEntries;
 		// Filter by deviceId
-		if (req.query.lastUpdatedTimeStamp) {
+		if (cursorTimeStamp) {
 			categorizedEntries = transactions.reduce(
 				(result, entry) => {
 					if (entry.deviceId !== deviceId) {
@@ -112,9 +100,9 @@ router.get(
 		const { deletedEntries, newEntries } = categorizedEntries;
 
 		if (transactions.length == pageSize) {
-			nextPageNumber = parseInt(pageNumber) + 1;
+			nextPageNumber = parseInt(cursorTimeStamp) + 1;
 			res.send({
-				nextPageNumber: nextPageNumber,
+				nextPageCursorTimeStamp,
 				deletedEntries,
 				newEntries,
 				timeStamp,
