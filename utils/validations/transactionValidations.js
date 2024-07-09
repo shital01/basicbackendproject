@@ -11,7 +11,6 @@ const getTransactionsSchema = Joi.object({
 const getTransactionsSchemaV2 = Joi.object({
     cursorTimeStamp: Joi.date().timestamp('unix'),
     pageSize: Joi.number().integer().max(10000),
-    consistencyMarkerTimeStamp: Joi.date().timestamp('unix'),
 });
 
 const updateSeenStatusSchema = Joi.object({

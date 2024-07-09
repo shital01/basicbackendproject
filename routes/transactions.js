@@ -133,7 +133,6 @@ router.get(
 	validateRequest({ query: getTransactionsSchemaV2 }),
 	async (req, res) => {
 		const deviceId = req.header('deviceId');
-		var consistencyMarkerTimeStamp = Date.now();
 		//adding default pagesize and pagenumber as of now in btoh get api for safety
 		var pageSize = req.query.pageSize ?? 500;
 		var cursorTimeStamp = req.query.cursorTimeStamp ?? 0;
@@ -153,7 +152,6 @@ router.get(
 				$and: [
 					{ khataId: { $in: khatas } },
 					{ updatedTimeStamp: { $gt: cursorTimeStamp } },
-					{ updatedTimeStamp: { $lt: consistencyMarkerTimeStamp } },
 				],
 			})
 				.sort('updatedTimeStamp')
@@ -162,7 +160,6 @@ router.get(
 			transactions = await Transaction.find({
 				$and: [
 					{ khataId: { $in: khatas } },
-					{ updatedTimeStamp: { $lt: consistencyMarkerTimeStamp } },
 				],
 			})
 				.sort({ updatedTimeStamp: 1 })
@@ -212,10 +209,9 @@ router.get(
 				nextPageCursorTimeStamp,
 				deletedEntries,
 				newEntries,
-				consistencyMarkerTimeStamp,
 			});
 		} else {
-			res.send({ deletedEntries, newEntries, consistencyMarkerTimeStamp });
+			res.send({ deletedEntries, newEntries });
 		}
 		//res.send(transactions);
 	},
