@@ -3,8 +3,15 @@ Joi.objectId = require('joi-objectid')(Joi);
 
 
 const getTransactionsSchema = Joi.object({
+    lastUpdatedTimeStamp: Joi.date().timestamp('unix'),
+    pageSize: Joi.number().integer().max(10000),
+    pageNumber: Joi.number().integer(),
+});
+
+const getTransactionsSchemaV2 = Joi.object({
     cursorTimeStamp: Joi.date().timestamp('unix'),
     pageSize: Joi.number().integer().max(10000),
+    consistencyMarkerTimeStamp: Joi.date().timestamp('unix'),
 });
 
 const updateSeenStatusSchema = Joi.object({
@@ -41,6 +48,7 @@ const transactionSchema2 = Joi.object({
 
 module.exports = {
     getTransactionsSchema,
+    getTransactionsSchemaV2,
     updateSeenStatusSchema,
     transactionSchema,
     transactionSchema2

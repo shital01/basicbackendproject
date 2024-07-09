@@ -16,7 +16,7 @@ const sendnotification = require('../middleware/notification');
 const sendmessage = require('../middleware/sendmessage');
 const config = require('config');
 const { validateRequest } = require('../middleware/validateRequest');
-const { getTransactionsSchema, updateSeenStatusSchema } = require('../utils/validations/transactionValidations');
+const { getTransactionsSchema, updateSeenStatusSchema, getTransactionsSchemaV2 } = require('../utils/validations/transactionValidations');
 // Create separate validation functions
 /*
 Input->Auth token
@@ -29,6 +29,108 @@ router.get(
 	auth,
 	device,
 	validateRequest({ query: getTransactionsSchema }),
+	async (req, res) => {
+		const deviceId = req.header('deviceId');
+		var timeStamp = Date.now();
+		//adding default pagesize and pagenumber as of now in btoh get api for safety
+		var pageSize = 500;
+		var pageNumber = 1;
+		var nextPageNumber;
+		var lastUpdatedTimeStamp;
+		var transactions;
+		if (req.query.pageNumber) {
+			pageNumber = req.query.pageNumber;
+		}
+		if (req.query.pageSize) {
+			pageSize = req.query.pageSize;
+		}
+		if (req.query.lastUpdatedTimeStamp) {
+			lastUpdatedTimeStamp = req.query.lastUpdatedTimeStamp;
+		}
+		const PhoneNumber = req.user.phoneNumber;
+
+		const khatas = await Khata.find({
+			$or: [
+				{ userPhoneNumber: { $eq: PhoneNumber } },
+				{ friendPhoneNumber: { $eq: PhoneNumber } },
+			],
+		}).select('_id');
+		//watch performance of this ,use limit feature and sort for extra large queries
+		if (req.query.lastUpdatedTimeStamp) {
+			transactions = await Transaction.find({
+				$and: [
+					{ khataId: { $in: khatas } },
+					{ updatedTimeStamp: { $gt: lastUpdatedTimeStamp } },
+				],
+			})
+				.sort('updatedTimeStamp')
+				.skip(pageSize * (pageNumber - 1))
+				.limit(pageSize); //watch performance of this
+		} else {
+			transactions = await Transaction.find({ khataId: { $in: khatas } })
+				.sort({ updatedTimeStamp: 1 })
+				.skip(pageSize * (pageNumber - 1))
+				.limit(pageSize);
+		}
+		//.sort({Date:1})
+		//dbDebugger(transactions);
+		//console.log(transactions)
+		if (transactions.length > 0) {
+			timeStamp = transactions[transactions.length - 1].updatedTimeStamp;
+		}
+
+		var categorizedEntries;
+		// Filter by deviceId
+		if (req.query.lastUpdatedTimeStamp) {
+			categorizedEntries = transactions.reduce(
+				(result, entry) => {
+					if (entry.deviceId !== deviceId) {
+						if (entry.deleteFlag === true) {
+							result.deletedEntries.push(entry);
+						} else {
+							result.newEntries.push(entry);
+						}
+					}
+					return result;
+				},
+				{ deletedEntries: [], newEntries: [] },
+			);
+		} else {
+			categorizedEntries = transactions.reduce(
+				(result, entry) => {
+					if (entry.deleteFlag === true) {
+						result.deletedEntries.push(entry);
+					} else {
+						result.newEntries.push(entry);
+					}
+					return result;
+				},
+				{ deletedEntries: [], newEntries: [] },
+			);
+		}
+
+		const { deletedEntries, newEntries } = categorizedEntries;
+
+		if (transactions.length == pageSize) {
+			nextPageNumber = parseInt(pageNumber) + 1;
+			res.send({
+				nextPageNumber: nextPageNumber,
+				deletedEntries,
+				newEntries,
+				timeStamp,
+			});
+		} else {
+			res.send({ deletedEntries, newEntries, timeStamp });
+		}
+		//res.send(transactions);
+	},
+);
+
+router.get(
+	'/v2',
+	auth,
+	device,
+	validateRequest({ query: getTransactionsSchemaV2 }),
 	async (req, res) => {
 		const deviceId = req.header('deviceId');
 		var consistencyMarkerTimeStamp = Date.now();
