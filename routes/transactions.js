@@ -31,10 +31,10 @@ router.get(
 	validateRequest({ query: getTransactionsSchema }),
 	async (req, res) => {
 		const deviceId = req.header('deviceId');
-		var timeStamp = Date.now();
+		var consistencyMarkerTimeStamp = Date.now();
 		//adding default pagesize and pagenumber as of now in btoh get api for safety
 		var pageSize = req.query.pageSize ?? 500;
-		var cursorTimeStamp = req.query.lastUpdatedTimeStamp ?? 0;
+		var cursorTimeStamp = req.query.cursorTimeStamp ?? 0;
 		var nextPageCursorTimeStamp;
 		var transactions;
 		const PhoneNumber = req.user.phoneNumber;
@@ -51,12 +51,18 @@ router.get(
 				$and: [
 					{ khataId: { $in: khatas } },
 					{ updatedTimeStamp: { $gt: cursorTimeStamp } },
+					{ updatedTimeStamp: { $lt: consistencyMarkerTimeStamp } },
 				],
 			})
 				.sort('updatedTimeStamp')
 				.limit(pageSize); //watch performance of this
 		} else {
-			transactions = await Transaction.find({ khataId: { $in: khatas } })
+			transactions = await Transaction.find({
+				$and: [
+					{ khataId: { $in: khatas } },
+					{ updatedTimeStamp: { $lt: consistencyMarkerTimeStamp } },
+				],
+			})
 				.sort({ updatedTimeStamp: 1 })
 				.limit(pageSize);
 		}
@@ -100,15 +106,14 @@ router.get(
 		const { deletedEntries, newEntries } = categorizedEntries;
 
 		if (transactions.length == pageSize) {
-			nextPageNumber = parseInt(cursorTimeStamp) + 1;
 			res.send({
 				nextPageCursorTimeStamp,
 				deletedEntries,
 				newEntries,
-				timeStamp,
+				consistencyMarkerTimeStamp,
 			});
 		} else {
-			res.send({ deletedEntries, newEntries, timeStamp });
+			res.send({ deletedEntries, newEntries, consistencyMarkerTimeStamp });
 		}
 		//res.send(transactions);
 	},
@@ -359,17 +364,17 @@ router.put(
 				}
 				var smsMessage;
 				/*
-        	if(amountGiveBool){
+			if(amountGiveBool){
 
 
-          	smsMessage=message+"I gave you Rs "+amount+" on "+new Date(transactionDate).toLocaleDateString();
-          }
-          else{
-          	smsMessage=message+"You gave me Rs "+amount+" on "+new Date(transactionDate).toLocaleDateString();
+				smsMessage=message+"I gave you Rs "+amount+" on "+new Date(transactionDate).toLocaleDateString();
+		  }
+		  else{
+				smsMessage=message+"You gave me Rs "+amount+" on "+new Date(transactionDate).toLocaleDateString();
 
-          }
+		  }
 
-        if(sendSms==true){
+		if(sendSms==true){
 				const templateId = config.get('templateIdDelete');
 				//config.get('templateIdAdd');
 				const SendSMS = await sendmessage("91"+searchPhoneNumber,smsMessage,templateId);
