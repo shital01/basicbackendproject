@@ -8,6 +8,11 @@ const getTransactionsSchema = Joi.object({
     pageNumber: Joi.number().integer(),
 });
 
+const getTransactionsSchemaV2 = Joi.object({
+    cursorTimeStamp: Joi.date().timestamp('unix'),
+    pageSize: Joi.number().integer().max(10000),
+});
+
 const updateSeenStatusSchema = Joi.object({
     transactionIds: Joi.array().items(Joi.objectId().required()),
 });
@@ -42,6 +47,7 @@ const transactionSchema2 = Joi.object({
 
 module.exports = {
     getTransactionsSchema,
+    getTransactionsSchemaV2,
     updateSeenStatusSchema,
     transactionSchema,
     transactionSchema2
