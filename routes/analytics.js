@@ -1,6 +1,7 @@
 const express = require('express');
 
 const router = express.Router();
+const { forEach } = require('lodash');
 
 const { User } = require('../models/user');
 const { Transaction } = require('../models/transaction');
@@ -173,45 +174,45 @@ router.get('/usersActiveInLast30Days', async (req, res) => {
 
 
 router.get(
-	'/khatasWithTransactionsFromBothUsers',
-	async (req, res) => {
-		const khatas = await Khata.aggregate([
-			{
-				$lookup: {
-					from: 'transactions',
-					localField: '_id',
-					foreignField: 'khataId',
-					as: 'transactions',
-				},
-			},
-		]);
+    '/khatasWithTransactionsFromBothUsers',
+    async (req, res) => {
+        const khatas = await Khata.aggregate([
+            {
+                $lookup: {
+                    from: 'transactions',
+                    localField: '_id',
+                    foreignField: 'khataId',
+                    as: 'transactions',
+                },
+            },
+        ]);
 
-		const khatasWithReducedTransactions = khatas
-			.filter((k) => k.transactions.length > 1)
-			.map((k) => {
-				const transactionSet = new Set();
-				forEach(k.transactions, (transaction) => {
-					transactionSet.add(transaction.userPhoneNumber);
-				});
-				k.senderCount = transactionSet.size;
-				k.senderSet = transactionSet;
-				return k;
-			})
+        const khatasWithReducedTransactions = khatas
+            .filter((k) => k.transactions.length > 1)
+            .map((k) => {
+                const transactionSet = new Set();
+                forEach(k.transactions, (transaction) => {
+                    transactionSet.add(transaction.userPhoneNumber);
+                });
+                k.senderCount = transactionSet.size;
+                k.senderSet = transactionSet;
+                return k;
+            })
 
-		const khatasWithTransactionsFromBothUsers = khatasWithReducedTransactions
-			.filter((k) => k.senderCount == 2)
+        const khatasWithTransactionsFromBothUsers = khatasWithReducedTransactions
+            .filter((k) => k.senderCount == 2)
 
-		const response = khatasWithTransactionsFromBothUsers.map((k) => {
-			delete k.transactions;
-			return k;
-		});
+        const response = khatasWithTransactionsFromBothUsers.map((k) => {
+            delete k.transactions;
+            return k;
+        });
 
-		res.header().send({
-			error: null,
-			response: response,
-			total: response.length
-		});
-	},
+        res.header().send({
+            error: null,
+            response: response,
+            total: response.length
+        });
+    },
 );
 
 
