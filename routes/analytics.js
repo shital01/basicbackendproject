@@ -207,7 +207,7 @@ router.get(
             return k;
         });
 
-        res.header().send({
+        res.send({
             error: null,
             response: response,
             total: response.length
