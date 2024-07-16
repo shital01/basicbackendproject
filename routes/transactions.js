@@ -16,7 +16,7 @@ const sendnotification = require('../middleware/notification');
 const sendmessage = require('../middleware/sendmessage');
 const config = require('config');
 const { validateRequest } = require('../middleware/validateRequest');
-const { getTransactionsSchema, updateSeenStatusSchema } = require('../utils/validations/transactionValidations');
+const { getTransactionsSchema, updateSeenStatusSchema, getTransactionsSchemaV2 } = require('../utils/validations/transactionValidations');
 // Create separate validation functions
 /*
 Input->Auth token
@@ -121,6 +121,97 @@ router.get(
 			});
 		} else {
 			res.send({ deletedEntries, newEntries, timeStamp });
+		}
+		//res.send(transactions);
+	},
+);
+
+router.get(
+	'/v2',
+	auth,
+	device,
+	validateRequest({ query: getTransactionsSchemaV2 }),
+	async (req, res) => {
+		const deviceId = req.header('deviceId');
+		//adding default pagesize and pagenumber as of now in btoh get api for safety
+		var pageSize = req.query.pageSize ?? 500;
+		var cursorTimeStamp = req.query.cursorTimeStamp ?? 0;
+		var nextPageCursorTimeStamp;
+		var transactions;
+		const PhoneNumber = req.user.phoneNumber;
+
+		const khatas = await Khata.find({
+			$or: [
+				{ userPhoneNumber: { $eq: PhoneNumber } },
+				{ friendPhoneNumber: { $eq: PhoneNumber } },
+			],
+		}).select('_id');
+		//watch performance of this ,use limit feature and sort for extra large queries
+		if (cursorTimeStamp) {
+			transactions = await Transaction.find({
+				$and: [
+					{ khataId: { $in: khatas } },
+					{ updatedTimeStamp: { $gt: cursorTimeStamp } },
+				],
+			})
+				.sort('updatedTimeStamp')
+				.limit(pageSize); //watch performance of this
+		} else {
+			transactions = await Transaction.find({
+				$and: [
+					{ khataId: { $in: khatas } },
+				],
+			})
+				.sort({ updatedTimeStamp: 1 })
+				.limit(pageSize);
+		}
+		//.sort({Date:1})
+		//dbDebugger(transactions);
+		//console.log(transactions)
+		if (transactions.length > 0) {
+			nextPageCursorTimeStamp = transactions[transactions.length - 1].updatedTimeStamp;
+		}
+
+		var categorizedEntries;
+		// Filter by deviceId
+		if (cursorTimeStamp) {
+			categorizedEntries = transactions.reduce(
+				(result, entry) => {
+					if (entry.deviceId !== deviceId) {
+						if (entry.deleteFlag === true) {
+							result.deletedEntries.push(entry);
+						} else {
+							result.newEntries.push(entry);
+						}
+					}
+					return result;
+				},
+				{ deletedEntries: [], newEntries: [] },
+			);
+		} else {
+			categorizedEntries = transactions.reduce(
+				(result, entry) => {
+					if (entry.deleteFlag === true) {
+						result.deletedEntries.push(entry);
+					} else {
+						result.newEntries.push(entry);
+					}
+					return result;
+				},
+				{ deletedEntries: [], newEntries: [] },
+			);
+		}
+
+		const { deletedEntries, newEntries } = categorizedEntries;
+
+		if (transactions.length == pageSize) {
+			res.send({
+				nextPageCursorTimeStamp,
+				deletedEntries,
+				newEntries,
+			});
+		} else {
+			res.send({ deletedEntries, newEntries });
 		}
 		//res.send(transactions);
 	},
@@ -371,17 +462,17 @@ router.put(
 				}
 				var smsMessage;
 				/*
-        	if(amountGiveBool){
+			if(amountGiveBool){
 
 
-          	smsMessage=message+"I gave you Rs "+amount+" on "+new Date(transactionDate).toLocaleDateString();
-          }
-          else{
-          	smsMessage=message+"You gave me Rs "+amount+" on "+new Date(transactionDate).toLocaleDateString();
+				smsMessage=message+"I gave you Rs "+amount+" on "+new Date(transactionDate).toLocaleDateString();
+		  }
+		  else{
+				smsMessage=message+"You gave me Rs "+amount+" on "+new Date(transactionDate).toLocaleDateString();
 
-          }
+		  }
 
-        if(sendSms==true){
+		if(sendSms==true){
 				const templateId = config.get('templateIdDelete');
 				//config.get('templateIdAdd');
 				const SendSMS = await sendmessage("91"+searchPhoneNumber,smsMessage,templateId);

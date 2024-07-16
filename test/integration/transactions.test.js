@@ -20,6 +20,8 @@ Date early and late max allow
 //4 transaction -1 incorrect ,1 different user
 //khatas also 2 as query internal for khatas
 let t1, t2;
+const TOKEN_FIELD_LABEL = 'x-auth-token';
+const DEVICE_ID_LABEL = 'deviceId';
 const userid = mongoose.Types.ObjectId();
 const userid2 = mongoose.Types.ObjectId();
 
@@ -81,7 +83,7 @@ const transaction3 = {
 	localId: '1',
 	userId: userid,
 	transactionDate: 1211231231232,
-	updatedTimeStamp: 1211231231236,
+	updatedTimeStamp: 1211231231237,
 	deviceId: '1',
 };
 const transaction4 = {
@@ -91,17 +93,18 @@ const transaction4 = {
 	localId: '1',
 	userId: userid2,
 	transactionDate: 1211231231232,
-	updatedTimeStamp: 1211231231236,
+	updatedTimeStamp: 1211231231237,
 	deviceId: '1',
 };
+
 const transaction5 = {
-	khataId: khata2id,
+	khataId: khata1id,
 	amount: 5,
 	amountGiveBool: true,
 	localId: '1',
 	userId: userid,
 	transactionDate: 1211231231232,
-	updatedTimeStamp: 1211231231235,
+	updatedTimeStamp: 1211231231239,
 	attachmentsPath: [
 		'firsturl',
 		'secondurl',
@@ -156,7 +159,7 @@ expect(Object.keys(res.body)).toEqual(
 			return request(server)
 				.get('/api/transactions')
 				.set('x-auth-token', token)
-				.set('deviceId', deviceId)
+				.set(DEVICE_ID_LABEL, deviceId)
 				.query(payload);
 		};
 		beforeEach(() => {
@@ -213,17 +216,17 @@ expect(Object.keys(res.body)).toEqual(
 				transaction3,
 				transaction4,
 			]);
-			console.log(token);
+			// console.log(token);
 			const k2 = await Khata.find({});
-			console.log(k2);
+			// console.log(k2);
 			//console.log(khatas);
 			//console.log(transactions)
 			const t2 = await Transaction.find({});
-			console.log(t2);
+			// console.log(t2);
 			payload = { lastUpdatedTimeStamp: 1211231231230 };
 			const res = await exec(payload);
 			expect(res.status).toBe(200);
-			console.log(res.body);
+			// console.log(res.body);
 			//console.log(res.body.results[0]);
 
 			expect(res.body.newEntries.length).toBe(2);
@@ -253,8 +256,8 @@ expect(Object.keys(res.body)).toEqual(
 			payload = { lastUpdatedTimeStamp: 1211231231232, pageNumber: 1 };
 			const res = await exec(payload);
 			expect(res.status).toBe(200);
-			console.log(res.body);
-			console.log(res.body.newEntries[0]);
+			// console.log(res.body);
+			// console.log(res.body.newEntries[0]);
 
 			expect(res.body.newEntries.length).toBe(1);
 			expect(Object.keys(res.body.newEntries[0])).toEqual(
@@ -272,7 +275,7 @@ expect(Object.keys(res.body)).toEqual(
 				]),
 			);
 		});
-		it('should return all transactions with Date and PageSize', async () => {
+		it('should return all transactions with Date and pageSize', async () => {
 			const khatas = await Khata.collection.insertMany([khata1, khata2]);
 			const transactions = await Transaction.collection.insertMany([
 				transaction1,
@@ -283,8 +286,8 @@ expect(Object.keys(res.body)).toEqual(
 			payload = { lastUpdatedTimeStamp: 1211231231232, pageSize: 2 };
 			const res = await exec(payload);
 			expect(res.status).toBe(200);
-			console.log(res.body);
-			console.log(res.body.newEntries[0]);
+			// console.log(res.body);
+			// console.log(res.body.newEntries[0]);
 
 			expect(res.body.newEntries.length).toBe(1);
 			expect(Object.keys(res.body.newEntries[0])).toEqual(
@@ -539,6 +542,346 @@ expect(Object.keys(res.body)).toEqual(
 			//	expect.arrayContaining(['deleteFlag','seenStatus','_id','khataId','amount','userId','amountGiveBool','localId','transactionDate','updatedTimeStamp']))
 		});
 	});
+
+	describe('GET /v2', () => {
+		//getData() transaction1,...4
+		//Happy Path
+		var token, cursorTimeStamp;
+		var payload = {};
+		var deviceId = '2';
+		const ENDPOINT = '/api/transactions/v2';
+		let exec = (payload) => {
+			return request(server)
+				.get(ENDPOINT)
+				.set(TOKEN_FIELD_LABEL, token)
+				.set(DEVICE_ID_LABEL, deviceId)
+				.query(payload);
+		};
+		beforeEach(() => {
+			token = new User({
+				_id: userid,
+				phoneNumber: '1313131212',
+				name: 'name1',
+			}).generateAuthToken();
+		});
+		afterEach(async () => {
+			await Transaction.deleteMany({});
+			await User.deleteMany({});
+			await Khata.deleteMany({});
+		});
+		it('should return 401 for No token', async () => {
+			token = '';
+			const res = await exec();
+			expect(res.status).toBe(401);
+		});
+		it('should return 400 for invalid token', async () => {
+			token = '1';
+			const res = await exec();
+			expect(res.status).toBe(400);
+		});
+		//handle all type of dates too not a dat etype,not a valid date,too early or too late
+		it('should return 400 for invalid cursor', async () => {
+			cursorTimeStamp = null;
+			payload = { cursorTimeStamp };
+			const res = await exec(payload);
+			expect(res.status).toBe(400);
+		});
+		it('should return 400 for invalid pageSize', async () => {
+			const invalidPageSizes = [-3, 0, '12'];
+			for (const pageSize of invalidPageSizes) {
+				const payload = { pageSize };
+				const res = await exec(token, payload);
+				expect(res.status).toBe(400);
+			}
+		});
+		//in success path also for max 10000 check ....
+		it('should return all transactions with cursor', async () => {
+			const khatas = await Khata.collection.insertMany([khata1, khata2]);
+			const transactions = await Transaction.collection.insertMany([
+				transaction1,
+				transaction2,
+				transaction3,
+				transaction4,
+			]);
+			// console.log(token);
+			const k2 = await Khata.find({});
+			// console.log(k2);
+			//console.log(khatas);
+			//console.log(transactions)
+			const t2 = await Transaction.find({});
+			// console.log(t2);
+			payload = { cursorTimeStamp: 1211231231230 };
+			const res = await exec(payload);
+			expect(res.status).toBe(200);
+			// console.log(res.body);
+			//console.log(res.body.results[0]);
+
+			expect(res.body.newEntries.length).toBe(2);
+			expect(Object.keys(res.body.newEntries[0])).toEqual(
+				expect.arrayContaining([
+					'deleteFlag',
+					'seenStatus',
+					'_id',
+					'khataId',
+					'amount',
+					'userId',
+					'amountGiveBool',
+					'localId',
+					'transactionDate',
+					'updatedTimeStamp',
+				]),
+			);
+		});
+		it('should return all transactions with cursor and pageSize', async () => {
+			await Khata.collection.insertMany([khata1, khata2]);
+			await Transaction.collection.insertMany([
+				transaction1,
+				transaction2,
+				transaction3,
+				transaction4,
+			]);
+			payload = { cursorTimeStamp: 1211231231232, pageSize: 2 };
+			const res = await exec(payload);
+			expect(res.status).toBe(200);
+			// console.log(res.body);
+			// console.log(res.body.newEntries[0]);
+
+			expect(res.body.newEntries.length).toBe(1);
+			expect(Object.keys(res.body.newEntries[0])).toEqual(
+				expect.arrayContaining([
+					'deleteFlag',
+					'seenStatus',
+					'_id',
+					'khataId',
+					'amount',
+					'userId',
+					'amountGiveBool',
+					'localId',
+					'transactionDate',
+					'updatedTimeStamp',
+				]),
+			);
+		});
+
+		it('should return 2 transactions with cursor1 and pageSize 2', async () => {
+			await Khata.collection.insertMany([khata1, khata2]);
+			await Transaction.collection.insertMany([
+				transaction1,
+				transaction2,
+				transaction3,
+				transaction4,
+				transaction5,
+			]);
+			payload = { cursorTimeStamp: 1211231231230, pageSize: 3 };
+			const res = await exec(payload);
+			expect(res.status).toBe(200);
+			console.log(res.body);
+			console.log(res.body.newEntries[0]);
+
+			expect(res.body.newEntries.length).toBe(3);
+			expect(Object.keys(res.body.newEntries[0])).toEqual(
+				expect.arrayContaining([
+					'deleteFlag',
+					'seenStatus',
+					'_id',
+					'khataId',
+					'amount',
+					'userId',
+					'amountGiveBool',
+					'localId',
+					'transactionDate',
+					'updatedTimeStamp',
+				]),
+			);
+		});
+
+		it('should return 2 transactions with cursor1 and pageSize 2', async () => {
+			await Khata.collection.insertMany([khata1, khata2]);
+			await Transaction.collection.insertMany([
+				transaction1,
+				transaction2,
+				transaction3,
+				transaction4,
+				transaction5,
+			]);
+			payload = { cursorTimeStamp: 1211231231235, pageSize: 3 };
+			const res = await exec(payload);
+			expect(res.status).toBe(200);
+			console.log(res.body);
+			console.log(res.body.newEntries[0]);
+
+			expect(res.body.newEntries.length).toBe(2);
+			expect(Object.keys(res.body.newEntries[0])).toEqual(
+				expect.arrayContaining([
+					'deleteFlag',
+					'seenStatus',
+					'_id',
+					'khataId',
+					'amount',
+					'userId',
+					'amountGiveBool',
+					'localId',
+					'transactionDate',
+					'updatedTimeStamp',
+				]),
+			);
+		});
+
+		it('should return all transactions without cursor', async () => {
+			await Khata.collection.insertMany([khata1, khata2]);
+			const transactions = await Transaction.collection.insertMany([
+				transaction1,
+				transaction2,
+				transaction3,
+				transaction4,
+			]);
+			const res = await exec();
+			expect(res.status).toBe(200);
+			expect(res.body.newEntries.length).toBe(2);
+			expect(Object.keys(res.body.newEntries[0])).toEqual(
+				expect.arrayContaining([
+					'deleteFlag',
+					'seenStatus',
+					'_id',
+					'khataId',
+					'amount',
+					'userId',
+					'amountGiveBool',
+					'localId',
+					'transactionDate',
+					'updatedTimeStamp',
+				]),
+			);
+		});
+		it('should return all transactions without cursor and pagesize', async () => {
+			const khatas = await Khata.collection.insertMany([khata1, khata2]);
+			const transactions = await Transaction.collection.insertMany([
+				transaction1,
+				transaction2,
+				transaction3,
+				transaction4,
+			]);
+			const res = await exec({ pageSize: 1 });
+			expect(res.status).toBe(200);
+			expect(res.body.newEntries.length).toBe(1);
+			expect(Object.keys(res.body.newEntries[0])).toEqual(
+				expect.arrayContaining([
+					'deleteFlag',
+					'seenStatus',
+					'_id',
+					'khataId',
+					'amount',
+					'userId',
+					'amountGiveBool',
+					'localId',
+					'transactionDate',
+					'updatedTimeStamp',
+				]),
+			);
+		});
+		it('should return same due to deviceId transactions without Date', async () => {
+			deviceId = '1';
+			const khatas = await Khata.collection.insertMany([khata1, khata2]);
+			const transactions = await Transaction.collection.insertMany([
+				transaction1,
+				transaction2,
+				transaction3,
+				transaction4,
+			]);
+			const res = await exec();
+			expect(res.status).toBe(200);
+			expect(res.body.newEntries.length).toBe(2);
+			expect(Object.keys(res.body.newEntries[0])).toEqual(
+				expect.arrayContaining([
+					'deleteFlag',
+					'seenStatus',
+					'_id',
+					'khataId',
+					'amount',
+					'userId',
+					'amountGiveBool',
+					'localId',
+					'transactionDate',
+					'updatedTimeStamp',
+				]),
+			);
+		});
+
+		// Test cases with deviceId
+		it('should return deletd entries also due to deviceId transactions without Date', async () => {
+			deviceId = '2';
+			const khatas = await Khata.collection.insertMany([khata1, khata2]);
+			const transactions = await Transaction.collection.insertMany([
+				transaction1,
+				transaction2,
+				transaction3,
+				transaction4,
+				transaction6,
+			]);
+
+			const res = await exec();
+			expect(res.status).toBe(200);
+			expect(res.body.newEntries.length).toBe(2);
+			expect(res.body.deletedEntries.length).toBe(1);
+
+			//expect(Object.keys(res.body.newEntries[0])).toEqual(
+			//	expect.arrayContaining(['deleteFlag','seenStatus','_id','khataId','amount','userId','amountGiveBool','localId','transactionDate','updatedTimeStamp']))
+		});
+		it('should return deletd entries also due to deviceId transactions with Date', async () => {
+			deviceId = '2';
+			const khatas = await Khata.collection.insertMany([khata1, khata2]);
+			const transactions = await Transaction.collection.insertMany([
+				transaction1,
+				transaction2,
+				transaction3,
+				transaction4,
+				transaction6,
+			]);
+			payload = { cursorTimeStamp: 1211231231230 };
+
+			const res = await exec(payload);
+			expect(res.status).toBe(200);
+			expect(res.body.newEntries.length).toBe(2);
+			expect(res.body.deletedEntries.length).toBe(1);
+
+			//expect(Object.keys(res.body.newEntries[0])).toEqual(
+			//	expect.arrayContaining(['deleteFlag','seenStatus','_id','khataId','amount','userId','amountGiveBool','localId','transactionDate','updatedTimeStamp']))
+		});
+		it('should return less due to deviceId transactions with Date', async () => {
+			deviceId = '1';
+			const khatas = await Khata.collection.insertMany([khata1, khata2]);
+			const transactions = await Transaction.collection.insertMany([
+				transaction1,
+				transaction2,
+				transaction3,
+				transaction4,
+			]);
+			payload = { cursorTimeStamp: 1211231231230 };
+
+			const res = await exec(payload);
+			expect(res.status).toBe(200);
+			expect(res.body.newEntries.length).toBe(0);
+			//expect(Object.keys(res.body.newEntries[0])).toEqual(
+			//	expect.arrayContaining(['deleteFlag','seenStatus','_id','khataId','amount','userId','amountGiveBool','localId','transactionDate','updatedTimeStamp']))
+		});
+		it('should return zero due to deviceId transactions with Date', async () => {
+			deviceId = '1';
+			const khatas = await Khata.collection.insertMany([khata1, khata2]);
+			const transactions = await Transaction.collection.insertMany([
+				transaction1,
+				transaction2,
+				transaction3,
+				transaction4,
+			]);
+			payload = { cursorTimeStamp: 1211231231238 };
+
+			const res = await exec(payload);
+			expect(res.status).toBe(200);
+			expect(res.body.newEntries.length).toBe(0);
+			//expect(Object.keys(res.body.newEntries[0])).toEqual(
+			//	expect.arrayContaining(['deleteFlag','seenStatus','_id','khataId','amount','userId','amountGiveBool','localId','transactionDate','updatedTimeStamp']))
+		});
+	});
 	/*********POST************/
 	//Get Request Paths Testing
 	//date tested in postman working but not in supertest nor date related query picking it up
@@ -551,7 +894,7 @@ expect(Object.keys(res.body)).toEqual(
 			return request(server)
 				.post('/api/transactions/multiple')
 				.set('x-auth-token', token)
-				.set('deviceId', '123')
+				.set(DEVICE_ID_LABEL, '123')
 				.send([t1, t2]);
 		};
 		beforeEach(async () => {
@@ -596,7 +939,7 @@ expect(Object.keys(res.body)).toEqual(
 			delete t1.userPhoneNumber;
 			delete t2.userPhoneNumber;
 
-			console.log(JSON.stringify(t1));
+			// console.log(JSON.stringify(t1));
 		});
 		afterEach(async () => {
 			await Transaction.deleteMany({});
@@ -620,10 +963,10 @@ expect(Object.keys(res.body)).toEqual(
 		//Path-03
 		it('should return 400 if validation transaction failed due to date', async () => {
 			t1.transactionDate = 'a';
-			console.log(t1, t2);
+			// console.log(t1, t2);
 			const res = await execRequest(t1, t2);
 			//console.log("**************************")
-			console.log(res.body);
+			// console.log(res.body);
 			//console.log("**************************")
 			expect(res.status).toBe(200);
 			expect(res.body.savedEntries.length).toBe(1);
@@ -652,7 +995,7 @@ expect(Object.keys(res.body)).toEqual(
 			expect(res.status).toBe(200);
 			expect(res.body.savedEntries.length).toBe(1);
 			expect(res.body.unsavedEntries.length).toBe(1);
-			console.log(res.body.unsavedEntries);
+			// console.log(res.body.unsavedEntries);
 			expect(res.body.unsavedEntries[0].error).toBe(
 				'"amountGiveBool" must be a boolean',
 			);
@@ -754,13 +1097,13 @@ expect(Object.keys(res.body)).toEqual(
 			const u = await User.find();
 			const t = await Transaction.find();
 			const k = await Khata.find();
-			console.log(u, t, k);
+			// console.log(u, t, k);
 
 			const transactions = res.body.savedEntries;
-			console.log(transactions);
+			// console.log(transactions);
 			//console.log(user)
 			//console.log(user2)
-			console.log(token);
+			// console.log(token);
 			// Check if the response contains an array of transactions
 			expect(Array.isArray(transactions)).toBe(true);
 			expect(transactions).toHaveLength(2); // Adjust based on your expected length
@@ -780,7 +1123,7 @@ expect(Object.keys(res.body)).toEqual(
 			return request(server)
 				.put('/api/transactions/delete')
 				.set('x-auth-token', token)
-				.set('deviceId', '234')
+				.set(DEVICE_ID_LABEL, '234')
 				.send(payload);
 		};
 		beforeEach(async () => {
@@ -882,7 +1225,7 @@ expect(Object.keys(res.body)).toEqual(
 			return request(server)
 				.put('/api/transactions/updateSeenStatus')
 				.set('x-auth-token', token)
-				.set('deviceId', '1')
+				.set(DEVICE_ID_LABEL, '1')
 				.send(payload);
 		};
 		beforeEach(async () => {
@@ -960,7 +1303,7 @@ expect(Object.keys(res.body)).toEqual(
 		it('should return 404  if transaction not found with given ID/if Already delete ', async () => {
 			transactionIds = [userid];
 			payload = { transactionIds };
-			console.log(payload);
+			// console.log(payload);
 			const res = await exec();
 			expect(res.status).toBe(404);
 		});
