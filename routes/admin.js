@@ -8,6 +8,7 @@ const { Transaction } = require('../models/transaction');
 const { Khata } = require('../models/khata');
 
 const authorization = require('../middleware/authorization');
+const { forEach } = require('lodash');
 const dbDebugger = require('debug')('app:db');
 
 //Admin secureity
@@ -260,4 +261,5 @@ router.get('/LastActiveCount', async (req, res) => {
 	]);
 	res.header().send({ error: null, response: counts });
 });
+
 module.exports = router;
