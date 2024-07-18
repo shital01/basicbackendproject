@@ -136,6 +136,7 @@ router.get(
 		//adding default pagesize and pagenumber as of now in btoh get api for safety
 		var pageSize = req.query.pageSize ?? 500;
 		var cursorTimeStamp = req.query.cursorTimeStamp ?? 0;
+		var transactionUpdatedAfterTimeStamp = req.query.transactionUpdatedAfterTimeStamp ?? 0;
 		var nextPageCursorTimeStamp;
 		var transactions;
 		const PhoneNumber = req.user.phoneNumber;
@@ -145,12 +146,21 @@ router.get(
 				{ userPhoneNumber: { $eq: PhoneNumber } },
 				{ friendPhoneNumber: { $eq: PhoneNumber } },
 			],
-		}).select('_id');
+		}).lean();
+
+		const filteredKhatas = khatas.filter((khata) => {
+			if (khata.lastTransactionUpdatedTimeStamp) {
+				return khata.lastTransactionUpdatedTimeStamp > transactionUpdatedAfterTimeStamp
+			}
+			return true
+		});
+
+		const filteredKhataIds = filteredKhatas.map((khata) => khata._id);
 		//watch performance of this ,use limit feature and sort for extra large queries
 		if (cursorTimeStamp) {
 			transactions = await Transaction.find({
 				$and: [
-					{ khataId: { $in: khatas } },
+					{ khataId: { $in: filteredKhataIds } },
 					{ updatedTimeStamp: { $gt: cursorTimeStamp } },
 				],
 			})
@@ -159,7 +169,7 @@ router.get(
 		} else {
 			transactions = await Transaction.find({
 				$and: [
-					{ khataId: { $in: khatas } },
+					{ khataId: { $in: filteredKhataIds } },
 				],
 			})
 				.sort({ updatedTimeStamp: 1 })

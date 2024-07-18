@@ -38,6 +38,13 @@ const KhataSchema = new mongoose.Schema({
 			return Date.now();
 		},
 	},
+	lastTransactionUpdatedTimeStamp: {
+		type: Number,
+		validate: [isValidUnixTimestamp, 'Invalid Unix timestamp'],
+		default: function () {
+			return Date.now();
+		},
+	},
 	localId: { type: String },
 	settledFlag: { type: Boolean, default: false },
 	interest: { type: Number, default: 0 },
