@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+
 const {
 	Transaction,
 	validate2,
@@ -17,6 +18,7 @@ const sendmessage = require('../middleware/sendmessage');
 const config = require('config');
 const { validateRequest } = require('../middleware/validateRequest');
 const { getTransactionsSchema, updateSeenStatusSchema, getTransactionsSchemaV2 } = require('../utils/validations/transactionValidations');
+const { setKhataLastTransactionUpdatedTimeStamp } = require('./transactionHelpers');
 // Create separate validation functions
 /*
 Input->Auth token
@@ -38,6 +40,7 @@ router.get(
 		var nextPageNumber;
 		var lastUpdatedTimeStamp;
 		var transactions;
+		var lastTransactionUpdatedTimeStamp = req.query.lastTransactionUpdatedTimeStamp ?? 0;
 		if (req.query.pageNumber) {
 			pageNumber = req.query.pageNumber;
 		}
@@ -54,12 +57,22 @@ router.get(
 				{ userPhoneNumber: { $eq: PhoneNumber } },
 				{ friendPhoneNumber: { $eq: PhoneNumber } },
 			],
-		}).select('_id');
+		}).lean();
+
+		const filteredKhatas = khatas.filter((khata) => {
+			if (khata.lastTransactionUpdatedTimeStamp) {
+				return khata.lastTransactionUpdatedTimeStamp > lastTransactionUpdatedTimeStamp
+			}
+			return true
+		});
+
+		const filteredKhataIds = filteredKhatas.map((khata) => khata._id);
+
 		//watch performance of this ,use limit feature and sort for extra large queries
 		if (req.query.lastUpdatedTimeStamp) {
 			transactions = await Transaction.find({
 				$and: [
-					{ khataId: { $in: khatas } },
+					{ khataId: { $in: filteredKhataIds } },
 					{ updatedTimeStamp: { $gt: lastUpdatedTimeStamp } },
 				],
 			})
@@ -67,7 +80,7 @@ router.get(
 				.skip(pageSize * (pageNumber - 1))
 				.limit(pageSize); //watch performance of this
 		} else {
-			transactions = await Transaction.find({ khataId: { $in: khatas } })
+			transactions = await Transaction.find({ khataId: { $in: filteredKhataIds } })
 				.sort({ updatedTimeStamp: 1 })
 				.skip(pageSize * (pageNumber - 1))
 				.limit(pageSize);
@@ -136,7 +149,7 @@ router.get(
 		//adding default pagesize and pagenumber as of now in btoh get api for safety
 		var pageSize = req.query.pageSize ?? 500;
 		var cursorTimeStamp = req.query.cursorTimeStamp ?? 0;
-		var transactionUpdatedAfterTimeStamp = req.query.transactionUpdatedAfterTimeStamp ?? 0;
+		var lastTransactionUpdatedTimeStamp = req.query.lastTransactionUpdatedTimeStamp ?? 0;
 		var nextPageCursorTimeStamp;
 		var transactions;
 		const PhoneNumber = req.user.phoneNumber;
@@ -150,7 +163,7 @@ router.get(
 
 		const filteredKhatas = khatas.filter((khata) => {
 			if (khata.lastTransactionUpdatedTimeStamp) {
-				return khata.lastTransactionUpdatedTimeStamp > transactionUpdatedAfterTimeStamp
+				return khata.lastTransactionUpdatedTimeStamp > lastTransactionUpdatedTimeStamp
 			}
 			return true
 		});
@@ -263,10 +276,13 @@ router.post('/multiple', auth, device, async (req, res) => {
 			try {
 				const savedEntry = await transaction.save();
 				savedEntries.push(savedEntry);
-				//send notification
 				const khata = await Khata.findById(transaction.khataId).select(
 					'userPhoneNumber friendPhoneNumber friendName',
 				);
+				khata.lastTransactionUpdatedTimeStamp = Date.now();
+				await khata.save();
+
+				//send notification
 				//console.log(khata);
 				var searchPhoneNumber = khata.friendPhoneNumber;
 				if (userPhoneNumber === searchPhoneNumber) {
@@ -379,6 +395,12 @@ router.put(
 		// Check if any transactions were updated
 		//console.log(updateResult)
 		if (updateResult.modifiedCount > 0) {
+			const khataIds = (await Transaction.find({ _id: { $in: transactionIds } })).map(
+				(transaction) => transaction.khataId,
+			)
+
+			await setKhataLastTransactionUpdatedTimeStamp(khataIds)
+
 			res.send({
 				message:
 					'Seen status updated successfully for specified transactions',
@@ -414,6 +436,7 @@ router.put(
 				},
 			},
 		);
+
 		// Check if any transactions were updated
 		//console.log(updateResult)
 		if (updateResult.modifiedCount > 0) {
@@ -424,7 +447,7 @@ router.put(
 			const khataIds = transactions.map(
 				(transaction) => transaction.khataId,
 			);
-
+			await setKhataLastTransactionUpdatedTimeStamp(khataIds)
 			const khataDetails = await Khata.find({ _id: { $in: khataIds } });
 
 			for (const transaction of transactions) {
