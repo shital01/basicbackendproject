@@ -4,13 +4,14 @@ Joi.objectId = require('joi-objectid')(Joi);
 
 const getTransactionsSchema = Joi.object({
     lastUpdatedTimeStamp: Joi.date().timestamp('unix'),
+    lastTransactionUpdatedTimeStamp: Joi.date().timestamp('unix'),
     pageSize: Joi.number().integer().max(10000),
     pageNumber: Joi.number().integer(),
 });
 
 const getTransactionsSchemaV2 = Joi.object({
     cursorTimeStamp: Joi.date().timestamp('unix'),
-    transactionUpdatedAfterTimeStamp: Joi.date().timestamp('unix'),
+    lastTransactionUpdatedTimeStamp: Joi.date().timestamp('unix'),
     pageSize: Joi.number().integer().max(10000),
 });
 
