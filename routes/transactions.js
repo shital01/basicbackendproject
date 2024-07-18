@@ -394,9 +394,6 @@ router.put(
 		// Check if any transactions were updated
 		//console.log(updateResult)
 		if (updateResult.modifiedCount > 0) {
-			const khataIds = (await Transaction.find({ _id: { $in: transactionIds } })).map(
-				(transaction) => transaction.khataId,
-			)
 
 			res.send({
 				message:
