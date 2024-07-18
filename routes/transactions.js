@@ -18,7 +18,6 @@ const sendmessage = require('../middleware/sendmessage');
 const config = require('config');
 const { validateRequest } = require('../middleware/validateRequest');
 const { getTransactionsSchema, updateSeenStatusSchema, getTransactionsSchemaV2 } = require('../utils/validations/transactionValidations');
-const { setKhataLastTransactionUpdatedTimeStamp } = require('./transactionHelpers');
 // Create separate validation functions
 /*
 Input->Auth token
@@ -40,7 +39,7 @@ router.get(
 		var nextPageNumber;
 		var lastUpdatedTimeStamp;
 		var transactions;
-		var lastTransactionUpdatedTimeStamp = req.query.lastTransactionUpdatedTimeStamp ?? 0;
+		var transactionsUpdatedAfterTimeStamp = req.query.transactionsUpdatedAfterTimeStamp ?? 0;
 		if (req.query.pageNumber) {
 			pageNumber = req.query.pageNumber;
 		}
@@ -61,7 +60,7 @@ router.get(
 
 		const filteredKhatas = khatas.filter((khata) => {
 			if (khata.lastTransactionUpdatedTimeStamp) {
-				return khata.lastTransactionUpdatedTimeStamp > lastTransactionUpdatedTimeStamp
+				return khata.lastTransactionUpdatedTimeStamp > transactionsUpdatedAfterTimeStamp
 			}
 			return true
 		});
@@ -149,7 +148,7 @@ router.get(
 		//adding default pagesize and pagenumber as of now in btoh get api for safety
 		var pageSize = req.query.pageSize ?? 500;
 		var cursorTimeStamp = req.query.cursorTimeStamp ?? 0;
-		var lastTransactionUpdatedTimeStamp = req.query.lastTransactionUpdatedTimeStamp ?? 0;
+		var transactionsUpdatedAfterTimeStamp = req.query.transactionsUpdatedAfterTimeStamp ?? 0;
 		var nextPageCursorTimeStamp;
 		var transactions;
 		const PhoneNumber = req.user.phoneNumber;
@@ -163,7 +162,7 @@ router.get(
 
 		const filteredKhatas = khatas.filter((khata) => {
 			if (khata.lastTransactionUpdatedTimeStamp) {
-				return khata.lastTransactionUpdatedTimeStamp > lastTransactionUpdatedTimeStamp
+				return khata.lastTransactionUpdatedTimeStamp > transactionsUpdatedAfterTimeStamp
 			}
 			return true
 		});
@@ -279,7 +278,7 @@ router.post('/multiple', auth, device, async (req, res) => {
 				const khata = await Khata.findById(transaction.khataId).select(
 					'userPhoneNumber friendPhoneNumber friendName',
 				);
-				khata.lastTransactionUpdatedTimeStamp = Date.now();
+				khata.lastTransactionUpdatedTimeStamp = transaction.updatedTimeStamp;
 				await khata.save();
 
 				//send notification
@@ -399,8 +398,6 @@ router.put(
 				(transaction) => transaction.khataId,
 			)
 
-			await setKhataLastTransactionUpdatedTimeStamp(khataIds)
-
 			res.send({
 				message:
 					'Seen status updated successfully for specified transactions',
@@ -447,7 +444,8 @@ router.put(
 			const khataIds = transactions.map(
 				(transaction) => transaction.khataId,
 			);
-			await setKhataLastTransactionUpdatedTimeStamp(khataIds)
+
+
 			const khataDetails = await Khata.find({ _id: { $in: khataIds } });
 
 			for (const transaction of transactions) {
@@ -456,6 +454,11 @@ router.put(
 				);
 				if (!khata) {
 					continue;
+				} else {
+					await Khata.updateOne(
+						{ _id: khata._id },
+						{ $set: { lastTransactionUpdatedTimeStamp: transaction.updatedTimeStamp } },
+					);
 				}
 				var searchPhoneNumber = khata.friendPhoneNumber;
 				if (myPhoneNumber === searchPhoneNumber) {
