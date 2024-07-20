@@ -39,7 +39,6 @@ router.get(
 		var nextPageNumber;
 		var lastUpdatedTimeStamp;
 		var transactions;
-		var transactionsUpdatedAfterTimeStamp = req.query.transactionsUpdatedAfterTimeStamp ?? 0;
 		if (req.query.pageNumber) {
 			pageNumber = req.query.pageNumber;
 		}
@@ -60,7 +59,7 @@ router.get(
 
 		const filteredKhatas = khatas.filter((khata) => {
 			if (khata.lastTransactionUpdatedTimeStamp) {
-				return khata.lastTransactionUpdatedTimeStamp > transactionsUpdatedAfterTimeStamp
+				return khata.lastTransactionUpdatedTimeStamp > lastUpdatedTimeStamp
 			}
 			return true
 		});
@@ -148,7 +147,6 @@ router.get(
 		//adding default pagesize and pagenumber as of now in btoh get api for safety
 		var pageSize = req.query.pageSize ?? 500;
 		var cursorTimeStamp = req.query.cursorTimeStamp ?? 0;
-		var transactionsUpdatedAfterTimeStamp = req.query.transactionsUpdatedAfterTimeStamp ?? 0;
 		var nextPageCursorTimeStamp;
 		var transactions;
 		const PhoneNumber = req.user.phoneNumber;
@@ -162,7 +160,7 @@ router.get(
 
 		const filteredKhatas = khatas.filter((khata) => {
 			if (khata.lastTransactionUpdatedTimeStamp) {
-				return khata.lastTransactionUpdatedTimeStamp > transactionsUpdatedAfterTimeStamp
+				return khata.lastTransactionUpdatedTimeStamp > cursorTimeStamp
 			}
 			return true
 		});
@@ -278,8 +276,10 @@ router.post('/multiple', auth, device, async (req, res) => {
 				const khata = await Khata.findById(transaction.khataId).select(
 					'userPhoneNumber friendPhoneNumber friendName',
 				);
-				khata.lastTransactionUpdatedTimeStamp = transaction.updatedTimeStamp;
-				await khata.save();
+				if (khata.lastTransactionUpdatedTimeStamp < transaction.updatedTimeStamp) {
+					khata.lastTransactionUpdatedTimeStamp = transaction.updatedTimeStamp;
+					await khata.save();
+				}
 
 				//send notification
 				//console.log(khata);
