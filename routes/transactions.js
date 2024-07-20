@@ -452,10 +452,12 @@ router.put(
 				if (!khata) {
 					continue;
 				} else {
-					await Khata.updateOne(
-						{ _id: khata._id },
-						{ $set: { lastTransactionUpdatedTimeStamp: transaction.updatedTimeStamp } },
-					);
+					if (khata.lastTransactionUpdatedTimeStamp < transaction.updatedTimeStamp) {
+						await Khata.updateOne(
+							{ _id: khata._id },
+							{ $set: { lastTransactionUpdatedTimeStamp: transaction.updatedTimeStamp } },
+						);
+					}
 				}
 				var searchPhoneNumber = khata.friendPhoneNumber;
 				if (myPhoneNumber === searchPhoneNumber) {
