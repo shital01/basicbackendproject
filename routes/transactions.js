@@ -274,7 +274,7 @@ router.post('/multiple', auth, device, async (req, res) => {
 				const savedEntry = await transaction.save();
 				savedEntries.push(savedEntry);
 				const khata = await Khata.findById(transaction.khataId).select(
-					'userPhoneNumber friendPhoneNumber friendName',
+					'userPhoneNumber friendPhoneNumber friendName lastTransactionUpdatedTimeStamp',
 				);
 				if (khata.lastTransactionUpdatedTimeStamp < transaction.updatedTimeStamp) {
 					khata.lastTransactionUpdatedTimeStamp = transaction.updatedTimeStamp;
