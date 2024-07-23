@@ -37,7 +37,6 @@ router.post(
             ownerId: userId,
             name: req.body.name,
             description: req.body.description,
-            khataIds: req.body.khataIds,
         });
 
         const result = await notebook.save();
@@ -56,11 +55,10 @@ router.put('/:id',
         const notebookId = req.params.id;
         const name = req.body.name;
         const description = req.body.description;
-        const khataIds = req.body.khataIds;
 
         const result = await Notebook.updateOne(
             { _id: notebookId, ownerId: userId },
-            { $set: { name, description, khataIds } }
+            { $set: { name, description } }
         );
         res.status(200).send({ result });
     }

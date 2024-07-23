@@ -21,12 +21,6 @@ const NotebookSchema = new mongoose.Schema({
         minLength: 1,
         maxLength: 256,
     },
-    khataIds: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Khata',
-        },
-    ],
     deleteFlag: {
         type: Boolean,
         default: false,
