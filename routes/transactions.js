@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+
 const {
 	Transaction,
 	validate2,
@@ -54,12 +55,22 @@ router.get(
 				{ userPhoneNumber: { $eq: PhoneNumber } },
 				{ friendPhoneNumber: { $eq: PhoneNumber } },
 			],
-		}).select('_id');
+		}).lean();
+
+		const filteredKhatas = khatas.filter((khata) => {
+			if (khata.lastTransactionUpdatedTimeStamp) {
+				return khata.lastTransactionUpdatedTimeStamp > lastUpdatedTimeStamp
+			}
+			return true
+		});
+
+		const filteredKhataIds = filteredKhatas.map((khata) => khata._id);
+
 		//watch performance of this ,use limit feature and sort for extra large queries
 		if (req.query.lastUpdatedTimeStamp) {
 			transactions = await Transaction.find({
 				$and: [
-					{ khataId: { $in: khatas } },
+					{ khataId: { $in: filteredKhataIds } },
 					{ updatedTimeStamp: { $gt: lastUpdatedTimeStamp } },
 				],
 			})
@@ -67,7 +78,7 @@ router.get(
 				.skip(pageSize * (pageNumber - 1))
 				.limit(pageSize); //watch performance of this
 		} else {
-			transactions = await Transaction.find({ khataId: { $in: khatas } })
+			transactions = await Transaction.find({ khataId: { $in: filteredKhataIds } })
 				.sort({ updatedTimeStamp: 1 })
 				.skip(pageSize * (pageNumber - 1))
 				.limit(pageSize);
@@ -145,12 +156,21 @@ router.get(
 				{ userPhoneNumber: { $eq: PhoneNumber } },
 				{ friendPhoneNumber: { $eq: PhoneNumber } },
 			],
-		}).select('_id');
+		}).lean();
+
+		const filteredKhatas = khatas.filter((khata) => {
+			if (khata.lastTransactionUpdatedTimeStamp) {
+				return khata.lastTransactionUpdatedTimeStamp > cursorTimeStamp
+			}
+			return true
+		});
+
+		const filteredKhataIds = filteredKhatas.map((khata) => khata._id);
 		//watch performance of this ,use limit feature and sort for extra large queries
 		if (cursorTimeStamp) {
 			transactions = await Transaction.find({
 				$and: [
-					{ khataId: { $in: khatas } },
+					{ khataId: { $in: filteredKhataIds } },
 					{ updatedTimeStamp: { $gt: cursorTimeStamp } },
 				],
 			})
@@ -159,7 +179,7 @@ router.get(
 		} else {
 			transactions = await Transaction.find({
 				$and: [
-					{ khataId: { $in: khatas } },
+					{ khataId: { $in: filteredKhataIds } },
 				],
 			})
 				.sort({ updatedTimeStamp: 1 })
@@ -253,10 +273,15 @@ router.post('/multiple', auth, device, async (req, res) => {
 			try {
 				const savedEntry = await transaction.save();
 				savedEntries.push(savedEntry);
-				//send notification
 				const khata = await Khata.findById(transaction.khataId).select(
-					'userPhoneNumber friendPhoneNumber friendName',
+					'userPhoneNumber friendPhoneNumber friendName lastTransactionUpdatedTimeStamp',
 				);
+				if (khata.lastTransactionUpdatedTimeStamp < transaction.updatedTimeStamp) {
+					khata.lastTransactionUpdatedTimeStamp = transaction.updatedTimeStamp;
+					await khata.save();
+				}
+
+				//send notification
 				//console.log(khata);
 				var searchPhoneNumber = khata.friendPhoneNumber;
 				if (userPhoneNumber === searchPhoneNumber) {
@@ -369,6 +394,7 @@ router.put(
 		// Check if any transactions were updated
 		//console.log(updateResult)
 		if (updateResult.modifiedCount > 0) {
+
 			res.send({
 				message:
 					'Seen status updated successfully for specified transactions',
@@ -404,6 +430,7 @@ router.put(
 				},
 			},
 		);
+
 		// Check if any transactions were updated
 		//console.log(updateResult)
 		if (updateResult.modifiedCount > 0) {
@@ -415,6 +442,7 @@ router.put(
 				(transaction) => transaction.khataId,
 			);
 
+
 			const khataDetails = await Khata.find({ _id: { $in: khataIds } });
 
 			for (const transaction of transactions) {
@@ -423,6 +451,13 @@ router.put(
 				);
 				if (!khata) {
 					continue;
+				} else {
+					if (khata.lastTransactionUpdatedTimeStamp < transaction.updatedTimeStamp) {
+						await Khata.updateOne(
+							{ _id: khata._id },
+							{ $set: { lastTransactionUpdatedTimeStamp: transaction.updatedTimeStamp } },
+						);
+					}
 				}
 				var searchPhoneNumber = khata.friendPhoneNumber;
 				if (myPhoneNumber === searchPhoneNumber) {
