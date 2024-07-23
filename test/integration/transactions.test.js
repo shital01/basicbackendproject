@@ -19,7 +19,7 @@ Date early and late max allow
 //Need 2 user minimum
 //4 transaction -1 incorrect ,1 different user
 //khatas also 2 as query internal for khatas
-let t1, t2;
+let t1, t2, token2;
 const TOKEN_FIELD_LABEL = 'x-auth-token';
 const DEVICE_ID_LABEL = 'deviceId';
 const userid = mongoose.Types.ObjectId();
@@ -1110,6 +1110,22 @@ expect(Object.keys(res.body)).toEqual(
 
 			// Validate properties for each transaction
 		});
+		it('should update lastTransactionUpdatedTimeStamp in khata', async () => {
+			t1.amountGiveBool = false;
+			t2.amountGiveBool = false;
+
+			token = token2;
+			let k = await Khata.find();
+			await new Promise((resolve) => setTimeout(resolve, 200));
+			const timeStamp = Date.now();
+			expect(k[0].lastTransactionUpdatedTimeStamp).toBeLessThan(timeStamp)
+			const res = await execRequest(t1, t2);
+			expect(res.status).toBe(200);
+
+			k = await Khata.find();
+			expect(k[0].lastTransactionUpdatedTimeStamp).toBeGreaterThan(timeStamp)
+
+		});
 	});
 
 	/*************PUT*********/
@@ -1211,6 +1227,16 @@ expect(Object.keys(res.body)).toEqual(
 			token = token2;
 			const res = await exec(payload);
 			expect(res.status).toBe(200);
+		});
+		it('should delete transaction and update lastTransactionUpdatedTimeStamp ', async () => {
+			let k = await Khata.find();
+			await new Promise((resolve) => setTimeout(resolve, 200));
+			const timeStamp = Date.now();
+			expect(k[0].lastTransactionUpdatedTimeStamp).toBeLessThan(timeStamp)
+			const res = await exec(payload);
+			expect(res.status).toBe(200);
+			k = await Khata.find();
+			expect(k[0].lastTransactionUpdatedTimeStamp).toBeGreaterThan(timeStamp)
 		});
 	});
 

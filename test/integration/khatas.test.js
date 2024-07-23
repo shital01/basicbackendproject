@@ -1,8 +1,11 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
+const { describe, it, beforeEach, afterEach, expect } = require('@jest/globals');
+
 const { User } = require('../../models/user');
 const { Khata } = require('../../models/khata');
-const { describe, it, beforeEach, afterEach, expect } = require('@jest/globals');
+
+const { isValidTimeStamp } = require('../../utils/helpers/helpers');
 
 let server;
 
@@ -441,6 +444,7 @@ expect(Object.keys(res.body)).toEqual(
 		it('should save and return khatas if valid khata with no input parameter ', async () => {
 			const res = await exec();
 			expect(res.status).toBe(200);
+			expect(isValidTimeStamp(res.body.savedEntries[0].lastTransactionUpdatedTimeStamp)).toBe(true);
 			//check the save part also
 			//const transaction = await Transaction.find({SenderName:"name1"});
 			//expect(Object.keys(res.body)).toEqual(
