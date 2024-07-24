@@ -21,6 +21,10 @@ const NotebookSchema = new mongoose.Schema({
         minLength: 1,
         maxLength: 256,
     },
+    trashFlag: {
+        type: Boolean,
+        default: false,
+    },
     deleteFlag: {
         type: Boolean,
         default: false,
@@ -32,7 +36,7 @@ const NotebookSchema = new mongoose.Schema({
             return Date.now();
         },
     },
-    lastUpdatedTimeStamp: {
+    updatedTimeStamp: {
         type: Number,
         required: true,
         default: function () {
