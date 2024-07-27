@@ -6,7 +6,15 @@ const auth = require('../middleware/auth');
 const device = require('../middleware/device');
 
 const { Notebook } = require('../models/notebook');
-const { getNotebooksSchema, getNotebookSchema, createNotebooksSchema, updateNotebooksSchema } = require('../utils/validations/notebookValidations');
+const {
+    getNotebooksSchema,
+    getNotebookSchema,
+    createNotebooksSchema,
+    updateNotebooksSchema,
+    trashNotebookSchema,
+    restoreNotebookSchema,
+    deleteNotebookSchema
+} = require('../utils/validations/notebookValidations');
 
 
 router.get(
@@ -55,33 +63,29 @@ router.get(
 );
 
 router.post(
-    '/',
+    '/multiple',
     auth,
     device,
     validateRequest({ body: createNotebooksSchema }),
-
     async (req, res) => {
-        const userId = req.user._id;
+        const notebooks = req.body.notebooks;
 
-        const notebook = new Notebook({
-            ownerId: userId,
-            name: req.body.name,
-            description: req.body.description,
+        notebooks.forEach(element => {
+            element.ownerId = req.user._id
         });
-
-        const result = await notebook.save();
-        res.status(201).send({ result });
+        const result = await Notebook.insertMany(notebooks);
+        res.status(200).send({ result });
     }
 );
 
-router.put('/:id',
+router.put('/edit/:id',
     auth,
     device,
     validateRequest({ body: updateNotebooksSchema }),
 
     async (req, res) => {
         const userId = req.user._id;
-        const notebookId = req.params.id;
+        const notebookId = req.body.notebookId;
 
         const originalNotebook = await Notebook.findOne({ _id: notebookId, ownerId: userId });
 
@@ -96,37 +100,43 @@ router.put('/:id',
     }
 );
 
-router.put('/trash', auth, device, async (req, res) => {
-    const userId = req.user._id;
-    const notebookId = req.body.notebookId;
-    const result = await Notebook.updateOne(
-        { _id: notebookId, ownerId: userId },
-        { $set: { trashFlag: true } }
-    )
+router.put('/trash', auth, device,
+    validateRequest({ body: trashNotebookSchema }),
+    async (req, res) => {
+        const userId = req.user._id;
+        const notebookId = req.body.notebookId;
+        const result = await Notebook.updateOne(
+            { _id: notebookId, ownerId: userId },
+            { $set: { trashFlag: true } }
+        )
 
-    res.status(200).send({ result });
-});
+        res.status(200).send({ result });
+    });
 
-router.put('/restore', auth, device, async (req, res) => {
-    const userId = req.user._id;
-    const notebookId = req.body.notebookId;
-    const result = await Notebook.updateOne(
-        { _id: notebookId, ownerId: userId },
-        { $set: { trashFlag: false } }
-    )
+router.put('/restore', auth, device,
+    validateRequest({ body: restoreNotebookSchema }),
+    async (req, res) => {
+        const userId = req.user._id;
+        const notebookId = req.body.notebookId;
+        const result = await Notebook.updateOne(
+            { _id: notebookId, ownerId: userId },
+            { $set: { trashFlag: false } }
+        )
 
-    res.status(200).send({ result });
-});
+        res.status(200).send({ result });
+    });
 
-router.put('/delete', auth, device, async (req, res) => {
-    const userId = req.user._id;
-    const notebookId = req.body.notebookId;
-    const result = await Notebook.updateOne(
-        { _id: notebookId, ownerId: userId },
-        { $set: { deleteFlag: true } }
-    )
-    res.status(200).send({ result });
-});
+router.put('/delete', auth, device,
+    validateRequest({ body: deleteNotebookSchema }),
+    async (req, res) => {
+        const userId = req.user._id;
+        const notebookId = req.body.notebookId;
+        const result = await Notebook.updateOne(
+            { _id: notebookId, ownerId: userId },
+            { $set: { deleteFlag: true } }
+        )
+        res.status(200).send({ result });
+    });
 
 
 module.exports = router;

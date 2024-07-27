@@ -7,19 +7,43 @@ const getNotebooksSchema = Joi.object({
 });
 
 const getNotebookSchema = Joi.object({
-    notebookId: Joi.date().timestamp('unix'),
+    notebookId: Joi.objectId().required(),
 });
 
-
 const createNotebooksSchema = Joi.object({
-    name: Joi.string().required(),
-    description: Joi.string().required(),
-})
+    notebooks: Joi.array().items(
+        Joi.object({
+            name: Joi.string().required(),
+            description: Joi.string().required(),
+        })
+    )
+});
 
 const updateNotebooksSchema = Joi.object({
+    notebookId: Joi.objectId().required(),
     name: Joi.string(),
     description: Joi.string(),
 });
 
+const trashNotebookSchema = Joi.object({
+    notebookId: Joi.objectId().required(),
+});
 
-module.exports = { getNotebooksSchema, getNotebookSchema, createNotebooksSchema, updateNotebooksSchema }
+const restoreNotebookSchema = Joi.object({
+    notebookId: Joi.objectId().required(),
+});
+
+const deleteNotebookSchema = Joi.object({
+    notebookId: Joi.objectId().required(),
+});
+
+
+module.exports = {
+    getNotebooksSchema,
+    getNotebookSchema,
+    createNotebooksSchema,
+    updateNotebooksSchema,
+    trashNotebookSchema,
+    restoreNotebookSchema,
+    deleteNotebookSchema
+}
