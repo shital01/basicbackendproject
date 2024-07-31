@@ -4,6 +4,7 @@ const router = express.Router();
 const { validateRequest } = require('../middleware/validateRequest');
 const auth = require('../middleware/auth');
 const device = require('../middleware/device');
+const logger = require('../startup/logging');
 
 const { Notebook } = require('../models/notebook');
 const {
@@ -30,7 +31,8 @@ router.get(
 
         const response = await Notebook.find({
             ownerId: userId,
-            updatedTimeStamp: { $gt: lastUpdatedTimeStamp }
+            updatedTimeStamp: { $gt: lastUpdatedTimeStamp },
+            deleteFlag: false,
         })
             .sort({ updatedTimeStamp: 1 })
             .limit(pageSize);
@@ -54,7 +56,11 @@ router.get(
 
         const notebookId = req.params.id;
 
-        const response = await Notebook.findOne({ _id: notebookId, ownerId: userId });
+        const response = await Notebook.findOne({
+            _id: notebookId,
+            ownerId: userId,
+            deleteFlag: false,
+        });
         if (!response) {
             return res.status(404).send();
         }
@@ -66,15 +72,36 @@ router.post(
     '/multiple',
     auth,
     device,
-    validateRequest({ body: createNotebooksSchema }),
     async (req, res) => {
         const notebooks = req.body.notebooks;
+        const validatedNotebooks = [];
+        const savedEntries = [];
+        const unsavedEntries = [];
 
-        notebooks.forEach(element => {
-            element.ownerId = req.user._id
-        });
-        const result = await Notebook.insertMany(notebooks);
-        res.status(200).send({ result });
+        for (const notebook of notebooks) {
+            const { error } = createNotebooksSchema.validate(notebook);
+            if (error) {
+                logger.error(error.details[0].message);
+                unsavedEntries.push({
+                    notebook
+                })
+            } else {
+                notebook.ownerId = req.user._id
+                validatedNotebooks.push(notebook);
+            }
+        }
+        for (const notebook of validatedNotebooks) {
+            try {
+                const newNotebook = new Notebook(notebook);
+                savedEntries.push(await newNotebook.save());
+            } catch (error) {
+                logger.error(error);
+                unsavedEntries.push({
+                    notebook
+                })
+            }
+        }
+        res.status(200).send({ savedEntries, unsavedEntries });
     }
 );
 

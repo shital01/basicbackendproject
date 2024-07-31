@@ -11,12 +11,8 @@ const getNotebookSchema = Joi.object({
 });
 
 const createNotebooksSchema = Joi.object({
-    notebooks: Joi.array().items(
-        Joi.object({
-            name: Joi.string().required(),
-            description: Joi.string().required(),
-        })
-    )
+    name: Joi.string().required(),
+    description: Joi.string().required(),
 });
 
 const updateNotebooksSchema = Joi.object({
