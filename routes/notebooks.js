@@ -74,7 +74,6 @@ router.post(
     device,
     async (req, res) => {
         const notebooks = req.body.notebooks;
-        const validatedNotebooks = [];
         const savedEntries = [];
         const unsavedEntries = [];
 
@@ -87,20 +86,18 @@ router.post(
                 })
             } else {
                 notebook.ownerId = req.user._id
-                validatedNotebooks.push(notebook);
+                try {
+                    const result = await Notebook.create(notebook);
+                    savedEntries.push(result);
+                } catch (error) {
+                    logger.error(error);
+                    unsavedEntries.push({
+                        notebook
+                    })
+                }
             }
         }
-        for (const notebook of validatedNotebooks) {
-            try {
-                const newNotebook = new Notebook(notebook);
-                savedEntries.push(await newNotebook.save());
-            } catch (error) {
-                logger.error(error);
-                unsavedEntries.push({
-                    notebook
-                })
-            }
-        }
+
         res.status(200).send({ savedEntries, unsavedEntries });
     }
 );
