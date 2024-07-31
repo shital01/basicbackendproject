@@ -118,7 +118,7 @@ router.put('/edit/:id',
 
         const result = await Notebook.updateOne(
             { _id: notebookId, ownerId: userId },
-            { $set: { name, description } }
+            { $set: { name, description, updatedTimeStamp: Date.now() } }
         );
         res.status(200).send({ result });
     }
@@ -131,7 +131,7 @@ router.put('/trash', auth, device,
         const notebookId = req.body.notebookId;
         const result = await Notebook.updateOne(
             { _id: notebookId, ownerId: userId },
-            { $set: { trashFlag: true } }
+            { $set: { trashFlag: true, updatedTimeStamp: Date.now() } }
         )
 
         res.status(200).send({ result });
@@ -144,7 +144,7 @@ router.put('/restore', auth, device,
         const notebookId = req.body.notebookId;
         const result = await Notebook.updateOne(
             { _id: notebookId, ownerId: userId },
-            { $set: { trashFlag: false } }
+            { $set: { trashFlag: false, updatedTimeStamp: Date.now() } }
         )
 
         res.status(200).send({ result });
@@ -157,7 +157,7 @@ router.put('/delete', auth, device,
         const notebookId = req.body.notebookId;
         const result = await Notebook.updateOne(
             { _id: notebookId, ownerId: userId },
-            { $set: { deleteFlag: true } }
+            { $set: { deleteFlag: true, updatedTimeStamp: Date.now() } }
         )
         res.status(200).send({ result });
     });
