@@ -112,7 +112,10 @@ router.put('/edit/:id',
         const notebookId = req.body.notebookId;
 
         const originalNotebook = await Notebook.findOne({ _id: notebookId, ownerId: userId });
-
+        
+        if (!originalNotebook) {
+            return res.status(404).send();
+        }
         const name = req.body.name ?? originalNotebook.name;
         const description = req.body.description ?? originalNotebook.description;
 
@@ -120,6 +123,11 @@ router.put('/edit/:id',
             { _id: notebookId, ownerId: userId },
             { $set: { name, description, updatedTimeStamp: Date.now() } }
         );
+
+        if (!result || !result.acknowledged) {
+            return res.status(404).send();
+        }
+
         res.status(200).send({ result });
     }
 );
@@ -133,6 +141,9 @@ router.put('/trash', auth, device,
             { _id: notebookId, ownerId: userId },
             { $set: { trashFlag: true, updatedTimeStamp: Date.now() } }
         )
+        if (!result || !result.acknowledged) {
+            return res.status(404).send();
+        }
 
         res.status(200).send({ result });
     });
@@ -146,6 +157,9 @@ router.put('/restore', auth, device,
             { _id: notebookId, ownerId: userId },
             { $set: { trashFlag: false, updatedTimeStamp: Date.now() } }
         )
+        if (!result || !result.acknowledged) {
+            return res.status(404).send();
+        }
 
         res.status(200).send({ result });
     });
@@ -159,6 +173,10 @@ router.put('/delete', auth, device,
             { _id: notebookId, ownerId: userId },
             { $set: { deleteFlag: true, updatedTimeStamp: Date.now() } }
         )
+        if (!result || !result.acknowledged) {
+            return res.status(404).send();
+        }
+
         res.status(200).send({ result });
     });
 
