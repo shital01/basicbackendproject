@@ -7,7 +7,7 @@ const getNotebooksSchema = Joi.object({
 });
 
 const getNotebookSchema = Joi.object({
-    notebookId: Joi.objectId().required(),
+    id: Joi.objectId().required(),
 });
 
 const createNotebooksSchema = Joi.object({

@@ -49,7 +49,7 @@ router.get(
     '/:id',
     auth,
     device,
-    validateRequest({ query: getNotebookSchema }),
+    validateRequest({ params: getNotebookSchema }),
 
     async (req, res) => {
         const userId = req.user._id;
@@ -137,6 +137,13 @@ router.put('/trash', auth, device,
     async (req, res) => {
         const userId = req.user._id;
         const notebookId = req.body.notebookId;
+
+        const originalNotebook = await Notebook.findOne({ _id: notebookId, ownerId: userId });
+
+        if (!originalNotebook || originalNotebook.trashFlag) {
+            return res.status(404).send();
+        }
+
         const result = await Notebook.updateOne(
             { _id: notebookId, ownerId: userId },
             { $set: { trashFlag: true, updatedTimeStamp: Date.now() } }
@@ -153,6 +160,13 @@ router.put('/restore', auth, device,
     async (req, res) => {
         const userId = req.user._id;
         const notebookId = req.body.notebookId;
+
+        const originalNotebook = await Notebook.findOne({ _id: notebookId, ownerId: userId });
+        
+        if (!originalNotebook || !originalNotebook.trashFlag) {
+            return res.status(404).send();
+        }
+        
         const result = await Notebook.updateOne(
             { _id: notebookId, ownerId: userId },
             { $set: { trashFlag: false, updatedTimeStamp: Date.now() } }
@@ -169,6 +183,22 @@ router.put('/delete', auth, device,
     async (req, res) => {
         const userId = req.user._id;
         const notebookId = req.body.notebookId;
+
+        const originalNotebook = await Notebook.findOne({ _id: notebookId, ownerId: userId });
+        
+        if (!originalNotebook || originalNotebook.deleteFlag) {
+            return res.status(404).send();
+        }
+
+        if (!originalNotebook.trashFlag) {
+            return res.status(400).send(
+                {
+                    code: 'Notebook not in trash',
+                    message: 'Notebook not in trash'
+                }
+            );
+        }
+
         const result = await Notebook.updateOne(
             { _id: notebookId, ownerId: userId },
             { $set: { deleteFlag: true, updatedTimeStamp: Date.now() } }
