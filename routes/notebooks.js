@@ -112,7 +112,7 @@ router.put('/edit/:id',
         const notebookId = req.body.notebookId;
 
         const originalNotebook = await Notebook.findOne({ _id: notebookId, ownerId: userId });
-        
+
         if (!originalNotebook) {
             return res.status(404).send();
         }
@@ -141,7 +141,11 @@ router.put('/trash', auth, device,
         const originalNotebook = await Notebook.findOne({ _id: notebookId, ownerId: userId });
 
         if (!originalNotebook || originalNotebook.trashFlag) {
-            return res.status(404).send();
+            return res.status(404).send(
+                {
+                    message: 'Notebook not found'
+                }
+            );
         }
 
         const result = await Notebook.updateOne(
@@ -162,11 +166,11 @@ router.put('/restore', auth, device,
         const notebookId = req.body.notebookId;
 
         const originalNotebook = await Notebook.findOne({ _id: notebookId, ownerId: userId });
-        
+
         if (!originalNotebook || !originalNotebook.trashFlag) {
-            return res.status(404).send();
+            return res.status(404).send('Notebook not found in trash');
         }
-        
+
         const result = await Notebook.updateOne(
             { _id: notebookId, ownerId: userId },
             { $set: { trashFlag: false, updatedTimeStamp: Date.now() } }
@@ -185,15 +189,14 @@ router.put('/delete', auth, device,
         const notebookId = req.body.notebookId;
 
         const originalNotebook = await Notebook.findOne({ _id: notebookId, ownerId: userId });
-        
+
         if (!originalNotebook || originalNotebook.deleteFlag) {
-            return res.status(404).send();
+            return res.status(404).send('Notebook not found');
         }
 
         if (!originalNotebook.trashFlag) {
             return res.status(400).send(
                 {
-                    code: 'Notebook not in trash',
                     message: 'Notebook not in trash'
                 }
             );
