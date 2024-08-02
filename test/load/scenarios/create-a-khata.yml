@@ -1,0 +1,46 @@
+scenarios:
+    - name: 'Create Account and open a Khata'
+      flow:
+          - post:
+                url: '/api/otps/generate'
+                json:
+                    phoneNumber: '5555543210'
+          - post:
+                url: '/api/otps/verify'
+                json:
+                    phoneNumber: '5555543210'
+                    otp: '1234'
+                    fcmToken: '2'
+                capture:
+                    - header: 'x-auth-token'
+                      as: 'xAuthToken'
+          - post:
+                url: '/api/users/updateprofile'
+                headers:
+                    x-auth-token: '{{xAuthToken}}'
+                    deviceId: '123'
+                json:
+                    name: 'name1'
+          - post:
+                url: '/api/khatas/multiple'
+                headers:
+                    x-auth-token: '{{xAuthToken}}'
+                    deviceId: '123'
+                json:
+                  - friendPhoneNumber: '5555543210'
+                    friendName: 'John'
+                    interestType: 'CM'
+                    interestRate: 2
+                    rotationPeriod: '3M'
+                    localId: '1'
+                  - friendPhoneNumber: '5555543210'
+                    friendName: 'Jane'
+                    interestType: 'CM'
+                    interestRate: 2
+                    rotationPeriod: '3M'
+                    localId: '2'
+          - get:
+                url: '/api/khatas/'
+                headers:
+                    x-auth-token: '{{xAuthToken}}'
+                    deviceId: '123'

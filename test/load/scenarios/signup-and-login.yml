@@ -1,0 +1,23 @@
+scenarios:
+    - name: 'Create Account and open a Khata'
+      flow:
+          - post:
+                url: '/api/otps/generate'
+                json:
+                    phoneNumber: '5555543210'
+          - post:
+                url: '/api/otps/verify'
+                json:
+                    phoneNumber: '5555543210'
+                    otp: '1234'
+                    fcmToken: '2'
+                capture:
+                    - header: 'x-auth-token'
+                      as: 'xAuthToken'
+          - put:
+                url: '/api/users/updateprofile'
+                headers:
+                    x-auth-token: '{{xAuthToken}}'
+                    deviceId: '123'
+                json:
+                    name: 'name1'

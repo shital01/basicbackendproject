@@ -1,0 +1,20 @@
+config:
+    target: 'http://localhost:3000' # The base URL for the test
+    phases:
+        - name: 'warm up phase'
+          duration: 30
+          arrivalRate: 5
+          rampTo: 20
+        - name: 'ramp up load'
+          duration: 30
+          rampTo: 50
+          arrivalRate: 20
+        - name: 'heavy load'
+          duration: 30
+          arrivalRate: 50
+          rampTo: 100
+
+    defaults:
+        headers:
+            # Define any headers your requests require
+            Content-Type: 'application/json'

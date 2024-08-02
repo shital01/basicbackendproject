@@ -1,0 +1,56 @@
+scenarios:
+    - name: 'Create Account and open a Khata'
+      flow:
+          - post:
+                url: '/api/otps/generate'
+                json:
+                    phoneNumber: '5555543210'
+          - post:
+                url: '/api/otps/verify'
+                json:
+                    phoneNumber: '5555543210'
+                    otp: '1234'
+                    fcmToken: '2'
+                capture:
+                    - header: 'x-auth-token'
+                      as: 'xAuthToken'
+          - put:
+                url: '/api/users/updateprofile'
+                headers:
+                    x-auth-token: '{{xAuthToken}}'
+                    deviceId: '123'
+                json:
+                    name: 'name1'
+          - post:
+                url: '/api/khatas/multiple'
+                headers:
+                    x-auth-token: '{{xAuthToken}}'
+                    deviceId: '123'
+                json:
+                  - friendPhoneNumber: '5555543210'
+                    friendName: 'John'
+                    interestType: 'CM'
+                    interestRate: 2
+                    rotationPeriod: '3M'
+                    localId: '1'
+                  - friendPhoneNumber: '5555543210'
+                    friendName: 'Jane'
+                    interestType: 'CM'
+                    interestRate: 2
+                    rotationPeriod: '3M'
+                    localId: '2'
+                capture:
+                  - json: '$.savedEntries[0]._id'
+                    as: khataId
+          - post:
+                url: '/api/transactions/multiple'
+                headers:
+                    x-auth-token: '{{xAuthToken}}'
+                    deviceId: '123'
+                json:
+                    - khataId: '66a870c2a4877c0146bc3fc9'
+                      amount: '1000'
+                      description: 'test'
+                      transactionDate: '1698231493527'
+                      amountGiveBool: 'true'
+                      localId: '1'

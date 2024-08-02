@@ -3,5 +3,6 @@
 	"db": "mongodb://localhost/playground2",
 	"file1": "combined.log",
 	"file2": "exception.log",
-	"file3": "rejections.log"
+	"file3": "rejections.log",
+	"templateIdCredit": "BK_templateIdCredit"
 }
