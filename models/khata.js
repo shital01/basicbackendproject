@@ -48,6 +48,10 @@ const KhataSchema = new mongoose.Schema({
 	localId: { type: String },
 	settledFlag: { type: Boolean, default: false },
 	interest: { type: Number, default: 0 },
+	notebookId: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Notebook',
+	}
 });
 
 const Khata = mongoose.model('Khata', KhataSchema);
