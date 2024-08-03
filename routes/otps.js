@@ -6,6 +6,7 @@ const { numberSchema, loginSchema } = require('../utils/validations/otpValidatio
 const router = express.Router();
 const { Otp } = require('../models/otp');
 const { User } = require('../models/user');
+const { Notebook } = require('../models/notebook');
 
 const logger = require('../startup/logging');
 
@@ -129,9 +130,21 @@ router.post(
 				user.fcmToken = req.body.fcmToken;
 				const newuser = await user.save();
 				const token = newuser.generateAuthToken();
+				await createNotebook(newuser)
 				res.header('x-auth-token', token).send(newuser);
 			}
 		}
 	},
 );
+
+async function createNotebook(user) {
+	const name = user.name ?? "User";
+	const result = await Notebook.create({
+		name: `${name}'s Notebook`,
+		description: 'Personal Notebook',
+		ownerId: user._id,
+	})
+	return result
+}
+
 module.exports = router;

@@ -1,6 +1,8 @@
 const Joi = require('joi');
 Joi.objectId = require('joi-objectid')(Joi);
 
+const mongoose = require('mongoose');
+
 const getKhataSchema = Joi.object({
     lastUpdatedTimeStamp: Joi.date().timestamp('unix'),
     pageSize: Joi.number().integer().max(10000),
@@ -20,6 +22,7 @@ const khataSchema = Joi.object({
     rotationPeriod: Joi.string().valid('0M', '3M', '6M', '18M', '1Y', '2Y'),
     localId: Joi.string().required(),
     settledFlag: Joi.boolean(),
+    notebookId: Joi.objectId()
 });
 
 const khataArraySchema = Joi.array().items(
@@ -38,6 +41,7 @@ const khataArraySchema = Joi.array().items(
             .required(),
         localId: Joi.string().required(),
         settledFlag: Joi.boolean(),
+        notebookId: Joi.objectId()
     }),
 );
 
