@@ -124,7 +124,6 @@ router.post(
 				user.fcmToken = req.body.fcmToken;
 				const user2 = await user.save();
 				const token = user2.generateAuthToken();
-				await createNotebook(user2)
 				res.header('x-auth-token', token).send(user2);
 			} else {
 				user = new User(req.body);

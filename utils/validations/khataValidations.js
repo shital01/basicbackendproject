@@ -41,6 +41,7 @@ const khataArraySchema = Joi.array().items(
             .required(),
         localId: Joi.string().required(),
         settledFlag: Joi.boolean(),
+        notebookId: Joi.objectId()
     }),
 );
 
