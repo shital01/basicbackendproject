@@ -9,6 +9,8 @@ const { User } = require('../models/user');
 const { Notebook } = require('../models/notebook');
 
 const logger = require('../startup/logging');
+const { redisClient } = require('../startup/redis');
+const { getAuthKey } = require('../utils/helpers/redisKeyHelpers');
 
 const sendmessage = require('../middleware/sendmessage');
 
@@ -124,6 +126,7 @@ router.post(
 				user.fcmToken = req.body.fcmToken;
 				const user2 = await user.save();
 				const token = user2.generateAuthToken();
+				await redisClient.set(getAuthKey(user2._id), token);
 				res.header('x-auth-token', token).send(user2);
 			} else {
 				user = new User(req.body);
