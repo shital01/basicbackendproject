@@ -1,4 +1,5 @@
 const express = require('express');
+const ObjectId = require('mongoose').Types.ObjectId;
 const config = require('config');
 const { validateRequest } = require('../middleware/validateRequest');
 const { numberSchema, loginSchema } = require('../utils/validations/otpValidations');
@@ -6,6 +7,7 @@ const { numberSchema, loginSchema } = require('../utils/validations/otpValidatio
 const router = express.Router();
 const { Otp } = require('../models/otp');
 const { User } = require('../models/user');
+const { Khata } = require('../models/khata');
 const { Notebook } = require('../models/notebook');
 
 const logger = require('../startup/logging');
@@ -124,6 +126,15 @@ router.post(
 				user.fcmToken = req.body.fcmToken;
 				const user2 = await user.save();
 				const token = user2.generateAuthToken();
+				const userNotebooks = await Notebook.find({ ownerId: user._id });
+				if (userNotebooks.length === 0) {
+					const notebook = await createNotebook(user2);
+					const userKhatas = await Khata.find({ userId: user._id });
+					for (const khata of userKhatas) {
+						khata.notebookId = notebook._id;
+						await khata.save();
+					}
+				}
 				res.header('x-auth-token', token).send(user2);
 			} else {
 				user = new User(req.body);
