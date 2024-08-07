@@ -1,7 +1,9 @@
 const { createClient } = require('redis');
 
+const config = require('config');
+
 const redisClient = createClient({
-  url: 'redis://127.0.0.1:6379',
+  url: config.get('redisUrl'),
 });
 
 
