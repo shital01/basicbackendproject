@@ -1,6 +1,7 @@
 {
 	"name": "Settle",
 	"jwtPrivateKey": "123",
+	"redisUrl": "redis://127.0.0.1:6379",
 	"bucketName": "1",
 	"AWSAccessKey": "2",
 	"AWSSecretKey": "3"

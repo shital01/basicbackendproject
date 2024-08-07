@@ -1,6 +1,7 @@
 {
 	"jwtPrivateKey": "BK_jwtPrivateKey",
 	"db": "BK_db",
+	"redisUrl": "BK_redisUrl",
 	"bucketName": "BK_bucketName",
 	"userid": "BK_userid",
 	"password": "BK_password",

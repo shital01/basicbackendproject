@@ -41,6 +41,7 @@
 		"moment": "^2.29.4",
 		"mongoose": "^6.8.3",
 		"path": "^0.12.7",
+		"redis": "^4.7.0",
 		"uuid": "^9.0.0",
 		"winston": "^3.8.2",
 		"winston-mongodb": "^5.1.1"
