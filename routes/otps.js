@@ -126,12 +126,14 @@ router.post(
 				user.fcmToken = req.body.fcmToken;
 				const user2 = await user.save();
 				const token = user2.generateAuthToken();
-				const userNotebooks = await Notebook.find({ ownerId: user._id });
-				if (userNotebooks.length === 0) {
-					const notebook = await createNotebook(user2);
-					const userKhatas = await Khata.find({ userId: user._id });
-					for (const khata of userKhatas) {
-						khata.notebookId = notebook._id;
+				let userNotebook = await Notebook.findOne({ ownerId: user._id });
+				if (!userNotebook) {
+					userNotebook = await createNotebook(user2);
+				}
+				const userKhatas = await Khata.find({ userId: user._id });
+				for (const khata of userKhatas) {
+					if (!khata.notebookId) {
+						khata.notebookId = userNotebook._id;
 						await khata.save();
 					}
 				}
